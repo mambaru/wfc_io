@@ -9,7 +9,7 @@ SET(
 )
 
 add_library(
-  wfc_server SHARED
+  wfc_server
   ${wfc_server_source_list}
 )
 
