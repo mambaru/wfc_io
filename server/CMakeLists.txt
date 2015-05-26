@@ -5,7 +5,7 @@ SET(
   server_package.cpp
   server_module.cpp
   server_object.cpp
-  server.cpp
+  domain/server_tcp.cpp
 )
 
 add_library(

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "server_config.hpp"
+#include "domain/server_tcp_config.hpp"
 #include <wfc/json.hpp>
 
 namespace wfc{
@@ -8,7 +8,7 @@ namespace wfc{
 struct server_config_json
 {
   typedef json::object<
-    server_config,
+    server_tcp_config,
     fas::type_list_n<
     >::type
   > type;
