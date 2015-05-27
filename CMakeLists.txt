@@ -10,3 +10,4 @@ include_directories(wfc)
 include_directories(.)
 
 add_subdirectory(server)
+

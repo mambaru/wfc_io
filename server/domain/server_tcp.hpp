@@ -16,9 +16,11 @@ class server_tcp
 public:
   virtual ~server_tcp();
   server_tcp();
-  virtual void start(const std::string&);
+  virtual void start(const std::string&) override;
+  virtual void reconfigure() override;
 private:
   std::shared_ptr<server_tcp_impl> _impl;
+  std::weak_ptr<iinterface> _target;
 };
 
 }

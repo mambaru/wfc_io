@@ -2,14 +2,12 @@
 #include "server_package.hpp"
 #include "server_module.hpp"
 #include <wfc/module/module_list.hpp>
-#include <iow/json/name.hpp>
+#include "server_build_info.h"
 
 namespace wfc{
   
-JSON_NAME2(server_package_name, "server")
-
 class server_package_impl: public ::wfc::module_list<
-  server_package_name,
+  server_build_info,
   server_module
 >
 {  
