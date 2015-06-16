@@ -1,5 +1,6 @@
 #include <iostream>
 #include "server_tcp.hpp"
+#include <wfc/logger.hpp>
 #include <iow/ip/tcp/server/server.hpp>
 namespace wfc{
 
@@ -25,7 +26,16 @@ void server_tcp::reconfigure()
 {
   if ( auto g = this->global() )
   {
-    _target = g->registry.get<iinterface>(this->options().target);
+    auto target = this->options().target;
+    _target = g->registry.get<iinterface>(target);
+    if ( _target.lock() != nullptr)
+    {
+      CONFIG_LOG_MESSAGE("Target '" << target << "' found" )
+    }
+    else
+    {
+      CONFIG_LOG_WARNING("Target '" << target << "' NOT found" )
+    }
   }
 }
 
@@ -50,12 +60,13 @@ void server_tcp::start(const std::string& arg)
       if ( auto ptarget = wtarget.lock() )
       {
         std::cout << "TARGET READY"  << std::endl;
+        ptarget->perform_io(std::move(d), id, callback);
       }
       else
       {
         std::cout << "NO TARGET"  << std::endl;
+        callback( std::move(d));
       }
-      callback( std::move(d));
     };
     _impl->start( std::move(opt) );
   }
