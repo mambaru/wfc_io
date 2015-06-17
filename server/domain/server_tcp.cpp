@@ -48,6 +48,9 @@ void server_tcp::start(const std::string& arg)
     opt.host = "0.0.0.0";
     opt.port = "12345";
     opt.connection_options.reader.sep = "\r\n";
+    opt.connection_options.reader.trimsep = true;
+    opt.connection_options.writer.sep = "\r\n";
+    opt.connection_options.reader.bufsize = 512;
     
     auto wtarget = _target;
     opt.connection_options.incoming_handler = [wtarget]( 
@@ -56,15 +59,12 @@ void server_tcp::start(const std::string& arg)
       std::function<void(std::unique_ptr< std::vector<char> >)> callback
     )
     {
-      std::cout << "=====> callback [" << std::string( d->begin(), d->end() ) << std::endl;
       if ( auto ptarget = wtarget.lock() )
       {
-        std::cout << "TARGET READY"  << std::endl;
         ptarget->perform_io(std::move(d), id, callback);
       }
       else
       {
-        std::cout << "NO TARGET"  << std::endl;
         callback( std::move(d));
       }
     };
