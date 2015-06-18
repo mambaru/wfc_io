@@ -45,15 +45,17 @@ void server_tcp::start(const std::string& arg)
   {
     _impl = std::make_shared<server_tcp_impl>( g->io_service );
     auto opt = this->options();
+    /*
     opt.host = "0.0.0.0";
     opt.port = "12345";
     opt.connection_options.reader.sep = "\r\n";
     opt.connection_options.reader.trimsep = true;
     opt.connection_options.writer.sep = "\r\n";
     opt.connection_options.reader.bufsize = 512;
+    */
     
     auto wtarget = _target;
-    opt.connection_options.incoming_handler = [wtarget]( 
+    opt.connection.incoming_handler = [wtarget]( 
       std::unique_ptr< std::vector<char> > d,
       size_t id,
       std::function<void(std::unique_ptr< std::vector<char> >)> callback

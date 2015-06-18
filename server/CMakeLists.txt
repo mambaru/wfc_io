@@ -3,9 +3,9 @@ include(BuildInfo)
 SET(
   wfc_server_source_list
   server_package.cpp
-  server_module.cpp
-  server_object.cpp
-  domain/server_tcp.cpp
+  module/server_module.cpp
+  module/server_object.cpp
+  server/server_tcp.cpp
 )
 
 add_library(
