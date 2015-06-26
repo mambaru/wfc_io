@@ -12,8 +12,8 @@ public:
   typedef ::iow::ip::tcp::client::client<> super;
   typedef super::io_service_type io_service_type;
   
-  client_tcp_impl(io_service_type& io)
-    : client(io)
+  client_tcp_impl(io_service_type& /*io*/)
+    : client()
   {}
 };
 
