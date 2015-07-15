@@ -3,6 +3,8 @@
 #include <wfc/logger.hpp>
 #include <iow/ip/tcp/client/client.hpp>
 
+
+#include <wfc/asio.hpp> // TODO: убрать 
 namespace wfc{
 
 class client_tcp_impl
@@ -10,10 +12,10 @@ class client_tcp_impl
 {
 public:
   typedef ::iow::ip::tcp::client::client<> super;
-  typedef super::io_service_type io_service_type;
+  typedef super::io_service_type io_service_type; // TODO: вернуть
   
-  client_tcp_impl(io_service_type& /*io*/)
-    : client()
+  client_tcp_impl( io_service_type& io)
+    : super(io)
   {}
 };
 
