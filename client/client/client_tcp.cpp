@@ -8,7 +8,7 @@
 namespace wfc{
 /*
 class client_tcp_impl
-  : public ::iow::ip::tcp::client::client<>
+   : public ::iow::ip::tcp::client::client<>
 {
 public:
   typedef ::iow::ip::tcp::client::client<> super;
@@ -17,9 +17,12 @@ public:
   client_tcp_impl( io_service_type& io)
     : super(io)
   {}
-};*/
+};
 
-client_tcp::~client_tcp()
+};
+*/
+
+  client_tcp::~client_tcp()
 {
 }
 
@@ -51,8 +54,23 @@ void client_tcp::start(const std::string& arg)
   /*
   if ( auto g = this->global() )
   {
+    /*
     _impl = std::make_shared<client_tcp_impl>( g->io_service );
     auto opt = this->options();
+<<<<<<< HEAD
+=======
+    */
+    /*
+    opt.host = "0.0.0.0";
+    opt.port = "12345";
+    opt.connection_options.reader.sep = "\r\n";
+    opt.connection_options.reader.trimsep = true;
+    opt.connection_options.writer.sep = "\r\n";
+    opt.connection_options.reader.bufsize = 512;
+    */
+    
+    /*
+>>>>>>> ae380dbbb92ca5201b472357cbd645f66c2b536d
     auto wtarget = _target;
     opt.connection.incoming_handler = [wtarget]( 
       std::unique_ptr< std::vector<char> > d,
@@ -70,6 +88,8 @@ void client_tcp::start(const std::string& arg)
       }
     };
     _impl->start( std::move(opt) );
+    */
+    /*
   }
   else
   {
