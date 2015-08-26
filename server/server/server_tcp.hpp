@@ -18,6 +18,7 @@ public:
   server_tcp();
   virtual void start(const std::string&) override;
   virtual void reconfigure() override;
+  virtual void stop(const std::string&) override;
 private:
   std::shared_ptr<server_tcp_impl> _impl;
   std::weak_ptr<iinterface> _target;

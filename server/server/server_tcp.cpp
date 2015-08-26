@@ -78,4 +78,13 @@ void server_tcp::start(const std::string& arg)
   }
 }
 
+void server_tcp::stop(const std::string&) 
+{
+  if ( _impl != nullptr )
+  {
+    _impl->stop();
+    _impl=nullptr;
+  }
+}
+
 }
