@@ -59,6 +59,11 @@ void client_tcp::start(const std::string& arg)
     opt.connection.reader.trimsep = true;
     opt.connection.writer.sep = "\r\n";
     opt.connection.reader.bufsize = 512;
+    
+    opt.connection.startup_handler=[]( ::iow::io::io_id_t, ::iow::io::outgoing_handler_t){
+      DEBUG_LOG_MESSAGE("Connected!!!");
+    };
+    
     auto wtarget = _target;
     opt.connection.incoming_handler = [wtarget]( 
       std::unique_ptr< std::vector<char> > d,

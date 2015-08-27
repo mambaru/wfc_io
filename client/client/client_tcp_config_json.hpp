@@ -8,15 +8,10 @@ namespace wfc{
   
 struct client_tcp_config_json
 {
-  JSON_NAME(target)
-
   typedef json::object<
     client_tcp_config,
     ::wfc::json::member_list<
-      /*
-      ::wfc::json::base< ::iow::ip::tcp::client::options_json >,
-      ::wfc::json::member<n_target, client_tcp_config, std::string, &client_tcp_config::target>
-      */
+      ::wfc::json::base< ::iow::ip::tcp::client::options_json >
     >
   > type;
   
