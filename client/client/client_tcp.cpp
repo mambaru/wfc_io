@@ -45,6 +45,8 @@ void client_tcp::reconfigure()
   */
 }
 
+::iow::io::outgoing_handler_t g_tmp = nullptr;
+
 void client_tcp::start(const std::string& arg)
 {
   
@@ -53,15 +55,18 @@ void client_tcp::start(const std::string& arg)
 
     _impl = std::make_shared<client_tcp_impl>( g->io_service );
     auto opt = this->options();
-    opt.addr = "0.0.0.0";
+
+    /*opt.addr = "0.0.0.0";
     opt.port = "12345";
     opt.connection.reader.sep = "\r\n";
     opt.connection.reader.trimsep = true;
     opt.connection.writer.sep = "\r\n";
     opt.connection.reader.bufsize = 512;
+    */
     
-    opt.connection.startup_handler=[]( ::iow::io::io_id_t, ::iow::io::outgoing_handler_t){
+    opt.connection.startup_handler=[]( ::iow::io::io_id_t, ::iow::io::outgoing_handler_t outgoing){
       DEBUG_LOG_MESSAGE("Connected!!!");
+      g_tmp = outgoing;
     };
     
     auto wtarget = _target;
@@ -86,7 +91,28 @@ void client_tcp::start(const std::string& arg)
   {
     domain_object::start(arg);
   }
+}
+
+void client_tcp::reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/)
+{
+  DEBUG_LOG_MESSAGE("client_tcp::reg_io")
+}
+
+void client_tcp::unreg_io(io_id_t /*io_id*/)
+{
+  DEBUG_LOG_MESSAGE("client_tcp::unreg_io")
+}
+
+void client_tcp::perform_io(data_ptr d, io_id_t /*io_id*/, outgoing_handler_t /*handler*/) 
+{
+  DEBUG_LOG_BEGIN("client_tcp::perform_io")
+  
+  // _impl->write( std::move(d) /*, std::move(handler)*/ );
+  g_tmp( std::move(d) );
+  
+  DEBUG_LOG_END("client_tcp::perform_io")
   
 }
+
 
 }
