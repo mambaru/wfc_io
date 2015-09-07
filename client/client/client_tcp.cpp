@@ -46,6 +46,7 @@ void client_tcp::reconfigure()
 }
 
 ::iow::io::outgoing_handler_t g_tmp = nullptr;
+::iow::io::outgoing_handler_t g_tmp2 = nullptr;
 
 void client_tcp::start(const std::string& arg)
 {
@@ -63,20 +64,30 @@ void client_tcp::start(const std::string& arg)
     
     auto wtarget = _target;
     opt.connection.incoming_handler = [wtarget]( 
-      std::unique_ptr< std::vector<char> > d,
+      ::iow::io::data_ptr d,
       size_t id,
-      std::function<void(std::unique_ptr< std::vector<char> >)> callback
+      std::function<void(::iow::io::data_ptr)> callback
     )
     {
+      DEBUG_LOG_MESSAGE("client_tcp: " << d )
       if ( auto ptarget = wtarget.lock() )
       {
+        DEBUG_LOG_MESSAGE("client_tcp -1- " )
         ptarget->perform_io(std::move(d), id, callback);
       }
       else
       {
-        callback( std::move(d));
+        DEBUG_LOG_MESSAGE("client_tcp -2- id=" << id )
+        //callback( std::move(d));
+        g_tmp2( std::move(d) );
       }
     };
+
+    /*
+    opt.connection.outgoing_handler = []( ::iow::io::data_ptr d)
+    {
+      g_tmp2( std::move(d) );
+    };*/
     _impl->start( std::move(opt) );
   }
   else
@@ -95,10 +106,10 @@ void client_tcp::unreg_io(io_id_t /*io_id*/)
   DEBUG_LOG_MESSAGE("client_tcp::unreg_io")
 }
 
-void client_tcp::perform_io(data_ptr d, io_id_t /*io_id*/, outgoing_handler_t /*handler*/) 
+void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
-  DEBUG_LOG_BEGIN("client_tcp::perform_io")
-  
+  DEBUG_LOG_BEGIN("client_tcp::perform_io" << io_id )
+  g_tmp2 = handler;
   // _impl->write( std::move(d) /*, std::move(handler)*/ );
   g_tmp( std::move(d) );
   
