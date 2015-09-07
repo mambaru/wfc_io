@@ -53,13 +53,13 @@ void client_tcp::start(const std::string& arg)
 
     _impl = std::make_shared<client_tcp_impl>( g->io_service );
     auto opt = this->options();
-    opt.addr = "0.0.0.0";
+    /*opt.addr = "0.0.0.0";
     opt.port = "12345";
     opt.connection.reader.sep = "\r\n";
     opt.connection.reader.trimsep = true;
     opt.connection.writer.sep = "\r\n";
     opt.connection.reader.bufsize = 512;
-    
+    */
     opt.connection.startup_handler=[]( ::iow::io::io_id_t, ::iow::io::outgoing_handler_t){
       DEBUG_LOG_MESSAGE("Connected!!!");
     };
