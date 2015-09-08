@@ -61,7 +61,7 @@ void client_tcp::start(const std::string& arg)
     };
     
     auto wtarget = _target;
-    opt.connection.incoming_handler = [wtarget]( 
+    opt.connection.incoming_handler = [wtarget](
       ::iow::io::data_ptr d,
       size_t id,
       std::function<void(::iow::io::data_ptr)> callback
