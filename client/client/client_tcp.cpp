@@ -50,10 +50,8 @@ void client_tcp::reconfigure()
 
 void client_tcp::start(const std::string& arg)
 {
-  
   if ( auto g = this->global() )
   {
-
     _impl = std::make_shared<client_tcp_impl>( g->io_service );
     auto opt = this->options();
     
