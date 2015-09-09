@@ -45,9 +45,10 @@ void client_tcp::reconfigure()
   */
 }
 
+/*
 ::iow::io::outgoing_handler_t g_tmp = nullptr;
 ::iow::io::outgoing_handler_t g_tmp2 = nullptr;
-
+*/
 void client_tcp::start(const std::string& arg)
 {
   if ( auto g = this->global() )
@@ -55,6 +56,7 @@ void client_tcp::start(const std::string& arg)
     _impl = std::make_shared<client_tcp_impl>( g->io_service );
     auto opt = this->options();
     
+    /*
     opt.connection.startup_handler=[]( ::iow::io::io_id_t, ::iow::io::outgoing_handler_t outgoing){
       DEBUG_LOG_MESSAGE("Connected!!!");
       g_tmp = outgoing;
@@ -80,6 +82,7 @@ void client_tcp::start(const std::string& arg)
         g_tmp2( std::move(d) );
       }
     };
+    */
 
     /*
     opt.connection.outgoing_handler = []( ::iow::io::data_ptr d)
@@ -107,9 +110,10 @@ void client_tcp::unreg_io(io_id_t /*io_id*/)
 void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
   DEBUG_LOG_BEGIN("client_tcp::perform_io" << io_id )
-  g_tmp2 = handler;
+  _impl->send( std::move(d), io_id, std::move(handler) );
+  //g_tmp2 = handler;
   // _impl->write( std::move(d) /*, std::move(handler)*/ );
-  g_tmp( std::move(d) );
+  //g_tmp( std::move(d) );
   
   DEBUG_LOG_END("client_tcp::perform_io")
   
