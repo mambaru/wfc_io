@@ -49,6 +49,15 @@ void client_tcp::reconfigure()
 ::iow::io::outgoing_handler_t g_tmp = nullptr;
 ::iow::io::outgoing_handler_t g_tmp2 = nullptr;
 */
+
+void client_tcp::stop(const std::string&) 
+{
+  if ( _impl!=nullptr )
+  {
+    _impl->stop();
+  }
+}
+
 void client_tcp::start(const std::string& arg)
 {
   if ( auto g = this->global() )
@@ -109,10 +118,7 @@ void client_tcp::unreg_io(io_id_t /*io_id*/)
 
 void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
-  DEBUG_LOG_BEGIN("client_tcp::perform_io io_id=" << io_id << " [" << d << "]" )
   _impl->send( std::move(d), io_id, std::move(handler) );
-  DEBUG_LOG_END("client_tcp::perform_io")
-  
 }
 
 

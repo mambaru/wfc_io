@@ -18,6 +18,7 @@ public:
   client_tcp();
   // domain_object
   virtual void start(const std::string&) override;
+  virtual void stop(const std::string&) override;
   virtual void reconfigure() override;
   
   // iinterface
