@@ -7,10 +7,10 @@
 namespace wfc{
 
 class client_tcp_impl
-   : public ::iow::ip::tcp::client::auto_client<>
+   : public ::iow::ip::tcp::client::multi_client<>
 {
 public:
-  typedef ::iow::ip::tcp::client::auto_client<> super;
+  typedef ::iow::ip::tcp::client::multi_client<> super;
   typedef super::io_service_type io_service_type; // TODO: вернуть
   
   client_tcp_impl( io_service_type& io)
