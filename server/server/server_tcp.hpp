@@ -13,6 +13,7 @@ class server_tcp_impl;
 class server_tcp
   : public ::wfc::domain_object<iinterface, server_tcp_config>
 {
+  
 public:
   virtual ~server_tcp();
   server_tcp();

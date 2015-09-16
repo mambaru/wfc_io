@@ -45,34 +45,40 @@ void server_tcp::start(const std::string& arg)
   {
     _impl = std::make_shared<server_tcp_impl>( g->io_service );
     auto opt = this->options();
-    /*
-    opt.host = "0.0.0.0";
-    opt.port = "12345";
-    opt.connection_options.reader.sep = "\r\n";
-    opt.connection_options.reader.trimsep = true;
-    opt.connection_options.writer.sep = "\r\n";
-    opt.connection_options.reader.bufsize = 512;
-    */
-    
+
     auto wtarget = _target;
-    
+
 #warning убрать, но в базовых не должно nonblocking, т.к. nonblocking() для акцепт вылетает сразу 
     opt.nonblocking = false;
+
+
     opt.connection.incoming_handler = [wtarget]( 
       std::unique_ptr< std::vector<char> > d,
-      size_t id,
-      std::function<void(std::unique_ptr< std::vector<char> >)> callback
+      ::iow::io::io_id_t id,
+      ::iow::io::outgoing_handler_t callback
+      //std::function<void(std::unique_ptr< std::vector<char> >)> callback
     )
     {
       if ( auto ptarget = wtarget.lock() )
       {
-        ptarget->perform_io(std::move(d), id, callback);
+        ptarget->perform_io(std::move(d), id, std::move(callback));
       }
       else
       {
         callback( std::move(d));
       }
     };
+#warning сделать отключчаемеми
+    
+    opt.connection.startup_handler = [wtarget]( ::iow::io::io_id_t id, ::iow::io::outgoing_handler_t callback)
+    {
+      if ( auto ptarget = wtarget.lock() )
+      {
+        DEBUG_LOG_MESSAGE("wfc_server::connection reg_io")
+        //ptarget->reg_io( id, wthis); хуйто там 
+      }
+    };
+    
     _impl->start( std::move(opt) );
   }
   else
