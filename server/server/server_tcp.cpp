@@ -55,6 +55,9 @@ void server_tcp::start(const std::string& arg)
     */
     
     auto wtarget = _target;
+    
+#warning убрать, но в базовых не должно nonblocking, т.к. nonblocking() для акцепт вылетает сразу 
+    opt.nonblocking = false;
     opt.connection.incoming_handler = [wtarget]( 
       std::unique_ptr< std::vector<char> > d,
       size_t id,
@@ -82,7 +85,9 @@ void server_tcp::stop(const std::string&)
 {
   if ( _impl != nullptr )
   {
+    CONFIG_LOG_BEGIN("Server stop")
     _impl->stop();
+    CONFIG_LOG_END("Server stop")
     _impl=nullptr;
   }
 }
