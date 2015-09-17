@@ -54,7 +54,9 @@ void client_tcp::stop(const std::string&)
 {
   if ( _impl!=nullptr )
   {
+    IOW_LOG_BEGIN("client_tcp stop ...")
     _impl->stop();
+    IOW_LOG_END("client_tcp stop Done!")
   }
 }
 
@@ -106,7 +108,7 @@ void client_tcp::start(const std::string& arg)
   }
 }
 
-void client_tcp::reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> itf)
+void client_tcp::reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/)
 {
   DEBUG_LOG_MESSAGE("client_tcp::reg_io")
   // не регистрируем нандлер (будет авторегистрация при запросе)
