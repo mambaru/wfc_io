@@ -6,14 +6,14 @@
 
 namespace wfc{
 
-class client_tcp_impl
+class client_tcp::impl
    : public ::iow::ip::tcp::client::multi_client<>
 {
 public:
   typedef ::iow::ip::tcp::client::multi_client<> super;
   typedef super::io_service_type io_service_type; // TODO: вернуть
   
-  client_tcp_impl( io_service_type& io)
+  impl( io_service_type& io)
     : super(io)
   {}
 };
@@ -62,7 +62,7 @@ void client_tcp::start(const std::string& arg)
 {
   if ( auto g = this->global() )
   {
-    _impl = std::make_shared<client_tcp_impl>( g->io_service );
+    _impl = std::make_shared<client_tcp::impl>( g->io_service );
     auto opt = this->options();
     
     /*
@@ -106,14 +106,17 @@ void client_tcp::start(const std::string& arg)
   }
 }
 
-void client_tcp::reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/)
+void client_tcp::reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> itf)
 {
   DEBUG_LOG_MESSAGE("client_tcp::reg_io")
+  // не регистрируем нандлер (будет авторегистрация при запросе)
 }
 
-void client_tcp::unreg_io(io_id_t /*io_id*/)
+void client_tcp::unreg_io(io_id_t io_id)
 {
   DEBUG_LOG_MESSAGE("client_tcp::unreg_io")
+  // Обязательно удаляем обработчик при закрыии источника
+  _impl->erase_handler(io_id);
 }
 
 void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
