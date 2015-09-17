@@ -4,11 +4,10 @@
 
 namespace wfc{
 
-class server_object_impl;
-
 class server_object
   : public ::wfc::object
 {
+  class impl;
 public:
   server_object();
 };

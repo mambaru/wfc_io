@@ -8,12 +8,10 @@
 
 namespace wfc{
 
-class server_tcp_impl;
-
 class server_tcp
   : public ::wfc::domain_object<iinterface, server_tcp_config>
 {
-  
+  class impl;
 public:
   virtual ~server_tcp();
   server_tcp();
@@ -21,7 +19,7 @@ public:
   virtual void reconfigure() override;
   virtual void stop(const std::string&) override;
 private:
-  std::shared_ptr<server_tcp_impl> _impl;
+  std::shared_ptr<impl> _impl;
   std::weak_ptr<iinterface> _target;
 };
 

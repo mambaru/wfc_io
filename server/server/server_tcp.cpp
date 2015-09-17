@@ -1,18 +1,23 @@
 #include <iostream>
 #include "server_tcp.hpp"
+#include "tcp_acceptor.hpp"
 #include <wfc/logger.hpp>
 #include <iow/ip/tcp/server/server.hpp>
-namespace wfc{
 
-class server_tcp_impl
-  : public ::iow::ip::tcp::server::server<>
+
+namespace wfc{
+  
+
+class server_tcp::impl
+  : public ::iow::ip::tcp::server::server<tcp_acceptor>
 {
 public:
   typedef server::io_service_type io_service_type;
-  server_tcp_impl(io_service_type& io)
+  impl(io_service_type& io)
     : server(io)
   {}
 };
+
 
 server_tcp::~server_tcp()
 {
@@ -37,13 +42,14 @@ void server_tcp::reconfigure()
       CONFIG_LOG_WARNING("Target '" << target << "' NOT found" )
     }
   }
+
 }
 
 void server_tcp::start(const std::string& arg)
 {
   if ( auto g = this->global() )
   {
-    _impl = std::make_shared<server_tcp_impl>( g->io_service );
+    _impl = std::make_shared<impl>( g->io_service );
     auto opt = this->options();
 
     auto wtarget = _target;
@@ -52,6 +58,7 @@ void server_tcp::start(const std::string& arg)
     opt.nonblocking = false;
 
 
+    
     opt.connection.incoming_handler = [wtarget]( 
       std::unique_ptr< std::vector<char> > d,
       ::iow::io::io_id_t id,
@@ -68,6 +75,10 @@ void server_tcp::start(const std::string& arg)
         callback( std::move(d));
       }
     };
+    
+    opt.connection.target = wtarget;
+    
+    /*
 #warning сделать отключчаемеми
     
     opt.connection.startup_handler = [wtarget]( ::iow::io::io_id_t id, ::iow::io::outgoing_handler_t callback)
@@ -78,17 +89,22 @@ void server_tcp::start(const std::string& arg)
         //ptarget->reg_io( id, wthis); хуйто там 
       }
     };
+    */
     
+    
+    //_impl->start( opt );
     _impl->start( std::move(opt) );
   }
   else
   {
     domain_object::start(arg);
   }
+  
 }
 
 void server_tcp::stop(const std::string&) 
 {
+  
   if ( _impl != nullptr )
   {
     CONFIG_LOG_BEGIN("Server stop")
@@ -96,6 +112,7 @@ void server_tcp::stop(const std::string&)
     CONFIG_LOG_END("Server stop")
     _impl=nullptr;
   }
+  
 }
 
 }
