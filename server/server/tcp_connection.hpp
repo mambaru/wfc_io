@@ -4,6 +4,7 @@
 #include <memory>
 #include <mutex>
 #include <wfc/iinterface.hpp>
+#include <wfc/logger.hpp>
 
 namespace wfc{
 
@@ -61,8 +62,11 @@ public:
     
     opt.startup_handler = [wtarget, wthis, startup_handler](io_id_type id, outgoing_handler_type outgoing)
     {
+      DEBUG_LOG_MESSAGE("wfc::tcp_server::connection startup")
+      
       if ( auto ptarget = wtarget.lock() )
       {
+        DEBUG_LOG_MESSAGE("wfc::tcp_server::connection startup ->reg_io " << id)
         ptarget->reg_io(id, wthis);
       }
       if ( startup_handler!=nullptr )
