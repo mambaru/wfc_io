@@ -2,7 +2,7 @@
 
 #include "client_tcp_config.hpp"
 #include <wfc/domain_object.hpp>
-#include <wfc/jsonrpc/ijsonrpc.hpp>
+#include <wfc/iinterface.hpp>
 #include <string>
 #include <memory>
 
@@ -11,7 +11,7 @@ namespace wfc{
 
 
 class client_tcp
-  : public ::wfc::domain_object< ijsonrpc, client_tcp_config>
+  : public ::wfc::domain_object< iinterface, client_tcp_config>
 {
 public:
   virtual ~client_tcp();
@@ -29,10 +29,11 @@ public:
   virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, outgoing_handler_t handler) override;
 
   // ijsonrpc
+  /*
   virtual void perform_incoming(incoming_holder, io_id_t, outgoing_handler_t handler) override;
   
   virtual void perform_outgoing(outgoing_holder, io_id_t) override;
-
+  */
 private:
   class impl;
   std::shared_ptr<impl> _impl;

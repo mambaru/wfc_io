@@ -129,6 +129,7 @@ void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handle
   //_impl->send( std::move(d) );
 }
 
+/*
 void client_tcp::perform_incoming(incoming_holder, io_id_t, outgoing_handler_t handler) 
 {
   DEBUG_LOG_MESSAGE("client_tcp::perform_incoming")
@@ -140,6 +141,7 @@ void client_tcp::perform_outgoing(outgoing_holder h, io_id_t id)
   DEBUG_LOG_MESSAGE("client_tcp::perform_outgoing")
   abort();
 }
+*/
 
 
 
