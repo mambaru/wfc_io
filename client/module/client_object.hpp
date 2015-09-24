@@ -4,11 +4,10 @@
 
 namespace wfc{
 
-class client_object_impl;
-
 class client_object
   : public ::wfc::object
 {
+  class impl;
 public:
   client_object();
 };
