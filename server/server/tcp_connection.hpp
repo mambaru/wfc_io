@@ -124,15 +124,10 @@ public:
   virtual void perform_io(data_ptr d, io_id_t /*io_id*/, outgoing_handler_t /*handler*/) override
   {
     std::lock_guard< mutex_type > lk( super::mutex() );
-    // TODO: пененести в коннекшн
     if ( auto outgoing = super::get_aspect().get< iow::io::descriptor::_context_>().outgoing_handler )
     {
       outgoing( std::move(d) );
     }
-    /*
-    if (handler!=nullptr)
-      return handler(nullptr);
-    */
   }
 
 };
