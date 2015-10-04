@@ -4,7 +4,7 @@ SET(
   wfc_server_source_list
   server_package.cpp
   module/server_module.cpp
-  module/server_object.cpp
+  module/server_multiton.cpp
   server/server_tcp.cpp
 )
 
