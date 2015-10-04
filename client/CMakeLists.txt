@@ -4,7 +4,7 @@ SET(
   wfc_client_source_list
   client_package.cpp
   module/client_module.cpp
-  module/client_object.cpp
+  module/client_multiton.cpp
   client/client_tcp.cpp
 )
 

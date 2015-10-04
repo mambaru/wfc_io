@@ -1,16 +1,16 @@
 
 #include "client_module.hpp"
-#include "client_object.hpp"
-#include <wfc/module/object_list.hpp>
+#include "client_multiton.hpp"
+#include <wfc/module/component_list.hpp>
 #include <wfc/name.hpp>
 
 namespace wfc{
   
 WFC_NAME2(client_module_name, "client")
 
-class client_module::impl: public ::wfc::object_list<
+class client_module::impl: public ::wfc::component_list<
   client_module_name,
-  client_object
+  client_multiton
 >
 {
 };
