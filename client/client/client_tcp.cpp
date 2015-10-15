@@ -54,9 +54,7 @@ void client_tcp::stop(const std::string&)
 {
   if ( _impl!=nullptr )
   {
-    IOW_LOG_BEGIN("client_tcp stop ...")
     _impl->stop();
-    IOW_LOG_END("client_tcp stop Done!")
   }
 }
 
@@ -66,40 +64,6 @@ void client_tcp::start(const std::string& arg)
   {
     _impl = std::make_shared<client_tcp::impl>( g->io_service );
     auto opt = this->options();
-    
-    /*
-    opt.connection.startup_handler=[]( ::iow::io::io_id_t, ::iow::io::outgoing_handler_t outgoing){
-      DEBUG_LOG_MESSAGE("Connected!!!");
-      g_tmp = outgoing;
-    };
-    
-    auto wtarget = _target;
-    opt.connection.incoming_handler = [wtarget](
-      ::iow::io::data_ptr d,
-      size_t id,
-      std::function<void(::iow::io::data_ptr)> callback
-    )
-    {
-      DEBUG_LOG_MESSAGE("client_tcp: " << d )
-      if ( auto ptarget = wtarget.lock() )
-      {
-        DEBUG_LOG_MESSAGE("client_tcp -1- " )
-        ptarget->perform_io(std::move(d), id, callback);
-      }
-      else
-      {
-        DEBUG_LOG_MESSAGE("client_tcp -2- id=" << id )
-        //callback( std::move(d));
-        g_tmp2( std::move(d) );
-      }
-    };
-    */
-
-    /*
-    opt.connection.outgoing_handler = []( ::iow::io::data_ptr d)
-    {
-      g_tmp2( std::move(d) );
-    };*/
     _impl->start( opt );
   }
   else
@@ -116,39 +80,14 @@ void client_tcp::reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/)
 
 void client_tcp::unreg_io(io_id_t io_id)
 {
-  DEBUG_LOG_MESSAGE("client_tcp::unreg_io")
   // Обязательно удаляем обработчик при закрыии источника
   _impl->erase_handler(io_id);
 }
 
 void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
-  DEBUG_LOG_MESSAGE("client_tcp::perform_io -1- io_id=" << io_id << "[" << d << "]")
-  auto tmp = [handler](data_ptr d)
-  {
-    DEBUG_LOG_MESSAGE("client_tcp::perform_io callback TMP -1- [" << (handler!=nullptr) << "]")
-    handler(std::move(d));
-    DEBUG_LOG_MESSAGE("client_tcp::perform_io callback TMP -2- [" << (handler!=nullptr) << "]")
-  };
-  _impl->send( std::move(d), io_id, std::move(tmp) );
-  DEBUG_LOG_MESSAGE("client_tcp::perform_io -2-")
-  //_impl->send( std::move(d) );
-}
+  _impl->send( std::move(d), io_id, std::move(handler) );
 
-/*
-void client_tcp::perform_incoming(incoming_holder, io_id_t, outgoing_handler_t handler) 
-{
-  DEBUG_LOG_MESSAGE("client_tcp::perform_incoming")
-  abort();
 }
-  
-void client_tcp::perform_outgoing(outgoing_holder h, io_id_t id)
-{
-  DEBUG_LOG_MESSAGE("client_tcp::perform_outgoing")
-  abort();
-}
-*/
-
-
 
 }
