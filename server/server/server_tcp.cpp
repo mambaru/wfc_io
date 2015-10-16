@@ -63,7 +63,6 @@ void server_tcp::start(const std::string& arg)
       std::unique_ptr< std::vector<char> > d,
       ::iow::io::io_id_t id,
       ::iow::io::outgoing_handler_t callback
-      //std::function<void(std::unique_ptr< std::vector<char> >)> callback
     )
     {
       if ( auto ptarget = wtarget.lock() )
