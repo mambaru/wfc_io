@@ -85,7 +85,7 @@ void server_tcp::start(const std::string& arg)
       if ( auto ptarget = wtarget.lock() )
       {
         DEBUG_LOG_MESSAGE("wfc_server::connection reg_io")
-        //ptarget->reg_io( id, wthis); хуйто там 
+        //ptarget->reg_io( id, wthis);  
       }
     };
     */
