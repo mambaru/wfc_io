@@ -86,7 +86,7 @@ void client_tcp::unreg_io(io_id_t io_id)
 
 void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
-  COMMON_LOG_MESSAGE("DEBUG: client_tcp::perform_io " << std::string(d->begin(), d->end()) )
+  
   _impl->send( std::move(d), io_id, std::move(handler) );
 
 }
