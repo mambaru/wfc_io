@@ -44,13 +44,6 @@ void client_tcp::start(const std::string& arg)
   {
     _impl = std::make_shared<client_tcp::impl>( g->io_service );
     auto opt = this->options();
-    
-    /*
-    opt.connection.shutdown_handler =  [this]( iow::io::io_id_t io_id)
-    {
-      
-    };
-    */
     _impl->start( opt );
   }
   else
@@ -73,7 +66,10 @@ void client_tcp::unreg_io(io_id_t io_id)
 
 void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
+  IOW_LOG_DEBUG(" DEBUG: --- client_tcp::perform_io --- ######## 1 ##########")
   _impl->send( std::move(d), io_id, std::move(handler) );
+  IOW_LOG_DEBUG(" DEBUG: --- client_tcp::perform_io --- ######## 2!!! END ##########")
+
 }
 
 }
