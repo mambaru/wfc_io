@@ -16,9 +16,10 @@ class client_tcp
 public:
   virtual ~client_tcp();
   client_tcp();
+  
   // domain_object
-  virtual void start(const std::string&) override;
   virtual void stop(const std::string&) override;
+  virtual void start(const std::string&) override;
   virtual void reconfigure() override;
   
   // iinterface
@@ -28,12 +29,6 @@ public:
 
   virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, outgoing_handler_t handler) override;
 
-  // ijsonrpc
-  /*
-  virtual void perform_incoming(incoming_holder, io_id_t, outgoing_handler_t handler) override;
-  
-  virtual void perform_outgoing(outgoing_holder, io_id_t) override;
-  */
 private:
   class impl;
   std::shared_ptr<impl> _impl;
