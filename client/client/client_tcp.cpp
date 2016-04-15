@@ -66,7 +66,7 @@ void client_tcp::unreg_io(io_id_t io_id)
 
 void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
-  IOW_LOG_DEBUG(" DEBUG: --- client_tcp::perform_io --- ######## 1 ##########")
+  IOW_LOG_DEBUG(" DEBUG: --- client_tcp::perform_io --- ######## 1 ########## " << ( handler!=nullptr ))
   _impl->send( std::move(d), io_id, std::move(handler) );
   IOW_LOG_DEBUG(" DEBUG: --- client_tcp::perform_io --- ######## 2!!! END ##########")
 
