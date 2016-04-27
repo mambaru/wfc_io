@@ -9,7 +9,6 @@
 namespace wfc{
 
 
-
 class client_tcp
   : public ::wfc::domain_object< iinterface, client_tcp_config>
 {
