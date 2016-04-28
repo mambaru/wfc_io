@@ -8,6 +8,7 @@
 
 namespace wfc{
 
+class client_tcp_map;
 
 class client_tcp
   : public ::wfc::domain_object< iinterface, client_tcp_config>
@@ -29,8 +30,7 @@ public:
   virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, outgoing_handler_t handler) override;
 
 private:
-  class impl;
-  std::shared_ptr<impl> _impl;
+  std::shared_ptr<client_tcp_map> _impl;
   std::weak_ptr<iinterface> _target;
 };
 

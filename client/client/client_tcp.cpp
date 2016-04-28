@@ -7,12 +7,10 @@
 #include <wfc/memory.hpp>
 
 namespace wfc{
-
-namespace{
   
-class client
+class client_tcp_adapter
   : public ::wfc::iinterface
-  , public std::enable_shared_from_this< client >
+  , public std::enable_shared_from_this< client_tcp_adapter >
 {
 public:
   typedef ::iow::ip::tcp::client::client<> client_type;
@@ -24,7 +22,7 @@ public:
   typedef ::iow::ip::tcp::client::options options_type;
   typedef client_type::io_service_type io_service_type;
   
-  client( io_service_type& io, iinterface_ptr src)
+  client_tcp_adapter( io_service_type& io, iinterface_ptr src)
     : _id ( ::iow::io::create_id<io_id_t>() )
     , _src(src)
   {
@@ -122,8 +120,6 @@ private:
   client_ptr _client;
 };
 
-}
-
 
 /*class client_handler: public iinterface
 {
@@ -133,11 +129,9 @@ public:
 };
 */
 
-class client_tcp::impl
+class client_tcp_map
 {
-  
 public:
-  
   class client_handler: public iinterface
   {
   public:
@@ -151,16 +145,17 @@ public:
   };
   
   typedef std::mutex mutex_type;
-  typedef client::io_id_t io_id_t;
-  typedef std::shared_ptr<client> client_ptr;
-  typedef client::io_service_type io_service_type;
+  typedef client_tcp_adapter client_type;
+  typedef client_type::io_id_t io_id_t;
+  typedef std::shared_ptr<client_type> client_ptr;
+  typedef client_type::io_service_type io_service_type;
   typedef std::weak_ptr< ::wfc::iinterface > iinterface_ptr;
   typedef std::pair<client_ptr, std::shared_ptr<::wfc::iinterface> > client_pair;
   typedef std::map< io_id_t, client_pair> client_map_t;
   typedef ::iow::ip::tcp::client::options options_type;
-  
-  
-  impl( io_service_type& io)
+  typedef iinterface::outgoing_handler_t outgoing_handler_t;
+
+  client_tcp_map( io_service_type& io)
     : _io(io)
   {
   }
@@ -174,7 +169,7 @@ public:
       auto cli = item.second.first;
       auto src = cli->get_src();
       cli->stop();
-      item.second.first = std::make_shared<client>(_io, src);
+      item.second.first = std::make_shared<client_type>(_io, src);
       cli->start(opt);
     }
   }
@@ -214,7 +209,7 @@ public:
     if ( cli == nullptr )
     {
       auto hdr = std::make_shared<client_handler>(handler);
-      cli = std::make_shared<client>(_io, hdr);
+      cli = std::make_shared<client_type>(_io, hdr);
       _clients.insert( std::make_pair(id, std::make_pair(cli, hdr) ) );
       cli->start(_opt);
     }
@@ -227,7 +222,7 @@ public:
     client_ptr cli = this->find_(id);
     if ( cli == nullptr )
     {
-      cli = std::make_shared<client>(_io, src);
+      cli = std::make_shared<client_type>(_io, src);
       _clients.insert( std::make_pair(id, std::make_pair(cli, nullptr)) );
       cli->start(_opt);
     }
@@ -295,7 +290,7 @@ void client_tcp::reconfigure()
 {
   if ( auto g = this->global() )
   {
-    _impl = std::make_shared<client_tcp::impl>( g->io_service);
+    _impl = std::make_shared<client_tcp_map>( g->io_service);
     _impl->reconfigure( this->options() );
   }
   else
