@@ -4,13 +4,11 @@
 
 namespace wfc{
 
-class server_package_impl;
-
-class server_package
+class io_package
   : public ::wfc::package
 {
 public:
-  server_package();
+  io_package();
 };
 
 }
