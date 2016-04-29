@@ -3,9 +3,9 @@ include(BuildInfo)
 SET(
   wfc_client_source_list
   client_package.cpp
-  module/client_module.cpp
-  module/client_multiton.cpp
-  client/client_tcp.cpp
+  client/client_module.cpp
+  client/client_tcp/client_multiton.cpp
+  client/client_tcp/client_tcp.cpp
 )
 
 add_library(

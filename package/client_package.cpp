@@ -1,6 +1,6 @@
 
 #include "client_package.hpp"
-#include "module/client_module.hpp"
+#include "client/client_module.hpp"
 #include <wfc/module/module_list.hpp>
 #include "client_build_info.h"
 

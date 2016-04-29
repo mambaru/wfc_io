@@ -4,5 +4,5 @@ project(wfc_client)
 
 include_directories(.)
 
-add_subdirectory(client)
+add_subdirectory(package)
 

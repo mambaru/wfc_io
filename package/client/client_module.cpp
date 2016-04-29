@@ -1,6 +1,6 @@
 
 #include "client_module.hpp"
-#include "client_multiton.hpp"
+#include "client_tcp/client_multiton.hpp"
 #include <wfc/module/component_list.hpp>
 #include <wfc/name.hpp>
 

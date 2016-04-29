@@ -1,7 +1,7 @@
 
 #include "client_multiton.hpp"
-#include "../client/client_tcp.hpp"
-#include "../client/client_tcp_config_json.hpp"
+#include "client_tcp.hpp"
+#include "client_tcp_config_json.hpp"
 #include <wfc/module/multiton.hpp>
 #include <wfc/module/instance.hpp>
 #include <wfc/name.hpp>

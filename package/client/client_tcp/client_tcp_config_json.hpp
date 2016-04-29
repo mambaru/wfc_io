@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../client/client_tcp_config.hpp"
+#include "client_tcp_config.hpp"
 #include <iow/ip/tcp/client/options_json.hpp>
 #include <wfc/json.hpp>
 
