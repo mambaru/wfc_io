@@ -11,6 +11,8 @@ SET(
   client/client_module.cpp
   client/client_tcp/client_multiton.cpp
   client/client_tcp/client_tcp.cpp
+  client/client_tcp/client_tcp_adapter.cpp
+  client/client_tcp/client_tcp_map.cpp
 
 )
 

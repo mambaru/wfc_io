@@ -8,17 +8,19 @@
 
 namespace wfc{
   
+namespace {
 WFC_NAME2(client_tcp_object_name, "client-tcp")
 
-class client_multiton_impl: public ::wfc::multiton<
+class impl: public ::wfc::multiton<
   client_tcp_object_name,
   ::wfc::instance<client_tcp>,
   client_tcp_config_json
 >
 {};
+}
 
 client_multiton::client_multiton()
-  : component( std::make_shared<client_multiton_impl>() )
+  : component( std::make_shared<impl>() )
 {}
 
 }

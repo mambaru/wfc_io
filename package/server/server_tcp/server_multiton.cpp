@@ -9,18 +9,20 @@
 
 namespace wfc{
   
+namespace {
 WFC_NAME2(server_tcp_multiton_name, "server-tcp")
 
-class server_multiton_impl: public ::wfc::multiton<
+class impl: public ::wfc::multiton<
   server_tcp_multiton_name,
   ::wfc::instance<server_tcp>,
   server_tcp_config_json
 >
 {};
 
+}
 
 server_multiton::server_multiton()
-  : component( std::make_shared< server_multiton_impl>() )
+  : component( std::make_shared< impl>() )
 {}
 
 }
