@@ -1,6 +1,6 @@
 
 #include "server_package.hpp"
-#include "module/server_module.hpp"
+#include "server/server_module.hpp"
 #include <wfc/module/package.hpp>
 #include <wfc/module/module_list.hpp>
 #include "server_build_info.h"

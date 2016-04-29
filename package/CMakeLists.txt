@@ -3,9 +3,9 @@ include(BuildInfo)
 SET(
   wfc_server_source_list
   server_package.cpp
-  module/server_module.cpp
-  module/server_multiton.cpp
-  server/server_tcp.cpp
+  server/server_module.cpp
+  server/server_tcp/server_multiton.cpp
+  server/server_tcp/server_tcp.cpp
 )
 
 add_library(

@@ -2,8 +2,8 @@
 #include "server_multiton.hpp"
 #include <wfc/module/multiton.hpp>
 #include <wfc/module/instance.hpp>
-#include "../server/server_tcp.hpp"
-#include "../server/server_tcp_config_json.hpp"
+#include "server_tcp.hpp"
+#include "server_tcp_config_json.hpp"
 #include <wfc/name.hpp>
 #include <memory>
 
