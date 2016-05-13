@@ -8,11 +8,12 @@
 namespace wfc{
 
 class client_tcp_adapter::impl
-  : public ::iow::ip::tcp::client::client<>
+  : public ::iow::ip::tcp::client::thread<>
 {
+  typedef ::iow::ip::tcp::client::thread<> super;
 public:
   impl( io_service_type& io)
-    : client(io){}
+    : super(io){}
 };
 
 client_tcp_adapter::client_tcp_adapter( io_service_type& io, std::weak_ptr<iinterface> holder)
