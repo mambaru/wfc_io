@@ -8,9 +8,9 @@
 namespace wfc{
 
 class client_tcp_adapter::impl
-  : public ::iow::ip::tcp::client::thread<>
+  : public ::iow::ip::tcp::client::multi_thread<>
 {
-  typedef ::iow::ip::tcp::client::thread<> super;
+  typedef ::iow::ip::tcp::client::multi_thread<> super;
 public:
   impl( io_service_type& io)
     : super(io){}
