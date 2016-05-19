@@ -3,6 +3,7 @@
 #include "client_tcp_config.hpp"
 #include <wfc/domain_object.hpp>
 #include <wfc/iinterface.hpp>
+#include <wfc/workflow.hpp>
 #include <string>
 #include <memory>
 
@@ -32,6 +33,7 @@ public:
 private:
   std::shared_ptr<client_tcp_map> _impl;
   std::weak_ptr<iinterface> _target;
+  std::shared_ptr<workflow> _workflow;
 };
 
 }
