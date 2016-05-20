@@ -95,6 +95,10 @@ void client_tcp_map::unreg_io( io_id_t id)
 
 void client_tcp_map::perform_io( iinterface::data_ptr d, io_id_t id, outgoing_handler_t handler)
 {
+  handler = [handler]( iinterface::data_ptr d )
+  {
+    handler( std::move(d) );
+  };
   if ( auto cli = this->queryset(id, handler ) )
   {
     cli->perform_io( std::move(d), id, std::move(handler) );
