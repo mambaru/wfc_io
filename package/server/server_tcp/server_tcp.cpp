@@ -33,11 +33,7 @@ void server_tcp::reconfigure()
   {
     auto target = this->options().target;
     _target = g->registry.get<iinterface>(target);
-    if ( _target.lock() != nullptr)
-    {
-      CONFIG_LOG_MESSAGE("Target '" << target << "' found" )
-    }
-    else
+    if ( _target.lock() == nullptr)
     {
       CONFIG_LOG_WARNING("Target '" << target << "' NOT found" )
     }

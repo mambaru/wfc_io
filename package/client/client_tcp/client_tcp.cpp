@@ -25,7 +25,7 @@ void client_tcp::reconfigure()
     _impl = std::make_shared<client_tcp_map>( g->io_service);
     auto opt = this->options();
     _workflow = ::wfc::workflow::recreate_and_start(_workflow, opt.workflow_opt);
-    opt.workflow = _workflow->get();
+    opt.args.workflow = _workflow->get();
     _impl->reconfigure( opt );
   }
   else

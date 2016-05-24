@@ -51,8 +51,8 @@ void client_tcp_adapter::start( options_type opt)
       };
     }
 
-    auto connect_handler = opt.connect_handler;
-    opt.connect_handler = [pthis, connect_handler]()
+    auto connect_handler = opt.args.connect_handler;
+    opt.args.connect_handler = [pthis, connect_handler]()
     {
       if ( auto holder = pthis->_holder.lock() )
       {
