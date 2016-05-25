@@ -91,6 +91,7 @@ void client_tcp_adapter::set_holder(std::weak_ptr<iinterface> holder)
 
 void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t /*io_id*/, outgoing_handler_t handler) 
 {
+  DEBUG_LOG_DEBUG("-3- client_tcp::perform_io: " << d)
   if ( auto rd = _client->send( std::move(d) ) )
   {
     DEBUG_LOG_ERROR("tcp_client send FAIL: " << d)
