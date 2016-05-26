@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iow/ip/tcp/client/options.hpp>
-#include <wfc/core/workflow_options.hpp>
+#include <wfc/workflow.hpp>
 
 namespace wfc{
   

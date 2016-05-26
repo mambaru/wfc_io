@@ -2,7 +2,7 @@
 
 #include "client_tcp_config.hpp"
 #include <iow/ip/tcp/client/options_json.hpp>
-#include <wfc/core/workflow_options_json.hpp>
+#include <wfc/workflow.hpp>
 #include <wfc/json.hpp>
 
 namespace wfc{

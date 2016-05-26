@@ -79,7 +79,7 @@ void client_tcp_map::reg_io( io_id_t id, std::weak_ptr<iinterface> holder)
   }
   else
   {
-    cli->set_holder(holder);
+    //cli->set_holder(holder);
   }
 }
 

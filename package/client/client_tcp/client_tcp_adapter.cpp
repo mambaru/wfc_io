@@ -1,12 +1,25 @@
 
 #include "client_tcp_adapter.hpp"
 #include <wfc/logger.hpp>
+#include <wfc/wfc_exit.hpp>
 #include <iow/ip/tcp/client/client.hpp>
 #include <iow/io/io_id.hpp>
-
+#include <wfc/mutex.hpp>
 
 namespace wfc{
 
+class client_tcp_adapter::handler_wrapper: public iinterface
+{
+public:
+  handler_wrapper(outgoing_handler_t handler): _handler(handler) {}
+  virtual void perform_io( iinterface::data_ptr d, io_id_t /*id*/, outgoing_handler_t /*handler*/) override
+  {
+    _handler( std::move(d) );
+  }
+private:
+  outgoing_handler_t _handler;
+};
+  
 class client_tcp_adapter::impl
   : public ::iow::ip::tcp::client::multi_thread<>
 {
@@ -16,17 +29,19 @@ public:
     : super(io){}
 };
 
-client_tcp_adapter::client_tcp_adapter( io_service_type& io, std::weak_ptr<iinterface> holder)
+client_tcp_adapter::client_tcp_adapter( io_service_type& io)
   : _id ( ::iow::io::create_id<io_id_t>() )
-  , _holder(holder)
 {
-  if (holder.lock()==nullptr) abort();
+  _holder_id = 0;
   _client = std::make_shared<client_type>(io);
 }
 
 client_tcp_adapter::~client_tcp_adapter() 
 {
-  _holder.lock()->unreg_io(_id);
+  if ( auto h = _holder.lock() )
+  {
+    h->unreg_io(_id);
+  }
 }
 
 void client_tcp_adapter::stop()
@@ -38,13 +53,13 @@ void client_tcp_adapter::start( options_type opt)
 {
   auto pthis = this->shared_from_this();
   
-  if ( _holder.lock() != nullptr )
-  {
+  /*if ( _holder.lock() != nullptr )
+  {*/
     if ( opt.connection.incoming_handler == nullptr )
     {
       opt.connection.incoming_handler = [pthis](data_ptr d, io_id_t, outgoing_handler_t handler)
       {
-        if ( auto holder = pthis->_holder.lock() )
+        if ( auto holder = pthis->get_holder() )
         {
           holder->perform_io(std::move(d), pthis->_id, std::move(handler) );
         }
@@ -54,7 +69,7 @@ void client_tcp_adapter::start( options_type opt)
     auto connect_handler = opt.args.connect_handler;
     opt.args.connect_handler = [pthis, connect_handler]()
     {
-      if ( auto holder = pthis->_holder.lock() )
+      if ( auto holder = pthis->get_holder() )
       {
         holder->reg_io( pthis->_id, pthis );
       }
@@ -64,34 +79,65 @@ void client_tcp_adapter::start( options_type opt)
     auto shutdown_handler = opt.connection.shutdown_handler;
     opt.connection.shutdown_handler = [pthis, shutdown_handler](io_id_t id)
     {
-      if ( auto holder = pthis->_holder.lock() )
+      if ( auto holder = pthis->get_holder() )
+      {
         holder->unreg_io( pthis->_id);
+      }
       if ( shutdown_handler ) shutdown_handler( id );
     };
-  }
+  /*}
   else
   {
     IOW_LOG_WARNING("client_tcp::client::start holder not set")
-  }
+  }*/
   
   _client->start(opt);
 }
 
-std::weak_ptr<iinterface> client_tcp_adapter::get_holder() const
+std::shared_ptr<iinterface> client_tcp_adapter::get_holder() const
 {
-  return _holder;
-}
-
-void client_tcp_adapter::set_holder(std::weak_ptr<iinterface> holder)
-{
-  _holder = holder;
+  read_lock<mutex_type> lk(_mutex);
+  return _holder.lock();
 }
 
 // iinterface
 
-void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t /*io_id*/, outgoing_handler_t handler) 
+void client_tcp_adapter::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
 {
-  DEBUG_LOG_DEBUG("-3- client_tcp::perform_io: " << d)
+  std::lock_guard<mutex_type> lk(_mutex);
+  
+  if ( _holder_id > 0 && _holder_id!= io_id  )
+  {
+    ::wfc_exit_with_error("client-tcp configuration error! Several sources are unacceptable ");
+  }
+  _holder_id = io_id;
+  _holder = itf;
+  _wrapper = nullptr;
+}
+
+void client_tcp_adapter::unreg_io(io_id_t io_id)
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  
+  if ( _holder_id!=io_id )
+    return;
+  
+  _holder_id = 0;
+  _wrapper = nullptr;
+}
+
+
+void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
+{
+  auto pitf = this->get_holder();
+  if ( pitf == nullptr )
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    _wrapper = std::make_shared<handler_wrapper>(handler);
+    _holder = _wrapper;
+    _holder_id = io_id;
+  }
+  
   if ( auto rd = _client->send( std::move(d) ) )
   {
     DEBUG_LOG_ERROR("tcp_client send FAIL: " << d)
@@ -99,6 +145,5 @@ void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t /*io_id*/, 
       handler( nullptr );
   }
 }
-
 
 }
