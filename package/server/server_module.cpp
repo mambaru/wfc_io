@@ -8,9 +8,9 @@ namespace wfc{
 
 namespace
 {
-  WFC_NAME2(server_module_name, "server")
+  WFC_NAME2(module_name, "server")
   class impl: public ::wfc::component_list<
-    server_module_name,
+    module_name,
     server_multiton
   >
   {

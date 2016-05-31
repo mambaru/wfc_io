@@ -8,15 +8,16 @@
 
 namespace wfc{
   
-namespace {
-WFC_NAME2(client_tcp_object_name, "client-tcp")
+namespace 
+{
+  WFC_NAME2(object_name, "client-tcp")
 
-class impl: public ::wfc::multiton<
-  client_tcp_object_name,
-  ::wfc::instance<client_tcp>,
-  client_tcp_config_json
->
-{};
+  class impl: public ::wfc::multiton<
+    object_name,
+    ::wfc::instance<client_tcp>,
+    client_tcp_config_json
+  >
+  {};
 }
 
 client_multiton::client_multiton()

@@ -8,17 +8,17 @@
 #include <memory>
 
 namespace wfc{
-  
-namespace {
-WFC_NAME2(server_tcp_multiton_name, "server-tcp")
 
-class impl: public ::wfc::multiton<
-  server_tcp_multiton_name,
-  ::wfc::instance<server_tcp>,
-  server_tcp_config_json
->
-{};
+namespace 
+{
+  WFC_NAME2(component_name, "server-tcp")
 
+  class impl: public ::wfc::multiton<
+    component_name,
+    ::wfc::instance<server_tcp>,
+    server_tcp_config_json
+  >
+  {};
 }
 
 server_multiton::server_multiton()
