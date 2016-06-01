@@ -24,8 +24,7 @@ void client_tcp::reconfigure()
   {
     _impl = std::make_shared<client_tcp_adapter>( g->io_service);
     auto opt = this->options();
-    _workflow = this->get_workflow();
-    opt.args.workflow = _workflow;
+    opt.args.workflow = this->get_workflow();
     _impl->start( opt );
   }
   else

@@ -8,7 +8,6 @@ namespace wfc{
 struct client_tcp_config
   : public ::iow::ip::tcp::client::options
 {
-  workflow_options workflow_opt;
 };
 
 }
