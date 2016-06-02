@@ -16,7 +16,7 @@ namespace
     object_name,
     ::wfc::instance<client_tcp>,
     client_tcp_config_json, 
-    component_features::DisableSuspend
+    component_features::DisabledSuspend
   >
   {};
 }
