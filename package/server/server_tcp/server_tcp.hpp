@@ -16,7 +16,7 @@ public:
   virtual ~server_tcp();
   server_tcp();
   virtual void start(const std::string&) override;
-  virtual void reconfigure() override;
+  virtual void initialize() override;
   virtual void stop(const std::string&) override;
 private:
   std::shared_ptr<impl> _impl;

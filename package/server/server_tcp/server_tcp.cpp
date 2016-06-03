@@ -27,7 +27,7 @@ server_tcp::server_tcp()
 {
 }
 
-void server_tcp::reconfigure()
+void server_tcp::initialize()
 {
   if ( auto g = this->global() )
   {

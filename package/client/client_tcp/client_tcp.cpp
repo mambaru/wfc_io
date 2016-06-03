@@ -18,7 +18,7 @@ client_tcp::client_tcp()
 {
 }
 
-void client_tcp::reconfigure()
+void client_tcp::ready()
 {
   if ( auto g = this->global() )
   {
@@ -27,16 +27,19 @@ void client_tcp::reconfigure()
     opt.args.workflow = this->get_workflow();
     _impl->start( opt );
   }
-  else
+  /*else
   {
     domain_object::reconfigure();
   }
+  */
 }
 
+/*
 void client_tcp::start(const std::string&) 
 {
   
 }
+*/
 
 void client_tcp::stop(const std::string&) 
 {
