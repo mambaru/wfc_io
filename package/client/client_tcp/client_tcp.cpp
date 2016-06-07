@@ -18,28 +18,20 @@ client_tcp::client_tcp()
 {
 }
 
-void client_tcp::ready()
+void client_tcp::configure()
 {
   if ( auto g = this->global() )
   {
     _impl = std::make_shared<client_tcp_adapter>( g->io_service);
+  }
+}
+
+void client_tcp::initialize()
+{
     auto opt = this->options();
     opt.args.workflow = this->get_workflow();
     _impl->start( opt );
-  }
-  /*else
-  {
-    domain_object::reconfigure();
-  }
-  */
 }
-
-/*
-void client_tcp::start(const std::string&) 
-{
-  
-}
-*/
 
 void client_tcp::stop(const std::string&) 
 {

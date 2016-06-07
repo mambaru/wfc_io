@@ -17,11 +17,13 @@ class client_tcp
 public:
   virtual ~client_tcp();
   client_tcp();
-  
-  // domain_object
-  virtual void stop(const std::string&) override;
+
+  // domain_object  
   //virtual void start(const std::string&) override;
-  virtual void ready() override;
+  virtual void configure() override;
+  virtual void initialize() override;
+
+  virtual void stop(const std::string&) override;
   
   // iinterface
   virtual void reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/) override;
