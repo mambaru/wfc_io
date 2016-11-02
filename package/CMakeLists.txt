@@ -12,8 +12,10 @@ SET(
   client/client_tcp/client_multiton.cpp
   client/client_tcp/client_tcp.cpp
   client/client_tcp/client_tcp_adapter.cpp
-  #client/client_tcp/client_tcp_map.cpp
 
+  statistics/io_statistics_module.cpp
+  statistics/statistics/io_statistics_multiton.cpp
+  statistics/statistics/io_statistics.cpp
 )
 
 add_library(
