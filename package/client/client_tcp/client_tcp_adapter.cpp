@@ -108,7 +108,7 @@ void client_tcp_adapter::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
   
   if ( _holder_id > 0 && _holder_id!= io_id  )
   {
-    ::wfc_exit_with_error("client-tcp configuration error! Several sources are unacceptable ");
+    DOMAIN_LOG_FATAL("client-tcp configuration error! Several sources are unacceptable ")
   }
   _holder_id = io_id;
   _holder = itf;
@@ -140,9 +140,11 @@ void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outg
   
   if ( auto rd = _client->send( std::move(d) ) )
   {
-    DEBUG_LOG_ERROR("tcp_client send FAIL: " << d)
+    DEBUG_LOG_ERROR("tcp_client send FAIL: " << rd)
     if (handler!=nullptr)
+    {
       handler( nullptr );
+    }
   }
 }
 
