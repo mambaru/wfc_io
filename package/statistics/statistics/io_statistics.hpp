@@ -3,6 +3,7 @@
 #include "io_statistics_config.hpp"
 #include <wfc/domain_object.hpp>
 #include <wfc/iinterface.hpp>
+#include <wfc/stat/istat.hpp>
 #include <string>
 #include <memory>
 
@@ -18,6 +19,9 @@ public:
   virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, outgoing_handler_t handler);
 private:
   std::weak_ptr<iinterface> _target;
+  std::weak_ptr<istat> _stat;
+  int _stat_traff_id;
+  int _stat_call_id;
 };
 
 }
