@@ -43,8 +43,8 @@ void io_statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t han
     }
     else
     {
-      auto stat_call = stat->create_handler(_stat_call_id);
-      auto traff_call = stat->create_handler(_stat_traff_id);
+      auto stat_call = stat->create_meter(_stat_call_id, 1);
+      auto traff_call = stat->create_meter(_stat_traff_id, d->size() );
       t->perform_io( 
         std::move(d), 
         io_id,
