@@ -12,8 +12,10 @@ void io_statistics::initialize()
   _stat = this->get_target<istat>( this->options().statistics_target );
   if (auto stat = _stat.lock() )
   {
-    _stat_traff_id = stat->reg_name("traffics");
-    _stat_call_id = stat->reg_name("calls");
+    _meter = stat->create_meter("calls", "size");
+    /*
+    _stat_traff_id = stat->reg_name("size");
+    _stat_call_id = stat->reg_name("calls");*/
   }
 }
 
@@ -43,12 +45,11 @@ void io_statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t han
     }
     else
     {
-      auto stat_call = stat->create_meter(_stat_call_id, 1);
-      auto traff_call = stat->create_meter(_stat_traff_id, d->size() );
+      auto meter = stat->clone_meter(_meter, d->size());
       t->perform_io( 
         std::move(d), 
         io_id,
-        [handler, stat_call, traff_call](data_ptr d) 
+        [handler, meter](data_ptr d) 
         { 
           handler( std::move(d) ); 
         } 

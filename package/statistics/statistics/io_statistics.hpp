@@ -20,8 +20,11 @@ public:
 private:
   std::weak_ptr<iinterface> _target;
   std::weak_ptr<istat> _stat;
+  istat::meter_ptr _meter;
+  /*
   int _stat_traff_id;
   int _stat_call_id;
+  */
 };
 
 }
