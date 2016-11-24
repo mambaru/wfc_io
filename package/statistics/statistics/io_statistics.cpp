@@ -9,14 +9,9 @@ namespace wfc{
 void io_statistics::initialize()
 {
   _target = this->get_target<iinterface>( this->options().target );
-  _stat = this->get_target<istat>( this->options().statistics_target );
-  if (auto stat = _stat.lock() )
-  {
-    _meter = stat->create_meter("calls", "size");
-    /*
-    _stat_traff_id = stat->reg_name("size");
-    _stat_call_id = stat->reg_name("calls");*/
-  }
+  _meter = this->create_meter_prototype( this->options().rate_name, this->options().size_name );
+  /*if ( _meter == nullptr)
+    abort();*/
 }
 
 void io_statistics::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
@@ -38,14 +33,13 @@ void io_statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t han
 {
   if (auto t = _target.lock() )
   {
-    auto stat = _stat.lock();
-    if ( this->suspended() || !stat)
+    if ( this->suspended() || _meter==nullptr)
     {
       t->perform_io( std::move(d), io_id, std::move(handler) );
     }
     else
     {
-      auto meter = stat->clone_meter(_meter, d->size());
+      auto meter = this->create_meter(_meter, d->size());
       t->perform_io( 
         std::move(d), 
         io_id,

@@ -34,7 +34,7 @@ public:
   virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, outgoing_handler_t handler) override;
 
 private:
-  std::shared_ptr<client_tcp_adapter> _impl;
+  std::shared_ptr<client_tcp_adapter> _adapter;
 };
 
 }

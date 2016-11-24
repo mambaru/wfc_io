@@ -15,8 +15,8 @@ namespace
   class impl: public ::wfc::multiton<
     object_name,
     ::wfc::instance<client_tcp>,
-    client_tcp_config_json, 
-    component_features::DisabledSuspend
+    client_tcp_config_json/*, 
+    component_features::DisabledSuspend*/
   >
   {};
 }

@@ -22,7 +22,7 @@ void client_tcp::configure()
 {
   if ( auto g = this->global() )
   {
-    _impl = std::make_shared<client_tcp_adapter>( g->io_service);
+    _adapter = std::make_shared<client_tcp_adapter>( g->io_service);
   }
 }
 
@@ -30,30 +30,38 @@ void client_tcp::initialize()
 {
     auto opt = this->options();
     opt.args.workflow = this->get_workflow();
-    _impl->start( opt );
+    _adapter->start( opt );
 }
 
 void client_tcp::stop(const std::string&) 
 {
-  if ( _impl!=nullptr )
+  if ( _adapter!=nullptr )
   {
-    _impl->stop();
+    _adapter->stop();
   }
 }
 
 void client_tcp::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
 {
-  this->_impl->reg_io( io_id, itf);
+  if ( !this->suspended() && _adapter!=nullptr )
+    _adapter->reg_io( io_id, itf);
 }
 
 void client_tcp::unreg_io(io_id_t io_id)
 {
-  _impl->unreg_io(io_id);
+  if ( _adapter!=nullptr )
+    _adapter->unreg_io(io_id);
 }
 
 void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
-  _impl->perform_io( std::move(d), io_id, std::move(handler) );
+  if ( this->suspended() )
+  {
+    if ( handler!= nullptr )
+      handler(nullptr);
+  }
+  else if ( _adapter!=nullptr )
+    _adapter->perform_io( std::move(d), io_id, std::move(handler) );
 }
 
 }
