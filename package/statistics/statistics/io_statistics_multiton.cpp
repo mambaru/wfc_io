@@ -18,6 +18,7 @@ namespace
     ::wfc::instance<io_statistics>,
     io_statistics_config_json,
     ::wfc::component_features::DisabledPriority
+    | ::wfc::component_features::DisabledWorkflow
   >
   {};
 }
