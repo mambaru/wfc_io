@@ -9,9 +9,7 @@ namespace wfc{
 void io_statistics::initialize()
 {
   _target = this->get_target<iinterface>( this->options().target );
-  _meter = this->create_meter_prototype( this->options().rate_name, this->options().size_name );
-  /*if ( _meter == nullptr)
-    abort();*/
+  _meter = this->create_meter_prototype( this->options().time_name, this->options().size_name );
 }
 
 void io_statistics::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
