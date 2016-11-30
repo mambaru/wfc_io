@@ -31,13 +31,13 @@ void io_statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t han
 {
   if (auto t = _target.lock() )
   {
-    if ( this->suspended() || _meter==nullptr)
+    if ( this->suspended() || _meter==nullptr )
     {
       t->perform_io( std::move(d), io_id, std::move(handler) );
     }
     else
     {
-      auto meter = this->create_meter(_meter, d->size());
+      auto meter = this->create_meter( _meter, d->size() );
       t->perform_io( 
         std::move(d), 
         io_id,
@@ -46,13 +46,6 @@ void io_statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t han
           handler( std::move(d) ); 
         } 
       );
-      /*
-      auto start = std::chrono::high_resolution_clock::now();
-      t->perform_io( std::move(d), io_id, [handler](data_ptr d) { handler( std::move(d) ); } );
-      auto finish = std::chrono::high_resolution_clock::now();
-      auto span = std::chrono::duration_cast<std::chrono::nanoseconds>(finish-start).count();
-      std::cout << "Статистика: " << span << " наносекунд! скорость: " << 1000000000/span << std::endl;
-      */
     }
   }
 }
