@@ -8,8 +8,11 @@ namespace wfc{
 
 void io_statistics::initialize()
 {
-  _target = this->get_target<iinterface>( this->options().target );
-  _meter = this->create_meter_prototype( this->options().time_name, this->options().size_name );
+  auto opt = this->options();
+  _target = this->get_target<iinterface>( opt.target );
+  _total_meter = this->create_meter_prototype( opt.total_time_name, opt.total_size_name );
+  _input_meter = this->create_meter_prototype( opt.input_time_name, opt.input_size_name );
+  _output_meter = this->create_meter_prototype( opt.output_time_name, opt.output_size_name );
 }
 
 void io_statistics::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
@@ -31,21 +34,29 @@ void io_statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t han
 {
   if (auto t = _target.lock() )
   {
-    if ( this->suspended() || _meter==nullptr )
+    if ( this->suspended() )
     {
       t->perform_io( std::move(d), io_id, std::move(handler) );
     }
     else
     {
-      auto meter = this->create_meter( _meter, d->size() );
+      auto tmeter = this->create_meter( _total_meter, d->size() );
+      auto imeter = this->create_meter( _input_meter, d->size() );
       t->perform_io( 
         std::move(d), 
         io_id,
-        [handler, meter](data_ptr d) 
+        [handler, tmeter, this](data_ptr d) 
         { 
+          if ( d!=nullptr)
+          {
+            auto ometer = this->create_meter( this->_output_meter, d->size() );
+            if ( tmeter )
+              tmeter->inc_size( d->size() );
+          }
           handler( std::move(d) ); 
         } 
       );
+      imeter.reset();
     }
   }
 }

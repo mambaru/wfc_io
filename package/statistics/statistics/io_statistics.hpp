@@ -14,17 +14,14 @@ class io_statistics
 {
 public:
   virtual void initialize() override;
-  virtual void reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/);
-  virtual void unreg_io(io_id_t /*io_id*/);
-  virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, outgoing_handler_t handler);
+  virtual void reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/) override;
+  virtual void unreg_io(io_id_t /*io_id*/) override;
+  virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, outgoing_handler_t handler) override;
 private:
   std::weak_ptr<iinterface> _target;
-  //std::weak_ptr<statistics> _stat;
-  statistics::meter_ptr _meter;
-  /*
-  int _stat_traff_id;
-  int _stat_call_id;
-  */
+  statistics::meter_ptr _total_meter;
+  statistics::meter_ptr _input_meter;
+  statistics::meter_ptr _output_meter;
 };
 
 }
