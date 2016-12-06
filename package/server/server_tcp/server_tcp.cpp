@@ -50,7 +50,7 @@ void server_tcp::start(const std::string& arg)
 
     auto wtarget = _target;
 
-#warning убрать, но в базовых не должно nonblocking, т.к. nonblocking() для акцепт вылетает сразу 
+    /// #warning убрать, но в базовых не должно nonblocking, т.к. nonblocking() для акцепт вылетает сразу 
     opt.nonblocking = false;
 
 
