@@ -54,10 +54,9 @@ void io_statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t han
           if ( d!=nullptr)
           {
             auto ometer = this->create_meter( this->_output_meter, d->size(), 1 );
-            if ( ometer )
-              ometer->inc( 0, d->size() - 1 );
-            if ( tmeter )
-              tmeter->inc( d->size(), d->size() + isize - 1  );
+
+            if ( ometer ) ometer->inc( 0, d->size() - 1 );
+            if ( tmeter ) tmeter->inc( d->size(), d->size() + isize - 1  );
           }
           handler( std::move(d) ); 
         } 
