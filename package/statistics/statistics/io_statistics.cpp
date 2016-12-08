@@ -40,18 +40,23 @@ void io_statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t han
     }
     else
     {
-      auto tmeter = this->create_meter( _total_meter, d->size(), d->size() );
-      auto imeter = this->create_meter( _input_meter, d->size(), d->size() );
+      size_t isize = d->size();
+      auto tmeter = this->create_meter( _total_meter, isize, 1 );
+      auto imeter = this->create_meter( _input_meter, isize, 1);
+      if ( imeter ) imeter->inc( 0, d->size() );
+
       t->perform_io( 
         std::move(d), 
         io_id,
-        [handler, tmeter, this](data_ptr d) 
+        [handler, tmeter, isize, this](data_ptr d) 
         { 
           if ( d!=nullptr)
           {
-            auto ometer = this->create_meter( this->_output_meter, d->size(), d->size() );
+            auto ometer = this->create_meter( this->_output_meter, d->size(), 1 );
+            if ( ometer )
+              ometer->inc( 0, d->size() );
             if ( tmeter )
-              tmeter->inc( d->size(), d->size() );
+              tmeter->inc( d->size(), d->size() + isize - 1  );
           }
           handler( std::move(d) ); 
         } 
