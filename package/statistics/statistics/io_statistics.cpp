@@ -47,9 +47,9 @@ void io_statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t han
         io_id,
         [handler, tmeter, this](data_ptr d) 
         { 
+          auto ometer = this->create_meter( this->_output_meter, d->size(), d->size() );
           if ( d!=nullptr)
           {
-            auto ometer = this->create_meter( this->_output_meter, d->size(), d->size() );
             if ( tmeter )
               tmeter->inc( d->size(), d->size() );
           }
