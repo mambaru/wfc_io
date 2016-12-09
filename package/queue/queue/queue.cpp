@@ -3,7 +3,7 @@
 
 namespace wfc{ namespace io{
 
-void queue::ready()
+void queue::initialize()
 {
   const auto opt = this->options();
   if ( opt.callback_queue == true )
@@ -32,9 +32,7 @@ void queue::unreg_io(io_id_t io_id)
 
 void queue::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
-   auto target = _target.lock();
-  target->perform_io( std::move( d ), io_id, std::move(handler) );
-  return;
+  auto target = _target.lock();
   
   if ( target == nullptr)
     return handler( std::move(d) );
