@@ -3,10 +3,6 @@
 
 namespace wfc{ namespace io{
 
-queue::queue()
-{
-}
-
 void queue::ready()
 {
   const auto opt = this->options();
@@ -20,7 +16,7 @@ void queue::ready()
 
 void queue::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
-  if ( _target = nullptr)
+  if ( _target == nullptr)
     return handler( std::move(d) );
   
   if ( this->suspended() )
@@ -43,7 +39,7 @@ iinterface::outgoing_handler_t queue::make_handler_(outgoing_handler_t&& handler
     return std::move(handler);
   
   std::weak_ptr<queue> wthis = this->shared_from_this();;
-  return std::move([handler, wthis](data_ptr d)
+  return [handler, wthis](data_ptr d)
   {
     workflow_ptr w;
     if ( auto pthis = wthis.lock() )
@@ -59,71 +55,7 @@ iinterface::outgoing_handler_t queue::make_handler_(outgoing_handler_t&& handler
     }
     else
       handler( std::move( d ) );
-  });
-}
-
-/*
-void queue::stop(const std::string&)
-{
-  _callback_workflow = nullptr;
-}
-
-void queue::perform_incoming(incoming_holder holder, io_id_t io_id, rpc_outgoing_handler_t handler) 
-{
-  if ( this->suspended()  )
-  {
-    this->get_target().perform_incoming( std::move( holder ), io_id, std::move(handler) );
-  }
-  else
-  {
-    auto pholder = std::make_shared<incoming_holder>( std::move(holder) );
-    this->get_workflow()->post([pholder, io_id, handler, this]() mutable
-    {
-      auto t = this->get_target();
-      t.perform_incoming( std::move( *pholder ), io_id, this->make_handler_( std::move(handler) ) );
-    });
-  }
-}
-  
-void queue::perform_outgoing(outgoing_holder holder, io_id_t io_id)
-{
-  if ( this->suspended() )
-  {
-    this->get_target().perform_outgoing( std::move( holder ), io_id);
-  }
-  else 
-  {
-    auto pholder = std::make_shared<outgoing_holder>( std::move(holder) );
-    this->get_workflow()->post([pholder, io_id, this]()
-    {
-      auto t = this->get_target();
-      t.perform_outgoing( std::move( *pholder ), io_id );
-    });
-  }
-}
-
-queue::rpc_outgoing_handler_t queue::make_handler_(rpc_outgoing_handler_t&& handler)
-{
-  if ( _callback_workflow == nullptr ) return std::move(handler);
-  
-  auto fun = [handler, this](outgoing_holder holder)
-  {
-    if ( auto w = this->_callback_workflow )
-    {
-      auto pholder = std::make_shared<outgoing_holder>( std::move(holder) );
-      w->post([pholder, handler]()
-      {
-        handler( std::move( *pholder ) );
-      });
-    }
-    else
-    {
-      // Если перекофигурировали 
-      handler( std::move( holder ) );
-    }
   };
-  return std::move(fun);
 }
-*/
 
 }}
