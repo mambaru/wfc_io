@@ -16,6 +16,8 @@ void queue::ready()
 
 void queue::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
+  /*_target->perform_io( std::move( d ), io_id, std::move(handler) );
+  return;*/
   if ( _target == nullptr)
     return handler( std::move(d) );
   
