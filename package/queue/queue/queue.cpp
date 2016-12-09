@@ -14,15 +14,33 @@ void queue::ready()
   _target = this->get_target<iinterface>( opt.target ) ;
 }
 
+void queue::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
+{
+  if (auto t = _target.lock() )
+  {
+    t->reg_io(io_id, itf);
+  }
+}
+void queue::unreg_io(io_id_t io_id)
+{
+  if (auto t = _target.lock() )
+  {
+    t->unreg_io(io_id);
+  }
+}
+
+
 void queue::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
 {
-  _target->perform_io( std::move( d ), io_id, std::move(handler) );
+   auto target = _target.lock();
+  target->perform_io( std::move( d ), io_id, std::move(handler) );
   return;
-  if ( _target == nullptr)
+  
+  if ( target == nullptr)
     return handler( std::move(d) );
   
   if ( this->suspended() )
-    return _target->perform_io( std::move( d ), io_id, std::move(handler) );
+    return target->perform_io( std::move( d ), io_id, std::move(handler) );
 
   auto pd = std::make_shared<data_ptr>( std::move(d) );
   std::weak_ptr<iinterface> wtarget = _target;
@@ -30,7 +48,7 @@ void queue::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler)
   this->get_workflow()->post([pd, io_id, handler, wthis, wtarget]() mutable
   {
     if ( auto pthis = wthis.lock() )
-      if ( auto t = pthis->_target )
+      if ( auto t = wtarget.lock() )
         t->perform_io( std::move( *pd ), io_id, pthis->make_handler_( std::move(handler) ) );
   });
 }
