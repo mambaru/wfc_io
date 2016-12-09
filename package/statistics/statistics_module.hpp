@@ -4,11 +4,11 @@
 
 namespace wfc{ namespace io{
 
-class client_module
+class statistics_module
   : public ::wfc::module
 {
 public:
-  client_module();
+  statistics_module();
 };
 
 }}

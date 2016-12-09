@@ -6,7 +6,7 @@
 #include <wfc/module/instance.hpp>
 #include <wfc/name.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
   
 namespace 
 {
@@ -25,4 +25,4 @@ client_multiton::client_multiton()
   : component( std::make_shared<impl>() )
 {}
 
-}
+}}

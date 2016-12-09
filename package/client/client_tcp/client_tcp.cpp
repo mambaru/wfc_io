@@ -7,7 +7,7 @@
 #include <wfc/asio.hpp> // TODO: убрать 
 #include <wfc/memory.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
  
 
 client_tcp::~client_tcp()
@@ -64,4 +64,4 @@ void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handle
     _adapter->perform_io( std::move(d), io_id, std::move(handler) );
 }
 
-}
+}}

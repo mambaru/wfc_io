@@ -13,9 +13,13 @@ SET(
   client/client_tcp/client_tcp.cpp
   client/client_tcp/client_tcp_adapter.cpp
 
-  statistics/io_statistics_module.cpp
-  statistics/statistics/io_statistics_multiton.cpp
-  statistics/statistics/io_statistics.cpp
+  queue/queue_module.cpp
+  queue/queue/queue_multiton.cpp
+  queue/queue/queue.cpp
+
+  statistics/statistics_module.cpp
+  statistics/statistics/statistics_multiton.cpp
+  statistics/statistics/statistics.cpp
 )
 
 add_library(

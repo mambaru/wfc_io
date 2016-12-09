@@ -1,13 +1,13 @@
 
-#include "io_statistics_multiton.hpp"
+#include "statistics_multiton.hpp"
 #include <wfc/module/multiton.hpp>
 #include <wfc/module/instance.hpp>
-#include "io_statistics.hpp"
-#include "io_statistics_config_json.hpp"
+#include "statistics.hpp"
+#include "statistics_config_json.hpp"
 #include <wfc/name.hpp>
 #include <memory>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
 namespace 
 {
@@ -15,16 +15,16 @@ namespace
 
   class impl: public ::wfc::multiton<
     component_name,
-    ::wfc::instance<io_statistics>,
-    io_statistics_config_json,
+    ::wfc::instance<statistics>,
+    statistics_config_json,
     ::wfc::component_features::DisabledPriority
     | ::wfc::component_features::DisabledWorkflow
   >
   {};
 }
 
-io_statistics_multiton::io_statistics_multiton()
+statistics_multiton::statistics_multiton()
   : component( std::make_shared< impl>() )
 {}
 
-}
+}}

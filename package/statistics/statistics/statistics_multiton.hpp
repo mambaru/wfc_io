@@ -4,11 +4,11 @@
 
 namespace wfc{ namespace io{
 
-class server_multiton
+class statistics_multiton
   : public ::wfc::component
 {
 public:
-  server_multiton();
+  statistics_multiton();
 };
 
 }}

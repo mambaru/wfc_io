@@ -6,7 +6,7 @@
 #include <iow/io/io_id.hpp>
 #include <wfc/mutex.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
 class client_tcp_adapter::handler_wrapper: public iinterface
 {
@@ -148,4 +148,4 @@ void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outg
   }
 }
 
-}
+}}

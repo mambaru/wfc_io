@@ -10,7 +10,7 @@
 #include <memory>
 #include <atomic>
 
-namespace wfc{
+namespace wfc{ namespace io{
   
 class client_tcp_adapter
   : public ::wfc::iinterface
@@ -53,4 +53,4 @@ private:
   mutable mutex_type _mutex;
 };
 
-}
+}}

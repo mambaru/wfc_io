@@ -1,7 +1,7 @@
 #include "client_tcp_map.hpp"
 #include <wfc/logger.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
 class client_tcp_map::handler_wrapper: public iinterface
 {
@@ -123,4 +123,4 @@ client_tcp_map::client_ptr client_tcp_map::find_( io_id_t id ) const
   return nullptr;
 }
 
-}
+}}

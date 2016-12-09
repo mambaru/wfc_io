@@ -1,8 +1,9 @@
 #pragma once
 #include <string>
-namespace wfc{
 
-struct io_statistics_config
+namespace wfc{ namespace io{
+
+struct statistics_config
 {
   std::string target;
   std::string total_time_name = "time";
@@ -13,4 +14,4 @@ struct io_statistics_config
   std::string output_size_name = "write_size";
 };
 
-}
+} }

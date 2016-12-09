@@ -6,7 +6,7 @@
 #include <string>
 #include <memory>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
 class server_tcp
   : public ::wfc::domain_object<iinterface, server_tcp_config>
@@ -23,4 +23,4 @@ private:
   std::weak_ptr<iinterface> _target;
 };
 
-}
+}}

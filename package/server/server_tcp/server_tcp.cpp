@@ -5,7 +5,7 @@
 #include <iow/ip/tcp/server/server.hpp>
 
 
-namespace wfc{
+namespace wfc{ namespace io{
   
 
 class server_tcp::impl
@@ -110,4 +110,4 @@ void server_tcp::stop(const std::string&)
   
 }
 
-}
+}}

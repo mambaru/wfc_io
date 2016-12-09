@@ -7,7 +7,7 @@
 #include <wfc/name.hpp>
 #include <memory>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
 namespace 
 {
@@ -25,4 +25,4 @@ server_multiton::server_multiton()
   : component( std::make_shared< impl>() )
 {}
 
-}
+}}

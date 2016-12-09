@@ -2,13 +2,13 @@
 
 #include <wfc/module/component.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
-class io_statistics_multiton
+class queue_multiton
   : public ::wfc::component
 {
 public:
-  io_statistics_multiton();
+  queue_multiton();
 };
 
-}
+}}

@@ -3,7 +3,7 @@
 #include "tcp_connection.hpp"
 
 
-namespace wfc{
+namespace wfc{ namespace io{
 
 class tcp_acceptor
   : public ::iow::ip::tcp::server::acceptor<tcp_connection>
@@ -16,4 +16,4 @@ public:
   {}
 };
   
-}
+}}

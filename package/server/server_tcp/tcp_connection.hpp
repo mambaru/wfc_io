@@ -6,7 +6,7 @@
 #include <wfc/iinterface.hpp>
 #include <wfc/logger.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
 class tcp_connection
   : public ::iow::ip::tcp::connection::connection_base<>
@@ -134,4 +134,4 @@ public:
 
 };
 
-}
+}}

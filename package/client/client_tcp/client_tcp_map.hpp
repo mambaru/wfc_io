@@ -4,7 +4,7 @@
 #include <iow/io/io_id.hpp>
 #include <wfc/iinterface.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
  
 
 class client_tcp_map
@@ -50,4 +50,4 @@ private:
   mutable std::mutex _mutex;
 };
   
-}
+}}

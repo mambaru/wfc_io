@@ -8,7 +8,7 @@
 #include <string>
 #include <memory>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
 class client_tcp_adapter;
 
@@ -37,4 +37,4 @@ private:
   std::shared_ptr<client_tcp_adapter> _adapter;
 };
 
-}
+}}

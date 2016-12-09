@@ -4,9 +4,8 @@
 #include <iow/ip/tcp/server/options_json.hpp>
 #include <wfc/json.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
-  
 struct connection_options_json
 {
   typedef json::object<
@@ -44,4 +43,4 @@ struct server_tcp_config_json
   typedef type::member_list member_list;
 };
 
-}
+}}

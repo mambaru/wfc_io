@@ -1,12 +1,12 @@
 #include <iostream>
-#include "io_statistics.hpp"
+#include "statistics.hpp"
 #include <wfc/logger.hpp>
 #include <iow/ip/tcp/server/server.hpp>
 
 
-namespace wfc{
+namespace wfc{ namespace io{
 
-void io_statistics::initialize()
+void statistics::initialize()
 {
   auto opt = this->options();
   _target = this->get_target<iinterface>( opt.target );
@@ -15,14 +15,14 @@ void io_statistics::initialize()
   _output_meter = this->create_meter_prototype( opt.output_time_name, opt.output_size_name );
 }
 
-void io_statistics::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
+void statistics::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
 {
   if (auto t = _target.lock() )
   {
     t->reg_io(io_id, itf);
   }
 }
-void io_statistics::unreg_io(io_id_t io_id)
+void statistics::unreg_io(io_id_t io_id)
 {
   if (auto t = _target.lock() )
   {
@@ -30,7 +30,7 @@ void io_statistics::unreg_io(io_id_t io_id)
   }
 }
 
-void io_statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler)
+void statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler)
 {
   if (auto t = _target.lock() )
   {
@@ -66,4 +66,4 @@ void io_statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t han
   }
 }
 
-}
+}}

@@ -2,13 +2,13 @@
 
 #include <wfc/module/module.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
-class io_statistics_module
+class queue_module
   : public ::wfc::module
 {
 public:
-  io_statistics_module();
+  queue_module();
 };
 
-}
+}}

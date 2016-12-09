@@ -1,16 +1,16 @@
 #pragma once
 
-#include "io_statistics_config.hpp"
+#include "statistics_config.hpp"
 #include <wfc/domain_object.hpp>
 #include <wfc/iinterface.hpp>
 #include <wfc/statistics/statistics.hpp>
 #include <string>
 #include <memory>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
-class io_statistics
-  : public ::wfc::domain_object<iinterface, io_statistics_config>
+class statistics
+  : public ::wfc::domain_object<iinterface, statistics_config>
 {
 public:
   virtual void initialize() override;
@@ -24,4 +24,4 @@ private:
   statistics::meter_ptr _output_meter;
 };
 
-}
+}}

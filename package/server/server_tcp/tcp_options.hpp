@@ -8,7 +8,7 @@
 #include <iow/ip/tcp/connection/options.hpp>
 #include <wfc/iinterface.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
 struct tcp_connection_options
   : ::iow::ip::tcp::connection::options
@@ -19,4 +19,4 @@ struct tcp_connection_options
 typedef ::iow::ip::tcp::acceptor::options< tcp_connection, tcp_connection_options > tcp_acceptor_options;
 typedef ::iow::ip::tcp::server::options< tcp_acceptor_options > tcp_options;
   
-}
+}}

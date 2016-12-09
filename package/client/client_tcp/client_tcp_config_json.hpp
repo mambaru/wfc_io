@@ -5,7 +5,7 @@
 #include <wfc/workflow.hpp>
 #include <wfc/json.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
   
 struct client_tcp_config_json
 {
@@ -21,4 +21,4 @@ struct client_tcp_config_json
   typedef type::member_list member_list;
 };
 
-}
+}}

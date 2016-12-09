@@ -4,7 +4,7 @@
 #include <wfc/module/component_list.hpp>
 #include <wfc/name.hpp>
 
-namespace wfc{
+namespace wfc{ namespace io{
 
 namespace
 {
@@ -22,4 +22,4 @@ client_module::client_module()
 {
 }
 
-}
+}}
