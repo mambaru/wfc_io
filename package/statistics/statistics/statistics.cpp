@@ -10,9 +10,12 @@ void statistics::initialize()
 {
   auto opt = this->options();
   _target = this->get_target<iinterface>( opt.target );
+  _meter = this->create_meter_prototype( opt.total_time_name, opt.total_size_name );
+  /*
   _total_meter = this->create_meter_prototype( opt.total_time_name, opt.total_size_name );
   _input_meter = this->create_meter_prototype( opt.input_time_name, opt.input_size_name );
   _output_meter = this->create_meter_prototype( opt.output_time_name, opt.output_size_name );
+  */
 }
 
 void statistics::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)

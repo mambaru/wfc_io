@@ -19,9 +19,12 @@ public:
   virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, outgoing_handler_t handler) override;
 private:
   std::weak_ptr<iinterface> _target;
+  statistics::meter_ptr _meter;
+  /*
   statistics::meter_ptr _total_meter;
   statistics::meter_ptr _input_meter;
   statistics::meter_ptr _output_meter;
+  */
 };
 
 }}
