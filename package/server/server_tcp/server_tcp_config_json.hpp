@@ -33,8 +33,8 @@ struct server_tcp_config_json
   typedef json::object<
     server_tcp_config,
     json::member_list<
-        json::base< server_json >,
-        json::member<n_target, server_tcp_config, std::string, &server_tcp_config::target>
+        json::member<n_target, server_tcp_config, std::string, &server_tcp_config::target>,
+        json::base< server_json >
     >
   > type;
   
