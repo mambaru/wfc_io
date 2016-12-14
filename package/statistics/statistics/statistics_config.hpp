@@ -7,8 +7,8 @@ struct statistics_config
 {
   std::string target;
   std::string time_name = "time";
-  std::string read_size_name = "read_size";
-  std::string write_size_name = "write_size";
+  std::string read_name = "read_size";
+  std::string write_name = "write_size";
   /*
   std::string total_time_name = "time";
   std::string total_size_name = "size";

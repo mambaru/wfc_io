@@ -3,7 +3,7 @@
 #include "statistics_config.hpp"
 #include <wfc/domain_object.hpp>
 #include <wfc/iinterface.hpp>
-#include <wfc/statistics/statistics.hpp>
+#include <wfc/statistics/meters.hpp>
 #include <string>
 #include <memory>
 
@@ -18,13 +18,9 @@ public:
   virtual void unreg_io(io_id_t /*io_id*/) override;
   virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, outgoing_handler_t handler) override;
 private:
+  typedef std::shared_ptr<composite_meter> meter_ptr;
   std::weak_ptr<iinterface> _target;
-  statistics::meter_ptr _meter;
-  /*
-  statistics::meter_ptr _total_meter;
-  statistics::meter_ptr _input_meter;
-  statistics::meter_ptr _output_meter;
-  */
+  meter_ptr _meter;
 };
 
 }}

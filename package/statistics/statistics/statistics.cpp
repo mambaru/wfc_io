@@ -10,7 +10,9 @@ void statistics::initialize()
 {
   auto opt = this->options();
   _target = this->get_target<iinterface>( opt.target );
-  _meter = this->create_meter_prototype( opt.total_time_name, opt.total_size_name );
+  if ( auto stat = this->get_statistics() )
+    _meter = stat->create_composite_prototype( opt.time_name, opt.read_name, opt.write_name );
+  
   /*
   _total_meter = this->create_meter_prototype( opt.total_time_name, opt.total_size_name );
   _input_meter = this->create_meter_prototype( opt.input_time_name, opt.input_size_name );
@@ -37,34 +39,23 @@ void statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handle
 {
   if (auto t = _target.lock() )
   {
-    if ( this->suspended() )
+    if ( this->suspended() || d == nullptr )
     {
       t->perform_io( std::move(d), io_id, std::move(handler) );
     }
-    else
+    else if ( auto stat = this->get_statistics() )
     {
-      size_t isize = d->size();
-      auto tmeter = this->create_meter( _total_meter, isize, 1 );
-      auto imeter = this->create_meter( _input_meter, isize, 1);
-      if ( imeter ) imeter->inc( 0, d->size() - 1 );
-
+      auto meter = stat->create_meter( _meter, d->size() );
       t->perform_io( 
         std::move(d), 
         io_id,
-        [handler, tmeter, isize, this](data_ptr d) 
+        [handler, meter](data_ptr d) 
         { 
-          auto ometer = this->create_meter( this->_output_meter, d->size(), 1 );
           if ( d!=nullptr)
-          {
-            auto ometer = this->create_meter( this->_output_meter, d->size(), 1 );
-
-            if ( ometer ) ometer->inc( 0, d->size() - 1 );
-            if ( tmeter ) tmeter->inc( d->size(), d->size() + isize - 1  );
-          }
+            meter->set_write_size( d->size() );
           handler( std::move(d) ); 
         } 
       );
-      imeter.reset();
     }
   }
 }
