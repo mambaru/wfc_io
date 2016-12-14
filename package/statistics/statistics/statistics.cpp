@@ -10,8 +10,31 @@ void statistics::initialize()
 {
   auto opt = this->options();
   _target = this->get_target<iinterface>( opt.target );
+  this->get_workflow()->release_timer(_timer_id);
   if ( auto stat = this->get_statistics() )
+  {
     _meter = stat->create_composite_prototype( opt.time_name, opt.read_name, opt.write_name );
+    _connections_meter = stat->create_value_prototype( opt.io_name );
+    if ( opt.interval_ms > 0 )
+    {
+      _timer_id = this->get_workflow()->create_timer(
+        std::chrono::milliseconds(opt.interval_ms),
+        this->wrap([this]()->bool
+        {
+          if ( this->suspended() )
+            return true;
+          size_t size = 0;
+          {
+            std::lock_guard<mutex_type> lk(this->_mutex);
+            size = this->_connections.size();
+          }
+          if ( auto stat = this->get_statistics() )
+            stat->create_meter( this->_connections_meter, size, 0);
+          return true;
+        })
+      );
+    }
+  }
   
   /*
   _total_meter = this->create_meter_prototype( opt.total_time_name, opt.total_size_name );
@@ -25,6 +48,11 @@ void statistics::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
   if (auto t = _target.lock() )
   {
     t->reg_io(io_id, itf);
+    if ( !this->suspended() && _connections_meter != nullptr )
+    {
+      std::lock_guard<mutex_type> lk(_mutex);
+      _connections.insert(io_id);
+    }
   }
 }
 void statistics::unreg_io(io_id_t io_id)
@@ -32,6 +60,11 @@ void statistics::unreg_io(io_id_t io_id)
   if (auto t = _target.lock() )
   {
     t->unreg_io(io_id);
+    if ( !this->suspended() && _connections_meter != nullptr )
+    {
+      std::lock_guard<mutex_type> lk(_mutex);
+      _connections.erase(io_id);
+    }
   }
 }
 
