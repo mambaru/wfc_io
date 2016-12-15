@@ -7,6 +7,10 @@
 
 namespace wfc{ namespace io{
   
+typedef iinterface::io_id_t io_id_t;
+typedef iinterface::outgoing_handler_t outgoing_handler_t;
+typedef iinterface::data_ptr data_ptr;
+
 
 class server_tcp::impl
   : public ::iow::ip::tcp::server::server<tcp_acceptor>
@@ -33,10 +37,6 @@ void server_tcp::initialize()
   {
     auto target = this->options().target;
     _target = g->registry.get<iinterface>(target);
-    if ( _target.lock() == nullptr)
-    {
-      CONFIG_LOG_WARNING("Target '" << target << "' NOT found" )
-    }
   }
 
 }
@@ -53,24 +53,40 @@ void server_tcp::start(const std::string& arg)
     /// #warning убрать, но в базовых не должно nonblocking, т.к. nonblocking() для акцепт вылетает сразу 
     opt.nonblocking = false;
 
-
-    
-    opt.connection.incoming_handler = [wtarget]( 
-      std::unique_ptr< std::vector<char> > d,
-      ::iow::io::io_id_t id,
-      ::iow::io::outgoing_handler_t callback
-    )
+    if ( opt.keep_alive ) 
     {
-      if ( auto ptarget = wtarget.lock() )
+      opt.connection.incoming_handler = 
+        [wtarget]( data_ptr d, io_id_t id, outgoing_handler_t callback ) 
       {
-        ptarget->perform_io(std::move(d), id, std::move(callback));
-      }
-      else
+        if ( auto ptarget = wtarget.lock() )
+        {
+          ptarget->perform_io(std::move(d), id, std::move(callback));
+        }
+        else
+        {
+          callback( std::move(d));
+        }
+      };
+    }
+    else
+    {
+      opt.connection.incoming_handler = 
+        [wtarget](data_ptr d, io_id_t id, outgoing_handler_t callback )
       {
-        callback( std::move(d));
-      }
-    };
-    
+        if ( auto ptarget = wtarget.lock() )
+        {
+          ptarget->perform_io(std::move(d), id, [callback](data_ptr d)
+          {
+            callback(std::move(d));
+            callback(nullptr);
+          });
+        }
+        else
+        {
+          callback( std::move(d));
+        }
+      };
+    }
     opt.connection.target = wtarget;
     
     /*

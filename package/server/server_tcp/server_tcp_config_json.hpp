@@ -29,11 +29,13 @@ struct server_tcp_config_json
   > {};
   
   JSON_NAME(target)
+  JSON_NAME2(n_keep_alive, "keep-alive")
 
   typedef json::object<
     server_tcp_config,
     json::member_list<
         json::member<n_target, server_tcp_config, std::string, &server_tcp_config::target>,
+        json::member<n_keep_alive, server_tcp_config, bool, &server_tcp_config::keep_alive>,
         json::base< server_json >
     >
   > type;
