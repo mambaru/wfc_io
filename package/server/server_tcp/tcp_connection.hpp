@@ -62,11 +62,8 @@ public:
     
     opt.startup_handler = [wtarget, wthis, startup_handler](io_id_type id, outgoing_handler_type outgoing)
     {
-      DEBUG_LOG_MESSAGE("wfc::tcp_server::connection startup")
-      
       if ( auto ptarget = wtarget.lock() )
       {
-        DEBUG_LOG_MESSAGE("wfc::tcp_server::connection startup ->reg_io " << id)
         ptarget->reg_io(id, wthis);
       }
       if ( startup_handler!=nullptr )
@@ -119,8 +116,9 @@ public:
   virtual void unreg_io(io_id_t /*io_id*/) override
   {
     /*abort();*/
-    std::lock_guard< mutex_type > lk( super::mutex() );
+    /*std::lock_guard< mutex_type > lk( super::mutex() );
     super::stop_(*this);
+    */
   }
 
   virtual void perform_io(data_ptr d, io_id_t /*io_id*/, outgoing_handler_t /*handler*/) override
