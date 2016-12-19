@@ -41,7 +41,7 @@ void server_tcp::initialize()
 
 }
 
-void server_tcp::start(const std::string& arg)
+void server_tcp::start()
 {
   if ( auto g = this->global() )
   {
@@ -106,16 +106,10 @@ void server_tcp::start(const std::string& arg)
     //_impl->start( opt );
     _impl->start( std::move(opt) );
   }
-  else
-  {
-    domain_object::start(arg);
-  }
-  
 }
 
-void server_tcp::stop(const std::string&) 
+void server_tcp::stop() 
 {
-  
   if ( _impl != nullptr )
   {
     CONFIG_LOG_BEGIN("Server stop")
@@ -123,7 +117,6 @@ void server_tcp::stop(const std::string&)
     CONFIG_LOG_END("Server stop")
     _impl=nullptr;
   }
-  
 }
 
 }}

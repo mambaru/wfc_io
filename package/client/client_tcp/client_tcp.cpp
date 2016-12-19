@@ -33,7 +33,7 @@ void client_tcp::initialize()
     _adapter->start( opt );
 }
 
-void client_tcp::stop(const std::string&) 
+void client_tcp::stop() 
 {
   if ( _adapter!=nullptr )
   {
