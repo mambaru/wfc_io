@@ -124,17 +124,17 @@ void server_tcp::start()
             {
               size_t id = tcount->fetch_add(1);
               std::stringstream ss;
-              ss << pthis->name() << "thread" << id;
+              ss << pthis->name() << ".thread" << id;
               proto_time = stat->create_value_prototype( ss.str());
-              ss.clear();
-              ss << pthis->name() << "threads";
-              proto_total = stat->create_value_prototype( ss.str());
+              std::stringstream ss1;
+              ss1 << pthis->name() << ".threads";
+              proto_total = stat->create_value_prototype( ss1.str());
             }
             else
             {
               auto span_mcs = std::chrono::duration_cast<std::chrono::microseconds>(span).count();
               stat->create_meter(proto_time, span_mcs, count );
-              stat->create_meter(proto_time, span_mcs, count );
+              stat->create_meter(proto_total, span_mcs, count );
             }
           }
         }
