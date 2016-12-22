@@ -10,6 +10,7 @@ namespace wfc{ namespace io{
 
 class server_tcp
   : public ::wfc::domain_object<iinterface, server_tcp_config>
+  , public std::enable_shared_from_this<server_tcp>
 {
   class impl;
 public:

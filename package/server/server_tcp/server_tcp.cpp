@@ -103,11 +103,49 @@ void server_tcp::start()
     
     if ( auto stat = this->get_statistics() )
     {
+      /*
+      std::stringstream ss;
+      ss << this->name() << "total";
+      value_meter_ptr total = stat->create_value_prototype( ss.str());
+      */
+
+      std::weak_ptr<server_tcp> wthis = this->shared_from_this();
+      typedef wfc::statistics::value_meter_ptr value_meter_ptr;
+      value_meter_ptr proto_time;
+      value_meter_ptr proto_total;
+      auto tcount = std::make_shared< std::atomic<int> >();
+      opt.thread_statistics= [wthis, proto_time,  tcount, opt, proto_total](std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
+      {
+        if ( auto pthis = wthis.lock() )
+        {
+          if ( auto stat = pthis->get_statistics() )
+          {
+            if ( proto_time == nullptr )
+            {
+              size_t id = tcount->fetch_add(1);
+              std::stringstream ss;
+              ss << pthis->name() << "thread" << id;
+              proto_time = stat->create_value_prototype( ss.str());
+              ss.clear();
+              ss << pthis->name() << "threads";
+              proto_total = stat->create_value_prototype( ss.str());
+            }
+            else
+            {
+              auto span_mcs = std::chrono::duration_cast<std::chrono::microseconds>(span).count();
+              stat->create_meter(proto_time, span_mcs, count );
+              stat->create_meter(proto_time, span_mcs, count );
+            }
+          }
+        }
+      };
+      /*
       auto p = stat->create_value_prototype(this->name());
       opt.thread_statistics = [stat, p](std::thread::id, size_t count, options_type::statistics_duration span)
       {
         stat->create_meter(p, std::chrono::duration_cast<std::chrono::microseconds>(span).count(),  count);
       };
+      */
     }
     /*
 #warning сделать отключчаемеми
