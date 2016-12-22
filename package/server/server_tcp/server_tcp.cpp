@@ -88,7 +88,18 @@ void server_tcp::start()
       };
     }
     opt.connection.target = wtarget;
-    
+
+    std::string name = this->name();
+    g->threads.set_reg_cpu(name, opt.cpu);
+    opt.thread_startup = [g, name](std::thread::id)
+    {
+      g->threads.reg_thread(name);
+    };
+
+    opt.thread_startup = [g](std::thread::id)
+    {
+      g->threads.unreg_thread();
+    };
     /*
 #warning сделать отключчаемеми
     
