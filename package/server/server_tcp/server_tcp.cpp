@@ -100,6 +100,15 @@ void server_tcp::start()
     {
       g->threads.unreg_thread();
     };
+    
+    if ( auto stat = this->get_statistics() )
+    {
+      auto p = stat->create_value_prototype(this->name());
+      opt.thread_statistics = [stat, p](std::thread::id, size_t count, options_type::statistics_duration span)
+      {
+        stat->create_meter(p, std::chrono::duration_cast<std::chrono::microseconds>(span).count(),  count);
+      };
+    }
     /*
 #warning сделать отключчаемеми
     
