@@ -96,7 +96,7 @@ void server_tcp::start()
       g->threads.reg_thread(name);
     };
 
-    opt.thread_startup = [g](std::thread::id)
+    opt.thread_shutdown = [g](std::thread::id)
     {
       g->threads.unreg_thread();
     };
