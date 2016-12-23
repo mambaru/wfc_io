@@ -43,12 +43,18 @@ void queue::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler)
   auto pd = std::make_shared<data_ptr>( std::move(d) );
   std::weak_ptr<iinterface> wtarget = _target;
   std::weak_ptr<queue> wthis = this->shared_from_this();;
-  this->get_workflow()->post([pd, io_id, handler, wthis, wtarget]() mutable
-  {
-    if ( auto pthis = wthis.lock() )
-      if ( auto t = wtarget.lock() )
-        t->perform_io( std::move( *pd ), io_id, pthis->make_handler_( std::move(handler) ) );
-  });
+  this->get_workflow()->post(
+    [pd, io_id, handler, wthis, wtarget]() mutable
+    {
+      if ( auto pthis = wthis.lock() )
+        if ( auto t = wtarget.lock() )
+          t->perform_io( std::move( *pd ), io_id, pthis->make_handler_( std::move(handler) ) );
+    },
+    [handler]()
+    {
+      handler(nullptr);
+    }
+  );
 }
 
 iinterface::outgoing_handler_t queue::make_handler_(outgoing_handler_t&& handler)
@@ -69,7 +75,7 @@ iinterface::outgoing_handler_t queue::make_handler_(outgoing_handler_t&& handler
       w->post([pd, handler]()
       {
         handler( std::move( *pd ) );
-      });
+      }, nullptr);
     }
     else
       handler( std::move( d ) );
