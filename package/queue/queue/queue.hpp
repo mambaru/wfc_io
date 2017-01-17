@@ -9,7 +9,7 @@
 namespace wfc{ namespace io{
   
 class queue
-  : public ::wfc::domain_object<iinterface, queue_config>
+  : public ::wfc::domain_object<iinterface, queue_config, wfc::nostat>
   , public std::enable_shared_from_this<queue>
 {
   typedef std::shared_ptr< ::wfc::workflow > workflow_ptr;

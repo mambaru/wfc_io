@@ -17,7 +17,8 @@ namespace
   class impl: public ::wfc::multiton<
     multiton_name,
     ::wfc::instance<queue>,
-    queue_config_json
+    queue_config_json, 
+    ::wfc::component_features::DisabledPriority 
   >
   {};
 }
