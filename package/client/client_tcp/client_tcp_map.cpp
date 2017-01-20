@@ -100,15 +100,12 @@ void client_tcp_map::perform_io( iinterface::data_ptr d, io_id_t id, outgoing_ha
     handler( std::move(d) );
   };
   
-  DEBUG_LOG_DEBUG("-2- client_tcp::perform_io: " << d)
   if ( auto cli = this->queryset(id, handler ) )
   {
-    DEBUG_LOG_DEBUG("-2.1- client_tcp::perform_io: " << d)
     cli->perform_io( std::move(d), id, std::move(handler) );
   }
   else if ( handler != nullptr )
   {
-    DEBUG_LOG_DEBUG("-2.2- client_tcp::perform_io: " << d)
     handler(nullptr);
   }
 }
