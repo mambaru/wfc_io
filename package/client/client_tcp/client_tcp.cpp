@@ -10,35 +10,20 @@
 namespace wfc{ namespace io{
  
 
-client_tcp::~client_tcp()
+void client_tcp::start()
 {
-}
-
-client_tcp::client_tcp()
-{
-}
-
-void client_tcp::configure()
-{
-  if ( auto g = this->global() )
-  {
-    _adapter = std::make_shared<client_tcp_adapter>( g->io_service);
-  }
-}
-
-void client_tcp::initialize()
-{
-    auto opt = this->options();
-    opt.args.workflow = this->get_workflow();
-    _adapter->start( opt );
+  if ( _adapter!=nullptr )
+    _adapter->stop();
+  _adapter = std::make_shared<client_tcp_adapter>( this->global()->io_service);
+  auto opt = this->options();
+  opt.args.workflow = this->get_workflow();
+  _adapter->start( opt );
 }
 
 void client_tcp::stop() 
 {
   if ( _adapter!=nullptr )
-  {
     _adapter->stop();
-  }
 }
 
 void client_tcp::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
