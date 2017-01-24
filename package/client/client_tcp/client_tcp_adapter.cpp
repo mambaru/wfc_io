@@ -30,7 +30,8 @@ public:
 };
 
 client_tcp_adapter::client_tcp_adapter( io_service_type& io)
-  : _id ( ::iow::io::create_id<io_id_t>() )
+  : _io (io)
+  , _id ( ::iow::io::create_id<io_id_t>() )
 {
   _holder_id = 0;
   _client = std::make_shared<client_type>(io);
@@ -52,52 +53,50 @@ void client_tcp_adapter::stop()
 void client_tcp_adapter::start( options_type opt)
 {
   auto pthis = this->shared_from_this();
-  
-  /*if ( _holder.lock() != nullptr )
-  {*/
-    if ( opt.connection.incoming_handler == nullptr )
-    {
-      opt.connection.incoming_handler = [pthis](data_ptr d, io_id_t, outgoing_handler_t handler)
-      {
-        if ( auto holder = pthis->get_holder() )
-        {
-          holder->perform_io(std::move(d), pthis->_id, std::move(handler) );
-        }
-      };
-    }
 
-    auto connect_handler = opt.args.connect_handler;
-    opt.args.connect_handler = [pthis, connect_handler]()
-    {
-      if ( auto holder = pthis->get_holder() )
-      {
-        holder->reg_io( pthis->_id, pthis );
-      }
-      if ( connect_handler ) connect_handler();
-    };
-    
-    auto shutdown_handler = opt.connection.shutdown_handler;
-    opt.connection.shutdown_handler = [pthis, shutdown_handler](io_id_t id)
-    {
-      if ( auto holder = pthis->get_holder() )
-      {
-        holder->unreg_io( pthis->_id);
-      }
-      if ( shutdown_handler ) shutdown_handler( id );
-    };
-  /*}
-  else
+  if ( opt.connection.incoming_handler == nullptr )
   {
-    IOW_LOG_WARNING("client_tcp::client::start holder not set")
-  }*/
+    opt.connection.incoming_handler = [pthis](data_ptr d, io_id_t, outgoing_handler_t handler)
+    {
+      if ( auto holder = pthis->get_holder() )
+      {
+        holder->perform_io(std::move(d), pthis->_id, std::move(handler) );
+      }
+    };
+  }
+
+  auto connect_handler = opt.args.connect_handler;
+  opt.args.connect_handler = [pthis, connect_handler]()
+  {
+    if ( auto holder = pthis->get_holder() )
+    {
+      holder->reg_io( pthis->_id, pthis );
+    }
+    if ( connect_handler ) connect_handler();
+  };
+  
+  auto shutdown_handler = opt.connection.shutdown_handler;
+  opt.connection.shutdown_handler = [pthis, shutdown_handler](io_id_t id)
+  {
+    if ( auto holder = pthis->get_holder() )
+    {
+      auto id = pthis->_id;
+      pthis->_io.post([holder, id]()
+      {
+        holder->unreg_io(id);
+      });
+      //holder->unreg_io( pthis->_id);
+    }
+    if ( shutdown_handler ) 
+      shutdown_handler( id );
+  };
   
   _client->start(opt);
 }
 
 std::shared_ptr<iinterface> client_tcp_adapter::get_holder() const
 {
-  //read_lock<mutex_type> lk(_mutex);
-  std::lock_guard<mutex_type> lk(_mutex);
+  read_lock<mutex_type> lk(_mutex);
   return _holder.lock();
 }
 

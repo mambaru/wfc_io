@@ -18,11 +18,9 @@ class client_tcp_adapter
 {
   class handler_wrapper;
   class impl;
-  //typedef ::wfc::rwlock<std::mutex> mutex_type;
-  typedef std::recursive_mutex mutex_type;
-  //typedef empty_mutex mutex_type;
-  
+  typedef ::wfc::rwlock<std::mutex> mutex_type;
 public:
+
   typedef impl client_type;
   typedef std::shared_ptr<client_type> client_ptr;
 
@@ -45,7 +43,7 @@ public:
   virtual void perform_io( iinterface::data_ptr d, io_id_t /*io_id*/, outgoing_handler_t handler) override;
   
 private:
-  
+  io_service_type& _io;
   io_id_t _id;
   std::atomic<io_id_t> _holder_id;
   std::weak_ptr<iinterface> _holder;
