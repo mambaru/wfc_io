@@ -96,7 +96,8 @@ void client_tcp_adapter::start( options_type opt)
 
 std::shared_ptr<iinterface> client_tcp_adapter::get_holder() const
 {
-  read_lock<mutex_type> lk(_mutex);
+  //read_lock<mutex_type> lk(_mutex);
+  std::lock_guard<mutex_type> lk(_mutex);
   return _holder.lock();
 }
 
