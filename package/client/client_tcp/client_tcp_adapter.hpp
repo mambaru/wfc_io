@@ -19,7 +19,7 @@ class client_tcp_adapter
   class handler_wrapper;
   class impl;
   //typedef ::wfc::rwlock<std::mutex> mutex_type;
-  typedef std::mutex mutex_type;
+  typedef std::recursive_mutex mutex_type;
   //typedef empty_mutex mutex_type;
   
 public:

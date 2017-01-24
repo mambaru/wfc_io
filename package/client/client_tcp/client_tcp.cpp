@@ -23,19 +23,25 @@ void client_tcp::start()
 void client_tcp::stop() 
 {
   if ( _adapter!=nullptr )
+  {
     _adapter->stop();
+  }
 }
 
 void client_tcp::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
 {
   if ( !this->suspended() && _adapter!=nullptr )
+  {
     _adapter->reg_io( io_id, itf);
+  }
 }
 
 void client_tcp::unreg_io(io_id_t io_id)
 {
   if ( _adapter!=nullptr )
+  {
     _adapter->unreg_io(io_id);
+  }
 }
 
 void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
@@ -46,7 +52,9 @@ void client_tcp::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handle
       handler(nullptr);
   }
   else if ( _adapter!=nullptr )
+  {
     _adapter->perform_io( std::move(d), io_id, std::move(handler) );
+  }
 }
 
 }}
