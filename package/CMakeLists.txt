@@ -7,7 +7,9 @@ SET(
   server/server_module.cpp
   server/server_tcp/server_multiton.cpp
   server/server_tcp/server_tcp.cpp
-  
+  server/server_udp/server_udp_multiton.cpp
+  server/server_udp/server_udp.cpp
+    
   client/client_module.cpp
   client/client_tcp/client_multiton.cpp
   client/client_tcp/client_tcp.cpp
