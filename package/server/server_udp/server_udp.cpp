@@ -55,9 +55,9 @@ void server_udp::start()
     opt.incoming_handler = 
         [wtarget]( data_ptr d, io_id_t id, outgoing_handler_t callback ) 
     {
-      abort();
         if ( auto ptarget = wtarget.lock() )
         {
+          //wabort();
           ptarget->perform_io(std::move(d), id, std::move(callback));
         }
         else
@@ -66,7 +66,6 @@ void server_udp::start()
         }
     };
     opt.target = wtarget;
-
     std::string name = this->name();
     g->threads.set_reg_cpu(name, opt.cpu);
     opt.thread_startup = [g, name](std::thread::id)
@@ -81,12 +80,6 @@ void server_udp::start()
     
     if ( auto stat = this->get_statistics() )
     {
-      /*
-      std::stringstream ss;
-      ss << this->name() << "total";
-      value_meter_ptr total = stat->create_value_prototype( ss.str());
-      */
-
       std::weak_ptr<server_udp> wthis = this->shared_from_this();
       typedef wfc::statistics::value_meter_ptr value_meter_ptr;
       value_meter_ptr proto_time;
@@ -117,29 +110,7 @@ void server_udp::start()
           }
         }
       };
-      /*
-      auto p = stat->create_value_prototype(this->name());
-      opt.thread_statistics = [stat, p](std::thread::id, size_t count, options_type::statistics_duration span)
-      {
-        stat->create_meter(p, std::chrono::duration_cast<std::chrono::microseconds>(span).count(),  count);
-      };
-      */
     }
-    /*
-#warning сделать отключчаемеми
-    
-    opt.connection.startup_handler = [wtarget]( ::iow::io::io_id_t id, ::iow::io::outgoing_handler_t callback)
-    {
-      if ( auto ptarget = wtarget.lock() )
-      {
-        DEBUG_LOG_MESSAGE("wfc_server::connection reg_io")
-        //ptarget->reg_io( id, wthis);  
-      }
-    };
-    */
-    
-    
-    //_impl->start( opt );
     _impl->start( std::move(opt) );
   }
 }
