@@ -5,11 +5,10 @@
 
 
 namespace wfc{ namespace io{
-  
+
 typedef iinterface::io_id_t io_id_t;
 typedef iinterface::outgoing_handler_t outgoing_handler_t;
 typedef iinterface::data_ptr data_ptr;
-
 
 class server_udp::impl
   : public ::iow::ip::udp::server::server<>
@@ -20,7 +19,6 @@ public:
     : server(io)
   {}
 };
-
 
 server_udp::~server_udp()
 {
@@ -37,7 +35,6 @@ void server_udp::initialize()
     auto target = this->options().target_name;
     _target = g->registry.get<iinterface>(target);
   }
-
 }
 
 void server_udp::start()
@@ -55,15 +52,15 @@ void server_udp::start()
     opt.incoming_handler = 
         [wtarget]( data_ptr d, io_id_t id, outgoing_handler_t callback ) 
     {
-        if ( auto ptarget = wtarget.lock() )
-        {
-          //wabort();
-          ptarget->perform_io(std::move(d), id, std::move(callback));
-        }
-        else
-        {
-          callback( std::move(d));
-        }
+      std::cout << "server_udp::start() incoming_handler" << std::endl;
+      if ( auto ptarget = wtarget.lock() )
+      {
+        ptarget->perform_io(std::move(d), id, std::move(callback));
+      }
+      else
+      {
+        callback( std::move(d));
+      }
     };
     opt.target = wtarget;
     std::string name = this->name();
@@ -111,7 +108,7 @@ void server_udp::start()
         }
       };
     }
-    _impl->start( std::move(opt) );
+    _impl->start( opt );
   }
 }
 
