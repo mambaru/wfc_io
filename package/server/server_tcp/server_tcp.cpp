@@ -56,34 +56,34 @@ void server_tcp::start()
     if ( opt.keep_alive ) 
     {
       opt.connection.incoming_handler = 
-        [wtarget]( data_ptr d, io_id_t id, outgoing_handler_t callback ) 
+        [wtarget]( data_ptr d, io_id_t id, outgoing_handler_t cb ) 
       {
         if ( auto ptarget = wtarget.lock() )
         {
-          ptarget->perform_io(std::move(d), id, std::move(callback));
+          ptarget->perform_io(std::move(d), id, std::move(cb));
         }
         else
         {
-          callback( std::move(d));
+          cb( std::move(d));
         }
       };
     }
     else
     {
       opt.connection.incoming_handler = 
-        [wtarget](data_ptr d, io_id_t id, outgoing_handler_t callback )
+        [wtarget](data_ptr d, io_id_t id, outgoing_handler_t cb )
       {
         if ( auto ptarget = wtarget.lock() )
         {
-          ptarget->perform_io(std::move(d), id, [callback](data_ptr d)
+          ptarget->perform_io(std::move(d), id, [cb](data_ptr d)
           {
-            callback(std::move(d));
-            callback(nullptr);
+            cb(std::move(d));
+            cb(nullptr);
           });
         }
         else
         {
-          callback( std::move(d));
+          cb( std::move(d));
         }
       };
     }
@@ -103,17 +103,12 @@ void server_tcp::start()
     
     if ( auto stat = this->get_statistics() )
     {
-      /*
-      std::stringstream ss;
-      ss << this->name() << "total";
-      value_meter_ptr total = stat->create_value_prototype( ss.str());
-      */
-
       std::weak_ptr<server_tcp> wthis = this->shared_from_this();
       typedef wfc::statistics::value_meter_ptr value_meter_ptr;
       value_meter_ptr proto_time;
       value_meter_ptr proto_total;
       auto tcount = std::make_shared< std::atomic<int> >();
+      /*
       opt.thread_statistics= [wthis, proto_time,  tcount, opt, proto_total](std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
       {
         if ( auto pthis = wthis.lock() )
@@ -139,30 +134,10 @@ void server_tcp::start()
           }
         }
       };
-      /*
-      auto p = stat->create_value_prototype(this->name());
-      opt.thread_statistics = [stat, p](std::thread::id, size_t count, options_type::statistics_duration span)
-      {
-        stat->create_meter(p, std::chrono::duration_cast<std::chrono::microseconds>(span).count(),  count);
-      };
       */
     }
-    /*
-#warning сделать отключчаемеми
-    
-    opt.connection.startup_handler = [wtarget]( ::iow::io::io_id_t id, ::iow::io::outgoing_handler_t callback)
-    {
-      if ( auto ptarget = wtarget.lock() )
-      {
-        DEBUG_LOG_MESSAGE("wfc_server::connection reg_io")
-        //ptarget->reg_io( id, wthis);  
-      }
-    };
-    */
-    
-    
-    //_impl->start( opt );
-    _impl->start( std::move(opt) );
+
+    _impl->start( opt );
   }
 }
 
