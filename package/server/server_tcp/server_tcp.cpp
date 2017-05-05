@@ -108,7 +108,7 @@ void server_tcp::start()
       value_meter_ptr proto_time;
       value_meter_ptr proto_total;
       auto tcount = std::make_shared< std::atomic<int> >();
-      /*
+      
       opt.thread_statistics= [wthis, proto_time,  tcount, opt, proto_total](std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
       {
         if ( auto pthis = wthis.lock() )
@@ -134,7 +134,6 @@ void server_tcp::start()
           }
         }
       };
-      */
     }
 
     _impl->start( opt );
