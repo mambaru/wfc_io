@@ -16,7 +16,8 @@ namespace
   class impl: public ::wfc::multiton<
     component_name,
     ::wfc::instance<server_udp>,
-    server_udp_config_json
+    server_udp_config_json, 
+    component_features::EnableCPU
   >
   {};
 }

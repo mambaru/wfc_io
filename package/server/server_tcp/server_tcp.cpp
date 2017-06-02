@@ -88,18 +88,24 @@ void server_tcp::start()
       };
     }
     opt.connection.target = wtarget;
+    opt.thread_startup = std::bind( &server_tcp::reg_thread, this );
+    opt.thread_shutdown = std::bind( &server_tcp::unreg_thread, this );
 
+    /*
     std::string name = this->name();
     g->threads.set_reg_cpu(name, opt.cpu);
-    opt.thread_startup = [g, name](std::thread::id)
+    opt.thread_startup = [g, name, this](std::thread::id)
     {
       g->threads.reg_thread(name);
+      this->reg_thread();
     };
 
-    opt.thread_shutdown = [g](std::thread::id)
+    opt.thread_shutdown = [g, this](std::thread::id)
     {
       g->threads.unreg_thread();
+      this->unreg_thread();
     };
+    */
     
     if ( auto stat = this->get_statistics() )
     {

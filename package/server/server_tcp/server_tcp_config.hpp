@@ -10,7 +10,7 @@ struct server_tcp_config: tcp_options
 {
   std::string target;
   bool keep_alive = true;
-  std::set<int> cpu;
+  /*std::set<int> cpu;*/
 };
 
 }}

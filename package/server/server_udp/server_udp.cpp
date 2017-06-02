@@ -63,17 +63,24 @@ void server_udp::start()
       }
     };
     opt.target = wtarget;
+    opt.thread_startup = std::bind( &self::reg_thread, this );
+    opt.thread_shutdown = std::bind( &self::unreg_thread, this );
+
+    /*
     std::string name = this->name();
     g->threads.set_reg_cpu(name, opt.cpu);
-    opt.thread_startup = [g, name](std::thread::id)
+    opt.thread_startup = [g, name, this](std::thread::id)
     {
       g->threads.reg_thread(name);
+      this->reg_thread();
     };
 
-    opt.thread_shutdown = [g](std::thread::id)
+    opt.thread_shutdown = [g, this](std::thread::id)
     {
       g->threads.unreg_thread();
+      this->unreg_thread();
     };
+    */
     
     if ( auto stat = this->get_statistics() )
     {

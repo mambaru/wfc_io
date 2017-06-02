@@ -13,6 +13,7 @@ class server_udp
   , public std::enable_shared_from_this<server_udp>
 {
   class impl;
+  typedef ::wfc::domain_object<iinterface, server_udp_config> self;
 public:
   virtual ~server_udp();
   server_udp();

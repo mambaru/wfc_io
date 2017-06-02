@@ -16,7 +16,8 @@ namespace
   class impl: public ::wfc::multiton<
     component_name,
     ::wfc::instance<server_tcp>,
-    server_tcp_config_json
+    server_tcp_config_json,
+    component_features::EnableCPU
   >
   {};
 }

@@ -37,7 +37,7 @@ struct server_tcp_config_json
     json::member_list<
         json::member<n_target, server_tcp_config, std::string, &server_tcp_config::target>,
         json::member<n_keep_alive, server_tcp_config, bool, &server_tcp_config::keep_alive>,
-        json::member<n_cpu, server_tcp_config, std::set<int>, &server_tcp_config::cpu, json::array< std::set< json::value<int> >  > >,
+        /*json::member<n_cpu, server_tcp_config, std::set<int>, &server_tcp_config::cpu, json::array< std::set< json::value<int> >  > >,*/
         json::base< server_json >
     >
   > type;
