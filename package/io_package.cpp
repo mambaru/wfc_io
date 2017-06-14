@@ -15,8 +15,10 @@ class impl: public ::wfc::module_list<
   io_build_info,
   io::server_module,
   io::client_module,
-  io::queue_module,
-  io::statistics_module
+  io::queue_module
+#ifdef WFC_ENABLE_STAT
+  ,io::statistics_module
+#endif
 >
 {  
 };
