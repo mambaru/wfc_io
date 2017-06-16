@@ -31,7 +31,7 @@ void statistics::initialize()
           if ( auto stat = this->get_statistics() )
             stat->create_meter( this->_connections_meter, size, 0);
           return true;
-        })
+        }, nullptr)
       );
     }
   }
