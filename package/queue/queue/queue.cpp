@@ -47,8 +47,16 @@ void queue::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler)
     [pd, io_id, handler, wthis, wtarget]() mutable
     {
       if ( auto pthis = wthis.lock() )
+      {
         if ( auto t = wtarget.lock() )
-          t->perform_io( std::move( *pd ), io_id, pthis->make_handler_( std::move(handler) ) );
+        {
+          t->perform_io( 
+              std::move( *pd ), 
+              io_id, 
+              pthis->make_handler_( std::move(handler) ) 
+          );
+        }
+      }
     },
     [handler]()
     {
@@ -72,13 +80,15 @@ iinterface::outgoing_handler_t queue::make_handler_(outgoing_handler_t&& handler
     if ( w!=nullptr )
     {
       auto pd = std::make_shared<data_ptr>( std::move(d) );
-      w->post([pd, handler]()
-      {
-        handler( std::move( *pd ) );
-      }, nullptr);
+      w->post(
+        [pd, handler]() { handler( std::move( *pd ) ); }, 
+        [handler]()     { handler(nullptr); } 
+      );
     }
     else
+    {
       handler( std::move( d ) );
+    }
   };
 }
 
