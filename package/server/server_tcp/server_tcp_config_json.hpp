@@ -12,7 +12,8 @@ struct connection_options_json
     tcp_connection_options,
     json::member_list<
         json::base< ::iow::ip::tcp::connection::options_json >
-    >
+    >,
+    json::strict_mode
   > type;
 
   typedef type::target target;
@@ -39,7 +40,8 @@ struct server_tcp_config_json
         json::member<n_keep_alive, server_tcp_config, bool, &server_tcp_config::keep_alive>,
         /*json::member<n_cpu, server_tcp_config, std::set<int>, &server_tcp_config::cpu, json::array< std::set< json::value<int> >  > >,*/
         json::base< server_json >
-    >
+    >,
+    json::strict_mode
   > type;
   
   typedef type::target target;

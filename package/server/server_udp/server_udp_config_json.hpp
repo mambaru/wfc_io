@@ -20,7 +20,8 @@ struct server_udp_config_json
         json::member<n_target, server_udp_config, std::string, &server_udp_config::target_name>,
         /*json::member<n_cpu, server_udp_config, std::set<int>, &server_udp_config::cpu, json::array< std::set< json::value<int> >  > >,*/
         json::base< server_json >
-    >
+    >,
+    json::strict_mode
   > type;
   
   typedef type::target target;
