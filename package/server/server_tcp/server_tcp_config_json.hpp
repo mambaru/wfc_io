@@ -22,6 +22,7 @@ struct connection_options_json
   typedef type::member_list member_list;
 };
 
+/*
 struct data_pool_options_json
 {
   JSON_NAME(disabled)
@@ -38,7 +39,7 @@ struct data_pool_options_json
   typedef type::serializer serializer;
   typedef type::member_list member_list;
 };
-
+*/
 
 struct server_tcp_config_json
 {
@@ -58,8 +59,8 @@ struct server_tcp_config_json
         json::member<n_target, server_tcp_config, std::string, &server_tcp_config::target>,
         json::member<n_keep_alive, server_tcp_config, bool, &server_tcp_config::keep_alive>,
         /*json::member<n_cpu, server_tcp_config, std::set<int>, &server_tcp_config::cpu, json::array< std::set< json::value<int> >  > >,*/
-        json::base< server_json >,
-        json::member<n_data_pool, server_tcp_config, data_pool_options, &server_tcp_config::data_pool, data_pool_options_json>
+        json::base< server_json >/*,
+        json::member<n_data_pool, server_tcp_config, data_pool_options, &server_tcp_config::data_pool, data_pool_options_json>*/
     >,
     json::strict_mode
   > type;

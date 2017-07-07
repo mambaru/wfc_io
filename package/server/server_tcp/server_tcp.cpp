@@ -50,6 +50,7 @@ void server_tcp::start()
 
     auto wtarget = _target;
 
+    /*
     if ( opt.data_pool.disabled == false )
     {
       _data_pool = std::make_shared<data_pool>();
@@ -60,6 +61,7 @@ void server_tcp::start()
       opt.connection.writer.create = std::bind( &data_pool::create, _data_pool, _1, _2);
       opt.connection.writer.free = std::bind(&data_pool::free, _data_pool, _1);
     }
+    */
     /// #warning убрать, но в базовых не должно nonblocking, т.к. nonblocking() для акцепт вылетает сразу 
     opt.nonblocking = false;
 
