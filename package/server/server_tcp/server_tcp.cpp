@@ -8,7 +8,7 @@
 namespace wfc{ namespace io{
   
 typedef iinterface::io_id_t io_id_t;
-typedef iinterface::outgoing_handler_t outgoing_handler_t;
+typedef iinterface::output_handler_t output_handler_t;
 typedef iinterface::data_ptr data_ptr;
 
 
@@ -56,7 +56,7 @@ void server_tcp::start()
     if ( opt.keep_alive ) 
     {
       opt.connection.incoming_handler = 
-        [wtarget]( data_ptr d, io_id_t id, outgoing_handler_t cb ) 
+        [wtarget]( data_ptr d, io_id_t id, output_handler_t cb ) 
       {
         if ( auto ptarget = wtarget.lock() )
         {
@@ -71,7 +71,7 @@ void server_tcp::start()
     else
     {
       opt.connection.incoming_handler = 
-        [wtarget](data_ptr d, io_id_t id, outgoing_handler_t cb )
+        [wtarget](data_ptr d, io_id_t id, output_handler_t cb )
       {
         if ( auto ptarget = wtarget.lock() )
         {

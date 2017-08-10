@@ -11,13 +11,13 @@ namespace wfc{ namespace io{
 class client_tcp_adapter::handler_wrapper: public iinterface
 {
 public:
-  handler_wrapper(outgoing_handler_t handler): _handler(handler) {}
-  virtual void perform_io( iinterface::data_ptr d, io_id_t /*id*/, outgoing_handler_t /*handler*/) override
+  handler_wrapper(output_handler_t handler): _handler(handler) {}
+  virtual void perform_io( iinterface::data_ptr d, io_id_t /*id*/, output_handler_t /*handler*/) override
   {
     _handler( std::move(d) );
   }
 private:
-  outgoing_handler_t _handler;
+  output_handler_t _handler;
 };
   
 class client_tcp_adapter::impl
@@ -56,7 +56,7 @@ void client_tcp_adapter::start( options_type opt)
 
   if ( opt.connection.incoming_handler == nullptr )
   {
-    opt.connection.incoming_handler = [pthis](data_ptr d, io_id_t, outgoing_handler_t handler)
+    opt.connection.incoming_handler = [pthis](data_ptr d, io_id_t, output_handler_t handler)
     {
       if ( auto holder = pthis->get_holder() )
       {
@@ -127,7 +127,7 @@ void client_tcp_adapter::unreg_io(io_id_t io_id)
 }
 
 
-void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
+void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, output_handler_t handler) 
 {
   auto pitf = this->get_holder();
   if ( pitf == nullptr )

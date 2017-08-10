@@ -7,7 +7,7 @@
 namespace wfc{ namespace io{
 
 typedef iinterface::io_id_t io_id_t;
-typedef iinterface::outgoing_handler_t outgoing_handler_t;
+typedef iinterface::output_handler_t output_handler_t;
 typedef iinterface::data_ptr data_ptr;
 
 class server_udp::impl
@@ -50,9 +50,8 @@ void server_udp::start()
     opt.nonblocking = false;
 
     opt.incoming_handler = 
-        [wtarget]( data_ptr d, io_id_t id, outgoing_handler_t callback ) 
+        [wtarget]( data_ptr d, io_id_t id, output_handler_t callback ) 
     {
-      std::cout << "server_udp::start() incoming_handler" << std::endl;
       if ( auto ptarget = wtarget.lock() )
       {
         ptarget->perform_io(std::move(d), id, std::move(callback));
@@ -97,12 +96,10 @@ void server_udp::start()
           {
             if ( proto_time == nullptr )
             {
-              size_t id = tcount->fetch_add(1);
+              //size_t id = tcount->fetch_add(1);
               std::stringstream ss;
-              ss << pthis->name() << ".thread" << id;
               proto_time = stat->create_value_prototype( ss.str());
               std::stringstream ss1;
-              ss1 << pthis->name() << ".threads";
               proto_total = stat->create_value_prototype( ss1.str());
             }
             else

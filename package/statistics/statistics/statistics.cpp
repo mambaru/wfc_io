@@ -68,7 +68,7 @@ void statistics::unreg_io(io_id_t io_id)
   }
 }
 
-void statistics::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler)
+void statistics::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
 {
   if (auto t = _target.lock() )
   {

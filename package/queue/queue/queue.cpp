@@ -30,7 +30,7 @@ void queue::unreg_io(io_id_t io_id)
 }
 
 
-void queue::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler) 
+void queue::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler) 
 {
   auto target = _target.lock();
   
@@ -65,7 +65,7 @@ void queue::perform_io(data_ptr d, io_id_t io_id, outgoing_handler_t handler)
   );
 }
 
-iinterface::outgoing_handler_t queue::make_handler_(outgoing_handler_t&& handler)
+iinterface::output_handler_t queue::make_handler_(output_handler_t&& handler)
 {
   if ( _callback_workflow == nullptr ) 
     return std::move(handler);

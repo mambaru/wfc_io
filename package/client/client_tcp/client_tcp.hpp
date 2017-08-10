@@ -25,7 +25,7 @@ public:
 
   virtual void unreg_io(io_id_t /*io_id*/) override;
 
-  virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, outgoing_handler_t handler) override;
+  virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, output_handler_t handler) override;
 
 private:
   std::shared_ptr<client_tcp_adapter> _adapter;

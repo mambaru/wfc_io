@@ -40,7 +40,7 @@ public:
   // iinterface
   virtual void reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/);
   virtual void unreg_io(io_id_t /*io_id*/);
-  virtual void perform_io( iinterface::data_ptr d, io_id_t /*io_id*/, outgoing_handler_t handler) override;
+  virtual void perform_io( iinterface::data_ptr d, io_id_t /*io_id*/, output_handler_t handler) override;
   
 private:
   io_service_type& _io;

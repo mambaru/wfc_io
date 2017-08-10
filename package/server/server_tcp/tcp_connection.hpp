@@ -17,7 +17,7 @@ public:
   typedef ::iow::ip::tcp::connection::connection_base<> super;
   typedef super::descriptor_type descriptor_type;
   typedef super::io_id_type io_id_type;
-  typedef super::outgoing_handler_type outgoing_handler_type;
+  typedef super::output_handler_type output_handler_type;
   typedef super::mutex_type mutex_type;
   typedef super::data_ptr data_ptr;
   
@@ -60,7 +60,7 @@ public:
     auto shutdown_handler = opt.shutdown_handler;
     std::weak_ptr<tcp_connection> wthis = this->shared_from_this();
     
-    opt.startup_handler = [wtarget, wthis, startup_handler](io_id_type id, outgoing_handler_type outgoing)
+    opt.startup_handler = [wtarget, wthis, startup_handler](io_id_type id, output_handler_type outgoing)
     {
       if ( auto ptarget = wtarget.lock() )
       {
@@ -121,10 +121,10 @@ public:
     */
   }
 
-  virtual void perform_io(data_ptr d, io_id_t /*io_id*/, outgoing_handler_t /*handler*/) override
+  virtual void perform_io(data_ptr d, io_id_t /*io_id*/, output_handler_t /*handler*/) override
   {
     std::lock_guard< mutex_type > lk( super::mutex() );
-    if ( auto outgoing = super::get_aspect().get< iow::io::descriptor::_context_>().outgoing_handler )
+    if ( auto outgoing = super::get_aspect().get< iow::io::descriptor::_context_>().output_handler )
     {
       outgoing( std::move(d) );
     }
