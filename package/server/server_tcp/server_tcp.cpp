@@ -55,7 +55,7 @@ void server_tcp::start()
 
     if ( opt.keep_alive ) 
     {
-      opt.connection.incoming_handler = 
+      opt.connection.input_handler = 
         [wtarget]( data_ptr d, io_id_t id, output_handler_t cb ) 
       {
         if ( auto ptarget = wtarget.lock() )
@@ -70,7 +70,7 @@ void server_tcp::start()
     }
     else
     {
-      opt.connection.incoming_handler = 
+      opt.connection.input_handler = 
         [wtarget](data_ptr d, io_id_t id, output_handler_t cb )
       {
         if ( auto ptarget = wtarget.lock() )

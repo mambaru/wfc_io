@@ -49,7 +49,7 @@ void server_udp::start()
     /// #warning убрать, но в базовых не должно nonblocking, т.к. nonblocking() для акцепт вылетает сразу 
     opt.nonblocking = false;
 
-    opt.incoming_handler = 
+    opt.input_handler = 
         [wtarget]( data_ptr d, io_id_t id, output_handler_t callback ) 
     {
       if ( auto ptarget = wtarget.lock() )

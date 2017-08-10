@@ -54,9 +54,9 @@ void client_tcp_adapter::start( options_type opt)
 {
   auto pthis = this->shared_from_this();
 
-  if ( opt.connection.incoming_handler == nullptr )
+  if ( opt.connection.input_handler == nullptr )
   {
-    opt.connection.incoming_handler = [pthis](data_ptr d, io_id_t, output_handler_t handler)
+    opt.connection.input_handler = [pthis](data_ptr d, io_id_t, output_handler_t handler)
     {
       if ( auto holder = pthis->get_holder() )
       {
