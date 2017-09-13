@@ -19,7 +19,17 @@ namespace
     server_udp_config_json, 
     component_features::EnableCPU
   >
-  {};
+  {
+    virtual std::string interface_name() const override
+    {
+      return std::string("");
+    }
+
+    virtual std::string description() const override
+    {
+      return "UDP server";
+    }
+  };
 }
 
 server_udp_multiton::server_udp_multiton()

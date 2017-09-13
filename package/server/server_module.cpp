@@ -16,6 +16,10 @@ namespace
     server_udp_multiton
   >
   {
+    virtual std::string description() const override
+    {
+      return "Server components.";
+    }
   };
 }
 

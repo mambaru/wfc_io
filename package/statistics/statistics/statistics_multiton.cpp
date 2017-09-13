@@ -20,7 +20,17 @@ namespace
     ::wfc::component_features::DisabledPriority
     | ::wfc::component_features::DisabledWorkflow
   >
-  {};
+  {
+    virtual std::string interface_name() const override
+    {
+      return std::string("wfc::iinterface");
+    }
+
+    virtual std::string description() const override
+    {
+      return "Common statistics of traffics incoming/outgoing messages";
+    }
+  };
 }
 
 statistics_multiton::statistics_multiton()

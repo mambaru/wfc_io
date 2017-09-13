@@ -20,7 +20,17 @@ namespace
     queue_config_json, 
     ::wfc::component_features::DisabledPriority 
   >
-  {};
+  {
+    virtual std::string interface_name() const override
+    {
+      return std::string("wfc::iinterface");
+    }
+
+    virtual std::string description() const override
+    {
+      return "Common queue of incoming/outgoing messages";
+    }
+  };
 }
 
 

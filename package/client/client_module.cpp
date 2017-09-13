@@ -14,7 +14,12 @@ namespace
     module_name,
     client_multiton
   >
-  {};
+  {
+    virtual std::string description() const override
+    {
+      return "Client components";
+    }
+  };
 }
 
 client_module::client_module()

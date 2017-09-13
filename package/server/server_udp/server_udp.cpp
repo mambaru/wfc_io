@@ -17,7 +17,8 @@ public:
   typedef server::io_service_type io_service_type;
   impl(io_service_type& io)
     : server(io)
-  {}
+  {
+  }
 };
 
 server_udp::~server_udp()

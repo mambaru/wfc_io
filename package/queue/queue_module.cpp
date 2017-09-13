@@ -13,7 +13,12 @@ namespace
     module_name,
     queue_multiton
   >
-  {};
+  {
+    virtual std::string description() const override
+    {
+      return "Components for I/O queues";
+    }
+  };
 }
 
 queue_module::queue_module()

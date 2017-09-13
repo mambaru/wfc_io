@@ -18,7 +18,17 @@ namespace
     client_tcp_config_json/*, 
     component_features::DisabledSuspend*/
   >
-  {};
+  {
+    virtual std::string interface_name() const override
+    {
+      return std::string("wfc::iinterface");
+    }
+
+    virtual std::string description() const override
+    {
+      return "TCP client";
+    }
+  };
 }
 
 client_multiton::client_multiton()

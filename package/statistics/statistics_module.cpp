@@ -14,6 +14,10 @@ namespace
     statistics_multiton
   >
   {
+    virtual std::string description() const override
+    {
+      return "Components for I/O statistics";
+    }
   };
 }
 
