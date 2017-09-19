@@ -133,9 +133,12 @@ void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outp
   if ( pitf == nullptr )
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    _wrapper = std::make_shared<handler_wrapper>(handler);
-    _holder = _wrapper;
-    _holder_id = io_id;
+    if ( _holder.lock() == nullptr )
+    {
+      _wrapper = std::make_shared<handler_wrapper>(handler);
+      _holder = _wrapper;
+      _holder_id = io_id;
+    }
   }
   
   if ( auto rd = _client->send( std::move(d) ) )
