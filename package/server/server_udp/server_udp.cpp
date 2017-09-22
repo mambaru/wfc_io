@@ -10,8 +10,9 @@ typedef iinterface::io_id_t io_id_t;
 typedef iinterface::output_handler_t output_handler_t;
 typedef iinterface::data_ptr data_ptr;
 
+
 class server_udp::impl
-  : public ::iow::ip::udp::server::server<>
+  : public ::iow::ip::udp::server::server_base<>
 {
 public:
   typedef server::io_service_type io_service_type;
@@ -20,6 +21,7 @@ public:
   {
   }
 };
+
 
 server_udp::~server_udp()
 {
@@ -89,7 +91,9 @@ void server_udp::start()
       value_meter_ptr proto_time;
       value_meter_ptr proto_total;
       auto tcount = std::make_shared< std::atomic<int> >();
-      opt.thread_statistics= [wthis, proto_time,  tcount, opt, proto_total](std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
+      opt.thread_statistics= 
+        [wthis, proto_time,  tcount, opt, proto_total]
+        (std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
       {
         if ( auto pthis = wthis.lock() )
         {

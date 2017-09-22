@@ -3,6 +3,7 @@
 #include "client_tcp_adapter.hpp"
 #include <iow/io/io_id.hpp>
 #include <wfc/iinterface.hpp>
+#include <wfc/mutex.hpp>
 
 namespace wfc{ namespace io{
  
@@ -27,27 +28,27 @@ public:
   
   client_ptr find( io_id_t id ) const;
 
-  client_ptr queryset( io_id_t id, outgoing_handler_t handler);
+  client_ptr upsert( io_id_t id);
 
   // iinterface
   virtual void reg_io( io_id_t id, std::weak_ptr< ::wfc::iinterface > src) override;
   
   virtual void unreg_io( io_id_t id) override;
 
-  virtual void perform_io( iinterface::data_ptr d, io_id_t id, outgoing_handler_t handler) override;
+  virtual void perform_io( iinterface::data_ptr d, io_id_t id, output_handler_t handler) override;
 
 private:
   
   client_ptr find_( io_id_t id ) const;
   
 private:
-  typedef std::pair<client_ptr, std::shared_ptr<::wfc::iinterface> > client_pair;
-  typedef std::map< io_id_t, client_pair> client_map_t;
+  typedef std::map< io_id_t, client_ptr> client_map_t;
 
+  typedef rwlock<std::mutex> mutex_type;
   io_service_type& _io;
   options_type _opt;
   client_map_t _clients;
-  mutable std::mutex _mutex;
+  mutable mutex_type _mutex;
 };
   
 }}
