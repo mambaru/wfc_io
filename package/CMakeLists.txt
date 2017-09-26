@@ -18,11 +18,17 @@ SET(
   queue/queue_module.cpp
   queue/queue/queue_multiton.cpp
   queue/queue/queue.cpp
+)
 
+if (WFC_ENABLE_STAT)
+SET(
+  wfc_io_source_list
+  ${wfc_io_source_list}
   statistics/statistics_module.cpp
   statistics/statistics/statistics_multiton.cpp
   statistics/statistics/statistics.cpp
 )
+endif()
 
 add_library(
   wfc_io
