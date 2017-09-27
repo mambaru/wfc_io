@@ -25,6 +25,12 @@ namespace {
     {
       return "Package of IP/TCP and I/O modules";
     }
+  
+    virtual int order() const override
+    {
+      return 500;
+    }
+
   };
 }
 
