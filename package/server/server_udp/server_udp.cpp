@@ -87,7 +87,7 @@ void server_udp::start()
     if ( auto stat = this->get_statistics() )
     {
       std::weak_ptr<server_udp> wthis = this->shared_from_this();
-      typedef wfc::statistics::value_meter_ptr value_meter_ptr;
+      typedef wfc::value_meter_ptr value_meter_ptr;
       value_meter_ptr proto_time;
       value_meter_ptr proto_total;
       auto tcount = std::make_shared< std::atomic<int> >();
