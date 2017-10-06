@@ -14,6 +14,7 @@ struct tcp_connection_options
   : ::iow::ip::tcp::connection::options
 {
   std::weak_ptr<iinterface> target;
+  bool direct_mode = false;
 };
 
 typedef ::iow::ip::tcp::acceptor::options< tcp_connection, tcp_connection_options > tcp_acceptor_options;

@@ -8,10 +8,13 @@ namespace wfc{ namespace io{
 
 struct connection_options_json
 {
+  JSON_NAME(direct_mode)
+  
   typedef json::object<
     tcp_connection_options,
     json::member_list<
-        json::base< ::iow::ip::tcp::connection::options_json >
+      json::base< ::iow::ip::tcp::connection::options_json >,
+      json::member<n_direct_mode, tcp_connection_options, bool, &tcp_connection_options::direct_mode>
     >,
     json::strict_mode
   > type;

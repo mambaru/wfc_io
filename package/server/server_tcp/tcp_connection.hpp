@@ -60,30 +60,33 @@ public:
     auto shutdown_handler = opt.shutdown_handler;
     std::weak_ptr<tcp_connection> wthis = this->shared_from_this();
     
-    opt.startup_handler = [wtarget, wthis, startup_handler](io_id_type id, output_handler_type outgoing)
+    if ( !opt.direct_mode) 
     {
-      if ( auto ptarget = wtarget.lock() )
+      opt.startup_handler = [wtarget, wthis, startup_handler](io_id_type id, output_handler_type outgoing)
       {
-        ptarget->reg_io(id, wthis);
-      }
-      if ( startup_handler!=nullptr )
-      {
-        startup_handler(id, outgoing);
-      }
-    };
+        if ( auto ptarget = wtarget.lock() )
+        {
+          ptarget->reg_io(id, wthis);
+        }
+        if ( startup_handler!=nullptr )
+        {
+          startup_handler(id, outgoing);
+        }
+      };
 
-    opt.shutdown_handler = [wtarget, shutdown_handler](io_id_type id)
-    {
-      if ( auto ptarget = wtarget.lock() )
+      opt.shutdown_handler = [wtarget, shutdown_handler](io_id_type id)
       {
-        ptarget->unreg_io(id);
-      }
-      
-      if ( shutdown_handler!=nullptr )
-      {
-        shutdown_handler(id);
-      }
-    };
+        if ( auto ptarget = wtarget.lock() )
+        {
+          ptarget->unreg_io(id);
+        }
+        
+        if ( shutdown_handler!=nullptr )
+        {
+          shutdown_handler(id);
+        }
+      };
+    }
     
     super::initialize_(*this, std::forward<O>(opt));
   }
