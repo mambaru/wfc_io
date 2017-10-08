@@ -108,7 +108,7 @@ void client_tcp_adapter::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
   
   if ( _holder_id > 0 && _holder_id!= io_id  )
   {
-    DOMAIN_LOG_FATAL("client-tcp configuration error! Several sources are unacceptable ")
+    DOMAIN_LOG_FATAL("client-tcp configuration error! Several sources are unacceptable _holder_id=" << _holder_id <<", io_id="<< io_id)
   }
   _holder_id = io_id;
   _holder = itf;
