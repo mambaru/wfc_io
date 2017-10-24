@@ -72,7 +72,8 @@ void client_tcp_adapter::start( options_type opt)
     {
       holder->reg_io( pthis->_id, pthis );
     }
-    if ( connect_handler ) connect_handler();
+    if ( connect_handler!=nullptr )
+      connect_handler();
   };
   
   auto shutdown_handler = opt.connection.shutdown_handler;
@@ -87,7 +88,7 @@ void client_tcp_adapter::start( options_type opt)
       });
       //holder->unreg_io( pthis->_id);
     }
-    if ( shutdown_handler ) 
+    if ( shutdown_handler != nullptr ) 
       shutdown_handler( id );
   };
   
@@ -135,9 +136,12 @@ void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outp
     std::lock_guard<mutex_type> lk(_mutex);
     if ( _holder.lock() == nullptr )
     {
-      _wrapper = std::make_shared<handler_wrapper>(handler);
-      _holder = _wrapper;
-      _holder_id = io_id;
+      if ( handler!=nullptr )
+      {
+        _wrapper = std::make_shared<handler_wrapper>(handler);
+        _holder = _wrapper;
+        _holder_id = io_id;
+      }
     }
   }
   
