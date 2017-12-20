@@ -125,9 +125,7 @@ void server_udp::stop()
 {
   if ( _impl != nullptr )
   {
-    CONFIG_LOG_BEGIN("Server stop")
     _impl->stop();
-    CONFIG_LOG_END("Server stop")
     _impl=nullptr;
   }
 }
