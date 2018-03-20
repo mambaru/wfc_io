@@ -1,4 +1,5 @@
 #include <iostream>
+#include <exception>
 #include "server_tcp.hpp"
 #include "tcp_acceptor.hpp"
 #include <wfc/logger.hpp>
@@ -142,7 +143,14 @@ void server_tcp::start()
       };
     }
 
-    _impl->start( opt );
+    try
+    {
+      _impl->start( opt );
+    }
+    catch(const std::exception& e)
+    {
+      DOMAIN_LOG_FATAL( "server_tcp port: " << this->options().port << " error: " << e.what() )
+    }
   }
 }
 
