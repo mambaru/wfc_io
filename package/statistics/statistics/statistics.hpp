@@ -18,13 +18,13 @@ public:
   virtual void unreg_io(io_id_t /*io_id*/) override;
   virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, output_handler_t handler) override;
 private:
-  typedef std::shared_ptr<composite_meter> meter_ptr;
-  typedef std::shared_ptr<value_meter> connections_meter_ptr;
+  /*typedef std::shared_ptr<composite_meter> meter_ptr;
+  typedef std::shared_ptr<value_meter> connections_meter_ptr;*/
   typedef std::mutex mutex_type;
   
   std::weak_ptr<iinterface> _target;
-  meter_ptr _meter;
-  connections_meter_ptr _connections_meter;  
+  composite_factory _meter;
+  value_factory _connections_meter;  
   std::unordered_set<io_id_t> _connections;
   mutex_type _mutex;
   timer_id_t _timer_id = -1;

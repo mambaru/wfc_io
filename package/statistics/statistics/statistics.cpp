@@ -13,8 +13,8 @@ void statistics::initialize()
   this->get_workflow()->release_timer(_timer_id);
   if ( auto stat = this->get_statistics() )
   {
-    _meter = stat->create_composite_prototype( opt.time_name, opt.read_name, opt.write_name );
-    _connections_meter = stat->create_value_prototype( opt.io_name );
+    _meter = stat->create_composite_factory( opt.time_name, opt.read_name, opt.write_name, true );
+    _connections_meter = stat->create_value_factory( opt.io_name );
     if ( opt.interval_ms > 0 )
     {
       _timer_id = this->get_workflow()->create_timer(
