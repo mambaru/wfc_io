@@ -29,7 +29,7 @@ void statistics::initialize()
             size = this->_connections.size();
           }
           if ( auto stat = this->get_statistics() )
-            stat->create_meter( this->_connections_meter, size, 0);
+            this->_connections_meter.create( size, 0);
           return true;
         }, nullptr)
       );
@@ -48,7 +48,7 @@ void statistics::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
   if (auto t = _target.lock() )
   {
     t->reg_io(io_id, itf);
-    if ( !this->suspended() && _connections_meter != nullptr )
+    if ( !this->suspended() )
     {
       std::lock_guard<mutex_type> lk(_mutex);
       _connections.insert(io_id);
@@ -60,7 +60,7 @@ void statistics::unreg_io(io_id_t io_id)
   if (auto t = _target.lock() )
   {
     t->unreg_io(io_id);
-    if ( !this->suspended() && _connections_meter != nullptr )
+    if ( !this->suspended()  )
     {
       std::lock_guard<mutex_type> lk(_mutex);
       _connections.erase(io_id);
@@ -78,7 +78,7 @@ void statistics::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
     }
     else if ( auto stat = this->get_statistics() )
     {
-      auto meter = stat->create_meter( _meter, d->size() );
+      auto meter = _meter.create_shared( 1, d->size(), 0 );
       t->perform_io( 
         std::move(d), 
         io_id,

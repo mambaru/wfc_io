@@ -113,6 +113,13 @@ void server_tcp::start()
       value_factory proto_time;
       value_factory proto_total;
       auto tcount = std::make_shared< std::atomic<int> >();
+              size_t id = tcount->fetch_add(1);
+              std::stringstream ss;
+              ss << this->name() << ".thread" << id;
+              proto_time = stat->create_value_factory( ss.str());
+              std::stringstream ss1;
+              ss1 << this->name() << ".threads";
+              proto_total = stat->create_value_factory( ss1.str());
       
       opt.thread_statistics= [wthis, proto_time,  tcount, opt, proto_total](std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
       {
@@ -120,7 +127,7 @@ void server_tcp::start()
         {
           if ( auto stat = pthis->get_statistics() )
           {
-            if ( proto_time == nullptr )
+            /*if ( proto_time == nullptr )
             {
               size_t id = tcount->fetch_add(1);
               std::stringstream ss;
@@ -130,11 +137,11 @@ void server_tcp::start()
               ss1 << pthis->name() << ".threads";
               proto_total = stat->create_value_factory( ss1.str());
             }
-            else
+            else*/
             {
               auto span_mcs = std::chrono::duration_cast<std::chrono::microseconds>(span).count();
-              stat->create_meter(proto_time, span_mcs, count );
-              stat->create_meter(proto_total, span_mcs, count );
+              proto_time.create(span_mcs, count );
+              proto_total.create(span_mcs, count );
             }
           }
         }
