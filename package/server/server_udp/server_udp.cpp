@@ -88,12 +88,12 @@ void server_udp::start()
     {
       std::weak_ptr<server_udp> wthis = this->shared_from_this();
 //      typedef wfc::value_meter_ptr value_meter_ptr;
-      value_factory proto_time;
-      value_factory proto_total;
+      value_meter proto_time;
+      value_meter proto_total;
               std::stringstream ss;
-              proto_time = stat->create_value_factory( ss.str());
+              proto_time = stat->create_value_meter( ss.str());
               std::stringstream ss1;
-              proto_total = stat->create_value_factory( ss1.str());
+              proto_total = stat->create_value_meter( ss1.str());
       
       auto tcount = std::make_shared< std::atomic<int> >();
       opt.thread_statistics= 

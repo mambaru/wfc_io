@@ -111,16 +111,16 @@ void server_tcp::start()
     if ( auto stat = this->get_statistics() )
     {
       std::weak_ptr<server_tcp> wthis = this->shared_from_this();
-      value_factory proto_time;
-      value_factory proto_total;
+      value_meter proto_time;
+      value_meter proto_total;
       auto tcount = std::make_shared< std::atomic<int> >();
               size_t id = tcount->fetch_add(1);
               std::stringstream ss;
               ss << this->name() << ".thread" << id;
-              proto_time = stat->create_value_factory( ss.str());
+              proto_time = stat->create_value_meter( ss.str());
               std::stringstream ss1;
               ss1 << this->name() << ".threads";
-              proto_total = stat->create_value_factory( ss1.str());
+              proto_total = stat->create_value_meter( ss1.str());
       
       opt.thread_statistics= [wthis, proto_time,  tcount, opt, proto_total](std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
       {
