@@ -34,7 +34,7 @@ struct server_tcp_config_json
   
   JSON_NAME(target)
   JSON_NAME(cpu)
-  JSON_NAME2(n_keep_alive, "keep-alive")
+  JSON_NAME(keep_alive)
 
   typedef json::object<
     server_tcp_config,
