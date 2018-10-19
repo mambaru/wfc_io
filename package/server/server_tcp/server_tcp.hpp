@@ -1,3 +1,9 @@
+//
+// Author: Vladimir Migashko <migashko@gmail.com>, (C) 2013-2018
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+
 #pragma once
 
 #include "server_tcp_config.hpp"
@@ -18,6 +24,7 @@ class server_tcp
 public:
   virtual ~server_tcp();
   server_tcp();
+  virtual void reconfigure_basic() override;
   virtual void initialize() override;
   virtual void start() override;
   virtual void restart() override;
@@ -28,7 +35,6 @@ private:
   std::string _port;
   std::string _addr;
   std::shared_ptr<target_wrapper> _target;
-  //std::weak_ptr<iinterface> _target;
 };
 
 }}

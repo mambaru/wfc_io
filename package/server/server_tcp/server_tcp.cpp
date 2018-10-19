@@ -48,9 +48,13 @@ public:
     {
       target->perform_io(std::move(d), id, cb);
     }
-    else
+    else if (_suspend)
     {
       cb(std::move(d));
+    }
+    else
+    {
+      cb(nullptr);
     }
   }
   
@@ -94,10 +98,6 @@ void server_tcp::initialize()
   {
     auto target = this->options().target;
     _target = std::make_shared<target_wrapper>( this->get_target<iinterface>(target), this->suspended() );
-    /*
-    
-    _target = g->registry.get<iinterface>(target);
-    */
   }
 
 }
@@ -105,6 +105,12 @@ void server_tcp::initialize()
 void server_tcp::start()
 {
   this->run_();
+}
+
+void server_tcp::reconfigure_basic() 
+{
+  COMMON_LOG_WARNING("reconfigure_basic() ")
+  _target->set_suspend(this->suspended());
 }
 
 void server_tcp::restart()
@@ -226,17 +232,17 @@ void server_tcp::run_()
           }
         }
       };
-    /*}*/
+    }
 
-    try
-    {
-      _impl->start( opt );
-    }
-    catch(const std::exception& e)
-    {
-      DOMAIN_LOG_FATAL( "server_tcp port: " << this->options().port << " error: " << e.what() )
-    }
+  try
+  {
+    _impl->start( opt );
   }
+  catch(const std::exception& e)
+  {
+    DOMAIN_LOG_FATAL( "server_tcp port: " << this->options().port << " error: " << e.what() )
+  }
+  
 }
 
 void server_tcp::stop() 
