@@ -81,12 +81,12 @@ void client_tcp_adapter::start( options_type opt)
   {
     if ( auto holder = pthis->get_holder() )
     {
-      auto id = pthis->_id;
-      pthis->_io.post([holder, id]()
+      auto this_id = pthis->_id;
+      pthis->_io.post([holder, this_id]()
       {
-        holder->unreg_io(id);
+        holder->unreg_io(this_id);
       });
-      //holder->unreg_io( pthis->_id);
+      
     }
     if ( shutdown_handler != nullptr ) 
       shutdown_handler( id );

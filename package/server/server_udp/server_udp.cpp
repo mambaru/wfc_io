@@ -53,15 +53,15 @@ void server_udp::start()
     opt.nonblocking = false;
 
     opt.input_handler = 
-        [wtarget]( data_ptr d, io_id_t id, output_handler_t callback ) 
+        [wtarget]( data_ptr d, io_id_t id, output_handler_t cb ) 
     {
       if ( auto ptarget = wtarget.lock() )
       {
-        ptarget->perform_io(std::move(d), id, std::move(callback));
+        ptarget->perform_io(std::move(d), id, std::move(cb));
       }
       else
       {
-        callback( std::move(d));
+        cb( std::move(d));
       }
     };
     opt.target = wtarget;
@@ -102,21 +102,11 @@ void server_udp::start()
       {
         if ( auto pthis = wthis.lock() )
         {
-          if ( auto stat = pthis->get_statistics() )
+          if ( pthis->get_statistics()!=nullptr )
           {
-            /*if ( proto_time == nullptr )
-            {
-              std::stringstream ss;
-              proto_time = stat->create_value_prototype( ss.str());
-              std::stringstream ss1;
-              proto_total = stat->create_value_prototype( ss1.str());
-            }
-            else*/
-            {
-              auto span_mcs = std::chrono::duration_cast<std::chrono::microseconds>(span).count();
-              proto_time.create(span_mcs, count );
-              proto_total.create(span_mcs, count );
-            }
+            auto span_mcs = std::chrono::duration_cast<std::chrono::microseconds>(span).count();
+            proto_time.create(span_mcs, count );
+            proto_total.create(span_mcs, count );
           }
         }
       };

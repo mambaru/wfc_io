@@ -147,57 +147,16 @@ void server_tcp::run_()
   opt.connection.input_handler = 
     [ptarget, keep_alive](data_ptr d, io_id_t id, output_handler_t cb )
   {
-    //if ( auto ptarget = wtarget.lock() )
+    if ( !keep_alive )
     {
-      if ( !keep_alive )
-      {
-        cb = [cb](data_ptr d) {
-          cb(std::move(d));
-          cb(nullptr);
-        };
-      }
-      ptarget->perform_io(std::move(d), id, cb);
+      cb = [cb](data_ptr d1) {
+        cb(std::move(d1));
+        cb(nullptr);
+      };
     }
-    /*else
-    {
-      cb( std::move(d));
-    }*/
+    ptarget->perform_io(std::move(d), id, cb);
   };
-  /*
-    if ( opt.keep_alive ) 
-    {
-      opt.connection.input_handler = 
-        [wtarget]( data_ptr d, io_id_t id, output_handler_t cb ) 
-      {
-        if ( auto ptarget = wtarget.lock() )
-        {
-          ptarget->perform_io(std::move(d), id, std::move(cb));
-        }
-        else
-        {
-          cb( std::move(d));
-        }
-      };
-    }
-    else
-    {
-      opt.connection.input_handler = 
-        [wtarget](data_ptr d, io_id_t id, output_handler_t cb )
-      {
-        if ( auto ptarget = wtarget.lock() )
-        {
-          ptarget->perform_io(std::move(d), id, [cb](data_ptr d)
-          {
-            cb(std::move(d));
-            cb(nullptr);
-          });
-        }
-        else
-        {
-          cb( std::move(d));
-        }
-      };
-    }*/
+  
 
     // По дефолту nonblocking=true, но мы вешаем accept на поток, поэтому нужен блокируемый 
     opt.nonblocking = false;
@@ -212,19 +171,20 @@ void server_tcp::run_()
       value_meter proto_time;
       value_meter proto_total;
       auto tcount = std::make_shared< std::atomic<int> >();
-              size_t id = tcount->fetch_add(1);
-              std::stringstream ss;
-              ss << this->name() << ".thread" << id;
-              proto_time = stat->create_value_meter( ss.str());
-              std::stringstream ss1;
-              ss1 << this->name() << ".threads";
-              proto_total = stat->create_value_meter( ss1.str());
+      
+      size_t id = size_t(tcount->fetch_add(1));
+      std::stringstream ss;
+      ss << this->name() << ".thread" << id;
+      proto_time = stat->create_value_meter( ss.str());
+      std::stringstream ss1;
+      ss1 << this->name() << ".threads";
+      proto_total = stat->create_value_meter( ss1.str());
       
       opt.thread_statistics= [wthis, proto_time,  tcount, opt, proto_total](std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
       {
         if ( auto pthis = wthis.lock() )
         {
-          if ( auto stat = pthis->get_statistics() )
+          if ( pthis->get_statistics()!=nullptr )
           {
             auto span_mcs = std::chrono::duration_cast<std::chrono::microseconds>(span).count();
             proto_time.create(span_mcs, count );
