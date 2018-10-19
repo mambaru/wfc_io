@@ -12,6 +12,62 @@ typedef iinterface::io_id_t io_id_t;
 typedef iinterface::output_handler_t output_handler_t;
 typedef iinterface::data_ptr data_ptr;
 
+class target_wrapper
+  : public iinterface
+{
+public:
+  
+  target_wrapper(std::weak_ptr<iinterface> target, bool suspend)
+    : _target(target)
+    , _suspend(suspend)
+  {
+  }
+
+  virtual void unreg_io(io_id_t id) override
+  {
+    auto target = _target.lock();
+    if ( !_suspend && target!=nullptr )
+    {
+      target->unreg_io(id);
+    }
+  }
+
+  virtual void reg_io(io_id_t id, std::weak_ptr<iinterface> itf) override
+  {
+    auto target = _target.lock();
+    if ( !_suspend && target!=nullptr )
+    {
+      target->reg_io(id, itf);
+    }
+  }
+  
+  virtual void perform_io(data_ptr d, io_id_t id, output_handler_t cb) override
+  {
+    auto target = _target.lock();
+    if ( !_suspend && target!=nullptr )
+    {
+      target->perform_io(std::move(d), id, cb);
+    }
+    else
+    {
+      cb(std::move(d));
+    }
+  }
+  
+  void set_target(std::weak_ptr<iinterface> target)
+  {
+    _target = target;
+  }
+  
+  void set_suspend( bool suspend)
+  {
+    _suspend = suspend;
+  }
+  
+private:
+  std::weak_ptr<iinterface> _target;
+  std::atomic<bool> _suspend;
+};
 
 class server_tcp::impl
   : public ::iow::ip::tcp::server::server<tcp_acceptor>
@@ -37,23 +93,71 @@ void server_tcp::initialize()
   if ( auto g = this->global() )
   {
     auto target = this->options().target;
+    _target = std::make_shared<target_wrapper>( this->get_target<iinterface>(target), this->suspended() );
+    /*
+    
     _target = g->registry.get<iinterface>(target);
+    */
   }
 
 }
 
 void server_tcp::start()
 {
-  if ( auto g = this->global() )
+  this->run_();
+}
+
+void server_tcp::restart()
+{
+  auto opt = this->options();
+  auto shutdown = std::move(_impl);
+  if ( _port!=opt.port || _addr!=opt.addr )
   {
+    this->get_workflow()->post([shutdown](){
+      shutdown->stop();
+    });
+  }
+  else
+  {
+    shutdown->stop();
+  }
+  this->run_();
+}
+
+
+void server_tcp::run_()
+{
+  auto opt = this->options();
+  _port = opt.port;
+  _addr = opt.addr;
+  bool keep_alive = opt.keep_alive;
+  auto ptarget = _target;
+
+  if ( auto g = this->global() )
     _impl = std::make_shared<impl>( g->io_service );
-    auto opt = this->options();
-
-    auto wtarget = _target;
-
-    /// #warning убрать, но в базовых не должно nonblocking, т.к. nonblocking() для акцепт вылетает сразу 
-    opt.nonblocking = false;
-
+  else
+    return;
+    
+  opt.connection.input_handler = 
+    [ptarget, keep_alive](data_ptr d, io_id_t id, output_handler_t cb )
+  {
+    //if ( auto ptarget = wtarget.lock() )
+    {
+      if ( !keep_alive )
+      {
+        cb = [cb](data_ptr d) {
+          cb(std::move(d));
+          cb(nullptr);
+        };
+      }
+      ptarget->perform_io(std::move(d), id, cb);
+    }
+    /*else
+    {
+      cb( std::move(d));
+    }*/
+  };
+  /*
     if ( opt.keep_alive ) 
     {
       opt.connection.input_handler = 
@@ -87,27 +191,15 @@ void server_tcp::start()
           cb( std::move(d));
         }
       };
-    }
-    opt.connection.target = wtarget;
+    }*/
+
+    // По дефолту nonblocking=true, но мы вешаем accept на поток, поэтому нужен блокируемый 
+    opt.nonblocking = false;
+
+    opt.connection.target = ptarget;
     opt.thread_startup = std::bind( &server_tcp::reg_thread, this );
     opt.thread_shutdown = std::bind( &server_tcp::unreg_thread, this );
 
-    /*
-    std::string name = this->name();
-    g->threads.set_reg_cpu(name, opt.cpu);
-    opt.thread_startup = [g, name, this](std::thread::id)
-    {
-      g->threads.reg_thread(name);
-      this->reg_thread();
-    };
-
-    opt.thread_shutdown = [g, this](std::thread::id)
-    {
-      g->threads.unreg_thread();
-      this->unreg_thread();
-    };
-    */
-    
     if ( auto stat = this->get_statistics() )
     {
       std::weak_ptr<server_tcp> wthis = this->shared_from_this();
@@ -128,26 +220,13 @@ void server_tcp::start()
         {
           if ( auto stat = pthis->get_statistics() )
           {
-            /*if ( proto_time == nullptr )
-            {
-              size_t id = tcount->fetch_add(1);
-              std::stringstream ss;
-              ss << pthis->name() << ".thread" << id;
-              proto_time = stat->create_value_factory( ss.str());
-              std::stringstream ss1;
-              ss1 << pthis->name() << ".threads";
-              proto_total = stat->create_value_factory( ss1.str());
-            }
-            else*/
-            {
-              auto span_mcs = std::chrono::duration_cast<std::chrono::microseconds>(span).count();
-              proto_time.create(span_mcs, count );
-              proto_total.create(span_mcs, count );
-            }
+            auto span_mcs = std::chrono::duration_cast<std::chrono::microseconds>(span).count();
+            proto_time.create(span_mcs, count );
+            proto_total.create(span_mcs, count );
           }
         }
       };
-    }
+    /*}*/
 
     try
     {

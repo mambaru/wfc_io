@@ -113,15 +113,10 @@ public:
   
   virtual void reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/) override
   {
-    /*abort();*/
   }
 
   virtual void unreg_io(io_id_t /*io_id*/) override
   {
-    /*abort();*/
-    /*std::lock_guard< mutex_type > lk( super::mutex() );
-    super::stop_(*this);
-    */
   }
 
   virtual void perform_io(data_ptr d, io_id_t /*io_id*/, output_handler_t /*handler*/) override
