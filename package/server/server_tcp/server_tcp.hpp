@@ -31,6 +31,7 @@ public:
   virtual void stop() override;
 private:
   void run_();
+  void stat_init_(options_type* opt);
   std::shared_ptr<impl> _impl;
   std::string _port;
   std::string _addr;

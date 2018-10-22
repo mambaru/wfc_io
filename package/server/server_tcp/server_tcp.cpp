@@ -157,42 +157,13 @@ void server_tcp::run_()
     ptarget->perform_io(std::move(d), id, cb);
   };
   
+  // По дефолту nonblocking=true, но мы вешаем accept на поток, поэтому нужен блокируемый 
+  opt.nonblocking = false;
+  opt.connection.target = ptarget;
+  opt.thread_startup = std::bind( &server_tcp::reg_thread, this );
+  opt.thread_shutdown = std::bind( &server_tcp::unreg_thread, this );
 
-    // По дефолту nonblocking=true, но мы вешаем accept на поток, поэтому нужен блокируемый 
-    opt.nonblocking = false;
-
-    opt.connection.target = ptarget;
-    opt.thread_startup = std::bind( &server_tcp::reg_thread, this );
-    opt.thread_shutdown = std::bind( &server_tcp::unreg_thread, this );
-
-    if ( auto stat = this->get_statistics() )
-    {
-      std::weak_ptr<server_tcp> wthis = this->shared_from_this();
-      value_meter proto_time;
-      value_meter proto_total;
-      auto tcount = std::make_shared< std::atomic<int> >();
-      
-      size_t id = size_t(tcount->fetch_add(1));
-      std::stringstream ss;
-      ss << this->name() << ".thread" << id;
-      proto_time = stat->create_value_meter( ss.str());
-      std::stringstream ss1;
-      ss1 << this->name() << ".threads";
-      proto_total = stat->create_value_meter( ss1.str());
-      
-      opt.thread_statistics= [wthis, proto_time,  tcount, opt, proto_total](std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
-      {
-        if ( auto pthis = wthis.lock() )
-        {
-          if ( pthis->get_statistics()!=nullptr )
-          {
-            auto span_mcs = std::chrono::duration_cast<std::chrono::microseconds>(span).count();
-            proto_time.create(span_mcs, count );
-            proto_total.create(span_mcs, count );
-          }
-        }
-      };
-    }
+  this->stat_init_(&opt);
 
   try
   {
@@ -202,7 +173,38 @@ void server_tcp::run_()
   {
     DOMAIN_LOG_FATAL( "server_tcp port: " << this->options().port << " error: " << e.what() )
   }
-  
+}
+
+void server_tcp::stat_init_(options_type* opt)
+{
+  if ( auto stat = this->get_statistics() )
+  {
+    std::weak_ptr<server_tcp> wthis = this->shared_from_this();
+    value_meter proto_time;
+    value_meter proto_total;
+    auto tcount = std::make_shared< std::atomic<int> >();
+      
+    size_t id = size_t(tcount->fetch_add(1));
+    std::stringstream ss;
+    ss << this->name() << ".thread" << id;
+    proto_time = stat->create_value_meter( ss.str());
+    std::stringstream ss1;
+    ss1 << this->name() << ".threads";
+    proto_total = stat->create_value_meter( ss1.str());
+      
+    opt->thread_statistics= [wthis, proto_time,  tcount, proto_total](std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
+    {
+      if ( auto pthis = wthis.lock() )
+      {
+        if ( pthis->get_statistics()!=nullptr )
+        {
+          auto span_mcs = std::chrono::duration_cast<std::chrono::microseconds>(span).count();
+          proto_time.create(span_mcs, count );
+          proto_total.create(span_mcs, count );
+        }
+      }
+    };
+  }
 }
 
 void server_tcp::stop() 
