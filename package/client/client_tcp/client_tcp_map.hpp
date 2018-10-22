@@ -20,7 +20,7 @@ class client_tcp_map
 public:
   class handler_wrapper;
   
-  typedef std::mutex mutex_type;
+  typedef rwlock<std::mutex> mutex_type;
   typedef client_tcp_adapter client_type;
   typedef std::shared_ptr<client_type> client_ptr;
   typedef client_type::io_service_type io_service_type;
@@ -49,8 +49,6 @@ private:
   
 private:
   typedef std::map< io_id_t, client_ptr> client_map_t;
-
-  typedef rwlock<std::mutex> mutex_type;
   io_service_type& _io;
   options_type _opt;
   client_map_t _clients;

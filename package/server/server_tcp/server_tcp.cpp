@@ -12,66 +12,6 @@ typedef iinterface::io_id_t io_id_t;
 typedef iinterface::output_handler_t output_handler_t;
 typedef iinterface::data_ptr data_ptr;
 
-class target_wrapper
-  : public iinterface
-{
-public:
-  
-  target_wrapper(std::weak_ptr<iinterface> target, bool suspend)
-    : _target(target)
-    , _suspend(suspend)
-  {
-  }
-
-  virtual void unreg_io(io_id_t id) override
-  {
-    auto target = _target.lock();
-    if ( !_suspend && target!=nullptr )
-    {
-      target->unreg_io(id);
-    }
-  }
-
-  virtual void reg_io(io_id_t id, std::weak_ptr<iinterface> itf) override
-  {
-    auto target = _target.lock();
-    if ( !_suspend && target!=nullptr )
-    {
-      target->reg_io(id, itf);
-    }
-  }
-  
-  virtual void perform_io(data_ptr d, io_id_t id, output_handler_t cb) override
-  {
-    auto target = _target.lock();
-    if ( !_suspend && target!=nullptr )
-    {
-      target->perform_io(std::move(d), id, cb);
-    }
-    else if (_suspend)
-    {
-      cb(std::move(d));
-    }
-    else
-    {
-      cb(nullptr);
-    }
-  }
-  
-  void set_target(std::weak_ptr<iinterface> target)
-  {
-    _target = target;
-  }
-  
-  void set_suspend( bool suspend)
-  {
-    _suspend = suspend;
-  }
-  
-private:
-  std::weak_ptr<iinterface> _target;
-  std::atomic<bool> _suspend;
-};
 
 class server_tcp::impl
   : public ::iow::ip::tcp::server::server<tcp_acceptor>
@@ -82,7 +22,6 @@ public:
     : server(io)
   {}
 };
-
 
 server_tcp::~server_tcp()
 {
@@ -97,9 +36,8 @@ void server_tcp::initialize()
   if ( auto g = this->global() )
   {
     auto target = this->options().target;
-    _target = std::make_shared<target_wrapper>( this->get_target<iinterface>(target), this->suspended() );
+    _target = std::make_shared<winterface>( this->get_target<iinterface>(target), this->suspended() );
   }
-
 }
 
 void server_tcp::start()

@@ -17,7 +17,8 @@ namespace
     component_name,
     ::wfc::instance<server_tcp>,
     server_tcp_config_json,
-    component_features::EnableCPU
+      component_features::EnableCPU
+    | component_features::DisabledWorkflow
   >
   {
     virtual std::string interface_name() const override

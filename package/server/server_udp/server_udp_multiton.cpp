@@ -17,7 +17,8 @@ namespace
     component_name,
     ::wfc::instance<server_udp>,
     server_udp_config_json, 
-    component_features::EnableCPU
+      component_features::EnableCPU
+    | component_features::DisabledWorkflow
   >
   {
     virtual std::string interface_name() const override

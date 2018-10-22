@@ -9,15 +9,14 @@
 #include "server_tcp_config.hpp"
 #include <wfc/domain_object.hpp>
 #include <wfc/iinterface.hpp>
+#include <wfc/winterface.hpp>
 #include <string>
 #include <memory>
 
 namespace wfc{ namespace io{
 
-class target_wrapper;
-  
 class server_tcp
-  : public ::wfc::domain_object<iinterface, server_tcp_config>
+  : public domain_object<iinterface, server_tcp_config>
   , public std::enable_shared_from_this<server_tcp>
 {
   class impl;
@@ -35,7 +34,7 @@ private:
   std::shared_ptr<impl> _impl;
   std::string _port;
   std::string _addr;
-  std::shared_ptr<target_wrapper> _target;
+  std::shared_ptr<winterface> _target;
 };
 
 }}
