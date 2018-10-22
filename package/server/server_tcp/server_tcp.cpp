@@ -101,6 +101,12 @@ void server_tcp::run_()
   opt.thread_startup = std::bind( &server_tcp::reg_thread, this );
   opt.thread_shutdown = std::bind( &server_tcp::unreg_thread, this );
 
+  if ( opt.rn )
+  {
+    if ( opt.connection.reader.sep.empty() ) opt.connection.reader.sep = "\r\n";
+    if ( opt.connection.writer.sep.empty() ) opt.connection.writer.sep = "\r\n";
+  }
+
   this->stat_init_(&opt);
 
   try

@@ -16,6 +16,7 @@ struct server_udp_config
   : public ::iow::ip::udp::server::options
 {
   std::string target_name;
+  bool rn = true;
   std::weak_ptr<iinterface> target;
 };
 

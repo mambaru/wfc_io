@@ -39,18 +39,15 @@ client_tcp_map::client_ptr client_tcp_map::find( io_id_t id ) const
 
 client_tcp_map::client_ptr client_tcp_map::upsert(io_id_t id)
 {
-  client_ptr cli;
   {
     read_lock<mutex_type> lk(_mutex);
-    client_ptr cli = this->find_(id);
-    if ( cli != nullptr )
+    if ( client_ptr cli = this->find_(id) )
       return cli;
   }
   std::lock_guard<mutex_type> lk(_mutex);
-  cli = std::make_shared<client_type>(_io);
+  client_ptr cli = std::make_shared<client_type>(_io);
   _clients.insert( std::make_pair(id, cli ) );
   cli->start(_opt);
-  
   return cli;
 }
 

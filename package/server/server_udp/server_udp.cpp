@@ -83,6 +83,11 @@ void server_udp::run_()
   opt.target = ptarget;
   opt.thread_startup = std::bind( &server_udp::reg_thread, this );
   opt.thread_shutdown = std::bind( &server_udp::unreg_thread, this );
+  if ( opt.rn )
+  {
+    if ( opt.reader.sep.empty() ) opt.reader.sep = "\r\n";
+    if ( opt.writer.sep.empty() ) opt.writer.sep = "\r\n";
+  }
 
   this->stat_init_(&opt);
 

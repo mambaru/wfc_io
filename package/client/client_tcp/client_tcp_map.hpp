@@ -18,8 +18,7 @@ class client_tcp_map
   : public iinterface
 {
 public:
-  class handler_wrapper;
-  
+
   typedef rwlock<std::mutex> mutex_type;
   typedef client_tcp_adapter client_type;
   typedef std::shared_ptr<client_type> client_ptr;

@@ -17,6 +17,13 @@ void client_tcp::start()
   _adapter = std::make_shared<client_tcp_adapter>( this->global()->io_service);
   auto opt = this->options();
   opt.args.workflow = this->get_workflow();
+  
+  if ( opt.rn )
+  {
+    if ( opt.connection.reader.sep.empty() ) opt.connection.reader.sep = "\r\n";
+    if ( opt.connection.writer.sep.empty() ) opt.connection.writer.sep = "\r\n";
+  }
+
   _adapter->start( opt );
 }
 

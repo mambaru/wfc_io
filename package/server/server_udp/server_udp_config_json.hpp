@@ -18,12 +18,13 @@ struct server_udp_config_json
   struct server_json: ::iow::ip::udp::server::options_json{};
 
   JSON_NAME(target)
-  JSON_NAME(cpu)
+  JSON_NAME(rn)
 
   typedef json::object<
     server_udp_config,
     json::member_list<
         json::member<n_target, server_udp_config, std::string, &server_udp_config::target_name>,
+        json::member<n_rn, server_udp_config, bool, &server_udp_config::rn>,
         json::base< server_json >
     >,
     json::strict_mode
