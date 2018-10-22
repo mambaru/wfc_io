@@ -3,6 +3,9 @@
 
 namespace wfc{ namespace io{
 
+#error сделать пул подключений и рекконект для них 
+#error отработать рекконект когда пришли данные
+  
 client_tcp_map::client_tcp_map( io_service_type& io)
   : _io(io)
 {

@@ -15,7 +15,7 @@
 
 namespace wfc{ namespace io{
 
-class client_tcp_adapter;
+class client_tcp_map;
 
 class client_tcp
   : public ::wfc::domain_object< iinterface, client_tcp_config>
@@ -33,7 +33,7 @@ public:
   virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, output_handler_t handler) override;
 
 private:
-  std::shared_ptr<client_tcp_adapter> _adapter;
+  std::shared_ptr<client_tcp_map> _adapter;
 };
 
 }}
