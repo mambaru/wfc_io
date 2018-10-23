@@ -15,6 +15,9 @@ struct client_tcp_config
   : public ::iow::ip::tcp::client::options
 {
   bool rn = true;
+  size_t startup_pool = 1;
+  size_t primary_pool = 0;
+  size_t secondary_pool = 0;
 };
 
 }}

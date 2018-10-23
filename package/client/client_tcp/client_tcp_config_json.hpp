@@ -16,11 +16,16 @@ namespace wfc{ namespace io{
 struct client_tcp_config_json
 {
   JSON_NAME(rn)
+  JSON_NAME(startup_pool)
+  JSON_NAME(client_pool)
+
   typedef json::object<
     client_tcp_config,
-    ::wfc::json::member_list<
+    json::member_list<
       json::member<n_rn, client_tcp_config, bool, &client_tcp_config::rn>,
-      ::wfc::json::base< ::iow::ip::tcp::client::options_json >
+      json::member<n_startup_pool, client_tcp_config, size_t, &client_tcp_config::startup_pool>,
+      json::member<n_client_pool, client_tcp_config, size_t, &client_tcp_config::client_pool>,
+      json::base< ::iow::ip::tcp::client::options_json >
     >
   > type;
   
