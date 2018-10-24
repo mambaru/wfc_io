@@ -55,6 +55,7 @@ void client_tcp::unreg_io(io_id_t io_id)
 
 void client_tcp::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler) 
 {
+  DEBUG_LOG_MESSAGE("client_tcp::perform_io: " << d)
   if ( this->suspended() )
   {
     if ( handler!= nullptr )

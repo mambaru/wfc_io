@@ -107,7 +107,7 @@ void client_tcp_adapter::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
 {
   std::lock_guard<mutex_type> lk(_mutex);
   
-  if ( _holder_id > 0 && _holder_id!= io_id  )
+  if ( _holder_id > 0 && _holder_id!=io_id  )
   {
     DOMAIN_LOG_FATAL("client-tcp configuration error! Several sources are unacceptable _holder_id=" << _holder_id <<", io_id="<< io_id)
   }
@@ -138,6 +138,7 @@ void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outp
     {
       if ( handler!=nullptr )
       {
+        DEBUG_LOG_ERROR("client_tcp_adapter::perform_io handler_wrapper ")
         _wrapper = std::make_shared<handler_wrapper>(handler);
         _holder = _wrapper;
         _holder_id = io_id;

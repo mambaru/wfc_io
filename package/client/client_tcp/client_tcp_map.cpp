@@ -3,6 +3,18 @@
 
 namespace wfc{ namespace io{
 
+class client_tcp_map::handler_wrapper: public iinterface
+{
+public:
+  handler_wrapper(output_handler_t handler): _handler(handler) {}
+  virtual void perform_io( iinterface::data_ptr d, io_id_t /*id*/, output_handler_t /*handler*/) override
+  {
+    _handler( std::move(d) );
+  }
+private:
+  output_handler_t _handler;
+};
+
 client_tcp_map::client_tcp_map( io_service_type& io)
   : _io(io)
 {
@@ -16,7 +28,9 @@ void client_tcp_map::reconfigure(const options_type& opt)
     read_lock<mutex_type> lk(_mutex);
     for ( auto& item : _clients )
       client_list.push_back(item.second);
-    for ( auto& cli : _client_pool )
+    for ( auto& cli : _primary_pool )
+      client_list.push_back(cli);
+    for ( auto& cli : _secondary_pool)
       client_list.push_back(cli);
     for ( auto& cli : _startup_pool )
       client_list.push_back(cli);
@@ -44,31 +58,62 @@ void client_tcp_map::reconfigure(const options_type& opt)
       client_list.push_back(item.second);
       item.second->start(opt);
     }
-  
-    _client_pool.clear();
-    while ( _client_pool.size() < opt.client_pool )
+
+    _secondary_pool.clear();
+    
+    _primary_pool.clear();
+    while ( _primary_pool.size() < opt.primary_pool )
     {
       auto cli = std::make_shared<client_type>(_io);
-      _client_pool.push_back(cli);
+      _primary_pool.push_back(cli);
       client_list.push_back(cli);
     }
     
     _startup_pool.clear();
     if ( _startup_flag )
     {
-      auto cli = std::make_shared<client_type>(_io);
-      _startup_pool.push_back(cli);
-      client_list.push_back(cli);
+      while ( _startup_pool.size() < opt.startup_pool )
+      {
+        auto cli = std::make_shared<client_type>(_io);
+        _startup_pool.push_back(cli);
+        client_list.push_back(cli);
+      }
+      
       _startup_flag = false;
     }
   }
   
   for ( auto& cli : client_list )
     cli->start(_opt);
+  
+  _stop_flag = false;
 }
 
 void client_tcp_map::stop()
 {
+  _stop_flag = true;
+  client_list_t client_list;
+  {
+    read_lock<mutex_type> lk(_mutex);
+    for ( auto& item : _clients )
+      client_list.push_back(item.second);
+    for ( auto& cli : _primary_pool )
+      client_list.push_back(cli);
+    for ( auto& cli : _secondary_pool)
+      client_list.push_back(cli);
+    for ( auto& cli : _startup_pool )
+      client_list.push_back(cli);
+    _clients.clear();
+    _primary_pool.clear();
+    _secondary_pool.clear();
+    _startup_pool.clear();
+  }
+  
+  
+  for ( auto& cli : client_list )
+    cli->stop();
+
+  /*
   for ( auto& cli : _clients )
   {
     cli.second->stop();
@@ -76,6 +121,7 @@ void client_tcp_map::stop()
   }
   std::lock_guard<mutex_type> lk(_mutex);
   _clients.clear();
+  */
 }
 
 client_tcp_map::client_ptr client_tcp_map::find( io_id_t id ) const
@@ -101,18 +147,28 @@ client_tcp_map::client_ptr client_tcp_map::upsert(io_id_t id)
     opt = _opt;
     if ( !_startup_pool.empty() )
     {
+      DEBUG_LOG_MESSAGE("client_tcp_map: client from startup_pool")
       cli = _startup_pool.front();
       _startup_pool.pop_front();
     }
-    else if ( !_client_pool.empty() )
+    else if ( !_secondary_pool.empty() )
     {
-      cli = _client_pool.front();
-      _client_pool.pop_front();
+      DEBUG_LOG_MESSAGE("client_tcp_map: client from secondary_pool")
+      cli = _secondary_pool.front();
+      _secondary_pool.pop_front();
+    }
+    else if ( !_primary_pool.empty() )
+    {
+      DEBUG_LOG_MESSAGE("client_tcp_map: client from primary_pool")
+      cli = _primary_pool.front();
+      _primary_pool.pop_front();
       cli_pool = std::make_shared<client_type>(_io);
       wrkfl = _opt.args.workflow;
+      _primary_pool.push_back(cli_pool);
     }
     else
     {
+      DEBUG_LOG_MESSAGE("client_tcp_map: new client ")
       not_started = true;
       cli = std::make_shared<client_type>(_io);
     }
@@ -135,6 +191,7 @@ client_tcp_map::client_ptr client_tcp_map::upsert(io_id_t id)
 
 void client_tcp_map::reg_io( io_id_t id, std::weak_ptr<iinterface> holder)
 {
+  if ( _stop_flag ) return;
   if ( client_ptr cli = this->upsert(id) )
   {
     cli->reg_io(id, holder);
@@ -143,28 +200,48 @@ void client_tcp_map::reg_io( io_id_t id, std::weak_ptr<iinterface> holder)
 
 void client_tcp_map::unreg_io( io_id_t id)
 {
+  if ( _stop_flag ) return;
   if ( client_ptr cli = this->find(id) )
   {
     cli->unreg_io(id);
-    cli->stop();
-
-    std::lock_guard<mutex_type> lk(_mutex);
-    auto itr = _clients.find(id);
-    if ( itr == _clients.end() )
-      return;
-    _clients.erase(itr);
+    {
+      std::lock_guard<mutex_type> lk(_mutex);
+      _clients.erase(id);
+      if ( _secondary_pool.size() < _opt.secondary_pool )
+        _secondary_pool.push_back( std::move(cli) );
+    }
+    
+    // Если  не перенесен в пул
+    if ( cli!=nullptr )
+      cli->stop();
   }
 }
 
 void client_tcp_map::perform_io( data_ptr d, io_id_t id, output_handler_t handler)
 {
+  if ( _stop_flag ) return;
+  
   // Для клиента reg_io обязателен 
   if ( auto cli = this->find(id ) )
   {
     cli->perform_io( std::move(d), id, std::move(handler) );
   }
+  else if ( client_ptr cli = this->upsert(id) )
+  {
+    DEBUG_LOG_MESSAGE("Опционально client_tcp_map::perform_io io_id=" << id)
+    // Опционально
+    cli->reg_io(id, std::make_shared<iinterface>());
+    cli->perform_io( std::move(d), id, [this, id, handler](data_ptr d)
+    {
+      this->unreg_io(id);
+      if (handler!=nullptr)
+        handler(std::move(d));
+    });
+  }
   else if ( handler != nullptr )
   {
+    // Если напрямую подключили server-tcp в режиме direct_mode или server-udp
+    SYSTEM_LOG_FATAL("client_tcp_map::perform_io: object (io_id=" << id << ") not registered. Probably a configuration error.")
     handler(nullptr);
   }
 }

@@ -20,11 +20,12 @@ namespace wfc{ namespace io{
 class client_tcp_map
   : public iinterface
 {
+  class handler_wrapper;
 public:
-
   typedef rwlock<std::mutex> mutex_type;
   typedef client_tcp_adapter client_type;
   typedef std::shared_ptr<client_type> client_ptr;
+  typedef std::weak_ptr<client_type> client_wptr;
   typedef client_type::io_service_type io_service_type;
   typedef client_tcp_config options_type;
 
@@ -57,8 +58,10 @@ private:
   client_map_t _clients;
   mutable mutex_type _mutex;
   client_list_t _startup_pool;
-  client_list_t _client_pool;
+  client_list_t _primary_pool;
+  client_list_t _secondary_pool;
   bool _startup_flag = true;
+  bool _stop_flag = false;
   
 };
   
