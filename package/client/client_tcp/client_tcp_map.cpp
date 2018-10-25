@@ -112,16 +112,6 @@ void client_tcp_map::stop()
   
   for ( auto& cli : client_list )
     cli->stop();
-
-  /*
-  for ( auto& cli : _clients )
-  {
-    cli.second->stop();
-    cli.second = nullptr;
-  }
-  std::lock_guard<mutex_type> lk(_mutex);
-  _clients.clear();
-  */
 }
 
 client_tcp_map::client_ptr client_tcp_map::find( io_id_t id ) const
@@ -137,6 +127,12 @@ client_tcp_map::client_ptr client_tcp_map::upsert(io_id_t id)
     if ( client_ptr cli = this->find_(id) )
       return cli;
   }
+  
+  auto cli = this->create_();
+  std::lock_guard<mutex_type> lk(_mutex);
+  _clients.insert( std::make_pair(id,  cli) );
+  return cli;
+  /*
   options_type opt;
   client_ptr cli;
   client_ptr cli_pool;
@@ -185,6 +181,7 @@ client_tcp_map::client_ptr client_tcp_map::upsert(io_id_t id)
     });
   }
   return cli;
+  */
 }
 
 // iinterface
@@ -217,25 +214,31 @@ void client_tcp_map::unreg_io( io_id_t id)
   }
 }
 
+client_tcp_map::client_ptr client_tcp_map::create()
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  return this->create_();
+}
 void client_tcp_map::perform_io( data_ptr d, io_id_t id, output_handler_t handler)
 {
   if ( _stop_flag ) return;
   
   // Для клиента reg_io обязателен 
-  if ( auto cli = this->find(id ) )
+  if ( auto cli1 = this->find(id ) )
   {
-    cli->perform_io( std::move(d), id, std::move(handler) );
+    cli1->perform_io( std::move(d), id, std::move(handler) );
   }
-  else if ( client_ptr cli = this->upsert(id) )
+  else if ( client_ptr cli2 = this->create() )
   {
     DEBUG_LOG_MESSAGE("Опционально client_tcp_map::perform_io io_id=" << id)
     // Опционально
-    cli->reg_io(id, std::make_shared<iinterface>());
-    cli->perform_io( std::move(d), id, [this, id, handler](data_ptr d)
+    //cli2->reg_io(id, std::make_shared<iinterface>());
+    cli2->perform_io( std::move(d), 0, [this, cli2, handler](data_ptr d2) mutable
     {
-      this->unreg_io(id);
+      this->free(cli2);
+      //cli2 = nullptr;
       if (handler!=nullptr)
-        handler(std::move(d));
+        handler(std::move(d2));
     });
   }
   else if ( handler != nullptr )
@@ -254,6 +257,52 @@ client_tcp_map::client_ptr client_tcp_map::find_( io_id_t id ) const
   if ( itr!=_clients.end() )
     return itr->second;
   return nullptr;
+}
+
+client_tcp_map::client_ptr client_tcp_map::create_()
+{
+  client_ptr cli;
+
+  ///std::lock_guard<mutex_type> lk(_mutex);
+  
+  if ( !_startup_pool.empty() )
+  {
+    DEBUG_LOG_MESSAGE("client_tcp_map: client from startup_pool")
+    cli = _startup_pool.front();
+    _startup_pool.pop_front();
+  }
+  else if ( !_secondary_pool.empty() )
+  {
+    DEBUG_LOG_MESSAGE("client_tcp_map: client from secondary_pool")
+    cli = _secondary_pool.front();
+    _secondary_pool.pop_front();
+  }
+  else if ( !_primary_pool.empty() )
+  {
+    DEBUG_LOG_MESSAGE("client_tcp_map: client from primary_pool")
+    cli = _primary_pool.front();
+    _primary_pool.pop_front();
+    client_ptr new_cli = std::make_shared<client_type>(_io);
+    new_cli->start(this->_opt);
+    _primary_pool.push_back(new_cli);
+  }
+  else
+  {
+    DEBUG_LOG_MESSAGE("client_tcp_map: new client ")
+    cli = std::make_shared<client_type>(_io);
+    cli->start(this->_opt);
+  }
+  return cli;
+}
+
+void client_tcp_map::free(client_ptr cli)
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  if ( _secondary_pool.size() < _opt.secondary_pool )
+    _secondary_pool.push_back( std::move(cli) );
+  // Если  не перенесен в пул
+  if ( cli!=nullptr )
+    cli->stop();
 }
 
 }}

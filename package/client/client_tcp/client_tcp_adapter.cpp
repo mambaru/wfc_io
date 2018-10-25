@@ -91,8 +91,22 @@ void client_tcp_adapter::start( options_type opt)
     if ( shutdown_handler != nullptr ) 
       shutdown_handler( id );
   };
-  
-  _client->start(opt);
+
+  try
+  {
+    _client->start(opt);
+  }
+  catch(const std::exception& e)
+  {
+    if ( opt.abort_if_error )
+    {
+      DOMAIN_LOG_FATAL( "client-tcp: " << opt.port << " error: " << e.what() )
+    }
+    else
+    {
+      DOMAIN_LOG_ERROR( "client-tcp: " << opt.port << " error: " << e.what() )
+    }
+  }
 }
 
 std::shared_ptr<iinterface> client_tcp_adapter::get_holder() const
@@ -106,7 +120,6 @@ std::shared_ptr<iinterface> client_tcp_adapter::get_holder() const
 void client_tcp_adapter::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
 {
   std::lock_guard<mutex_type> lk(_mutex);
-  
   if ( _holder_id > 0 && _holder_id!=io_id  )
   {
     DOMAIN_LOG_FATAL("client-tcp configuration error! Several sources are unacceptable _holder_id=" << _holder_id <<", io_id="<< io_id)
@@ -131,14 +144,13 @@ void client_tcp_adapter::unreg_io(io_id_t io_id)
 void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, output_handler_t handler) 
 {
   auto pitf = this->get_holder();
-  if ( pitf == nullptr )
+  if ( pitf == nullptr || io_id==0)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    if ( _holder.lock() == nullptr )
+    if ( _holder.lock() == nullptr || io_id==0)
     {
-      if ( handler!=nullptr )
+      if ( handler!=nullptr || io_id==0 )
       {
-        DEBUG_LOG_ERROR("client_tcp_adapter::perform_io handler_wrapper ")
         _wrapper = std::make_shared<handler_wrapper>(handler);
         _holder = _wrapper;
         _holder_id = io_id;
@@ -148,7 +160,6 @@ void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outp
   
   if ( auto rd = _client->send( std::move(d) ) )
   {
-    DEBUG_LOG_ERROR("tcp_client send FAIL: " << rd)
     if (handler!=nullptr)
     {
       handler( nullptr );

@@ -12,7 +12,7 @@
 
 #include <iow/ip/tcp/client/options.hpp>
 #include <iow/asio.hpp>
-
+#include "client_tcp_config.hpp"
 #include <memory>
 #include <atomic>
 
@@ -30,7 +30,8 @@ public:
   typedef impl client_type;
   typedef std::shared_ptr<client_type> client_ptr;
 
-  typedef ::iow::ip::tcp::client::options options_type;
+  //typedef ::iow::ip::tcp::client::options options_type;
+  typedef client_tcp_config options_type;
   typedef ::iow::asio::io_service io_service_type;
   
   client_tcp_adapter( io_service_type& io);

@@ -19,8 +19,8 @@ struct connection_options_json
   typedef json::object<
     tcp_connection_options,
     json::member_list<
-      json::base< ::iow::ip::tcp::connection::options_json >,
-      json::member<n_direct_mode, tcp_connection_options, bool, &tcp_connection_options::direct_mode>
+      json::member<n_direct_mode, tcp_connection_options, bool, &tcp_connection_options::direct_mode>,
+      json::base< ::iow::ip::tcp::connection::options_json >
     >,
     json::strict_mode
   > type;

@@ -115,7 +115,7 @@ void server_tcp::run_()
   }
   catch(const std::exception& e)
   {
-    DOMAIN_LOG_FATAL( "server_tcp port: " << this->options().port << " error: " << e.what() )
+    DOMAIN_LOG_FATAL( "server_tcp: " << this->options().port << " error: " << e.what() )
   }
 }
 

@@ -38,6 +38,9 @@ public:
   client_ptr find( io_id_t id ) const;
 
   client_ptr upsert( io_id_t id);
+  
+  client_ptr create();
+  void free(client_ptr cli);
 
   // iinterface
   virtual void reg_io( io_id_t id, std::weak_ptr< ::wfc::iinterface > src) override;
@@ -49,6 +52,8 @@ public:
 private:
   
   client_ptr find_( io_id_t id ) const;
+  
+  client_ptr create_();
   
 private:
   typedef std::map< io_id_t, client_ptr> client_map_t;

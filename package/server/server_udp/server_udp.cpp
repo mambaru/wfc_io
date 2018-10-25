@@ -97,7 +97,7 @@ void server_udp::run_()
   }
   catch(const std::exception& e)
   {
-    DOMAIN_LOG_FATAL( "server_udp port: " << this->options().port << " error: " << e.what() )
+    DOMAIN_LOG_FATAL( "server_udp: " << this->options().port << " error: " << e.what() )
   }
 }
 

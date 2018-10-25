@@ -13,9 +13,12 @@ namespace wfc{ namespace io{
 
 void client_tcp::start()
 {
-  if ( _adapter!=nullptr )
-    _adapter->stop();
   _adapter = std::make_shared<client_tcp_map>( this->global()->io_service);
+  this->restart();
+}
+
+void client_tcp::restart()
+{
   auto opt = this->options();
   opt.args.workflow = this->get_workflow();
   
@@ -25,7 +28,6 @@ void client_tcp::start()
     if ( opt.connection.writer.sep.empty() ) opt.connection.writer.sep = "\r\n";
   }
 
-  //_adapter->start( opt );
   _adapter->reconfigure( opt );
 }
 

@@ -23,6 +23,7 @@ class client_tcp
 public:
   // domain_object  
   virtual void start() override;
+  virtual void restart() override;
   virtual void stop() override;
   
   // iinterface

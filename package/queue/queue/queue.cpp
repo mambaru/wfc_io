@@ -3,6 +3,7 @@
 
 namespace wfc{ namespace io{
 
+#error TODO connection_tracking
 void queue::initialize()
 {
   const auto opt = this->options();
@@ -35,7 +36,10 @@ void queue::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
   auto target = _target.lock();
   
   if ( target == nullptr)
-    return handler( std::move(d) );
+  {
+    if (handler!=nullptr)
+      return handler( nullptr );
+  }
   
   if ( this->suspended() )
     return target->perform_io( std::move( d ), io_id, std::move(handler) );
@@ -56,18 +60,23 @@ void queue::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
               pthis->make_handler_( std::move(handler) ) 
           );
         }
+        else if (handler!=nullptr)
+        {
+          handler(nullptr);
+        }
       }
     },
     [handler]()
     {
-      handler(nullptr);
+      if (handler!=nullptr)
+        handler(nullptr);
     }
   );
 }
 
 iinterface::output_handler_t queue::make_handler_(output_handler_t&& handler)
 {
-  if ( _callback_workflow == nullptr ) 
+  if ( _callback_workflow == nullptr || handler==nullptr) 
     return std::move(handler);
   
   std::weak_ptr<queue> wthis = this->shared_from_this();;
