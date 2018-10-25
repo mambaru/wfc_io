@@ -3,7 +3,6 @@
 
 namespace wfc{ namespace io{
 
-#error TODO connection_tracking
 void queue::initialize()
 {
   const auto opt = this->options();
@@ -24,6 +23,7 @@ void queue::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
 }
 void queue::unreg_io(io_id_t io_id)
 {
+  domain_object::unreg_io(io_id);
   if (auto t = _target.lock() )
   {
     t->unreg_io(io_id);
@@ -48,24 +48,28 @@ void queue::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
   std::weak_ptr<iinterface> wtarget = _target;
   std::weak_ptr<queue> wthis = this->shared_from_this();;
   this->get_workflow()->post(
-    [pd, io_id, handler, wthis, wtarget]() mutable
-    {
-      if ( auto pthis = wthis.lock() )
+    this->tracking(
+      io_id,
+      [pd, io_id, handler, wthis, wtarget]() mutable
       {
-        if ( auto t = wtarget.lock() )
+        if ( auto pthis = wthis.lock() )
         {
-          t->perform_io( 
-              std::move( *pd ), 
-              io_id, 
-              pthis->make_handler_( std::move(handler) ) 
-          );
+          if ( auto t = wtarget.lock() )
+          {
+            t->perform_io( 
+                std::move( *pd ), 
+                io_id, 
+                pthis->make_handler_( std::move(handler) ) 
+            );
+          }
+          else if (handler!=nullptr)
+          {
+            handler(nullptr);
+          }
         }
-        else if (handler!=nullptr)
-        {
-          handler(nullptr);
-        }
-      }
-    },
+      }, 
+      nullptr
+    ),
     [handler]()
     {
       if (handler!=nullptr)

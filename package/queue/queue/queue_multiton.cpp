@@ -16,9 +16,10 @@ namespace
 
   class impl: public ::wfc::multiton<
     multiton_name,
-    ::wfc::instance<queue>,
+    instance<queue>,
     queue_config_json, 
-    ::wfc::component_features::DisabledPriority 
+    component_features::DisabledPriority
+    | component_features::EnableTracking
   >
   {
     virtual std::string interface_name() const override
