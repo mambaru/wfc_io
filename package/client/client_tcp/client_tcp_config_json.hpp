@@ -24,11 +24,11 @@ struct client_tcp_config_json
   typedef json::object<
     client_tcp_config,
     json::member_list<
-      json::member<n_rn, client_tcp_config, bool, &client_tcp_config::rn>,
-      json::member<n_abort_if_error, client_tcp_config, bool, &client_tcp_config::abort_if_error>,
       json::member<n_startup_pool, client_tcp_config, size_t, &client_tcp_config::startup_pool>,
       json::member<n_primary_pool, client_tcp_config, size_t, &client_tcp_config::primary_pool>,
       json::member<n_secondary_pool, client_tcp_config, size_t, &client_tcp_config::secondary_pool>,
+      json::member<n_abort_if_error, client_tcp_config, bool, &client_tcp_config::abort_if_error>,
+      json::member<n_rn, client_tcp_config, bool, &client_tcp_config::rn>,
       json::base< ::iow::ip::tcp::client::options_json >
     >
   > type;
