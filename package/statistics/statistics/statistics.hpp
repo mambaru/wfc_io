@@ -10,13 +10,16 @@
 #include <wfc/domain_object.hpp>
 #include <wfc/iinterface.hpp>
 #include <wfc/statistics/meters.hpp>
+#include <unordered_map>
 #include <string>
 #include <memory>
+
+
 
 namespace wfc{ namespace io{
 
 class statistics
-  : public ::wfc::domain_object<iinterface, statistics_config>
+  : public ::wfc::domain_object<iinterface, statistics_config, defstat>
 {
 public:
   virtual void initialize() override;
@@ -24,14 +27,12 @@ public:
   virtual void unreg_io(io_id_t /*io_id*/) override;
   virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, output_handler_t handler) override;
 private:
-  /*typedef std::shared_ptr<composite_meter> meter_ptr;
-  typedef std::shared_ptr<value_meter> connections_meter_ptr;*/
   typedef std::mutex mutex_type;
   
   std::weak_ptr<iinterface> _target;
-  composite_factory _meter;
-  value_factory _connections_meter;  
-  std::unordered_set<io_id_t> _connections;
+  composite_meter _meter;
+  value_meter _connections_meter;  
+  std::unordered_map<io_id_t, std::shared_ptr<iinterface> > _connections;
   mutex_type _mutex;
   timer_id_t _timer_id = -1;
 };

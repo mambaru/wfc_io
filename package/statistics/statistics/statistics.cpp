@@ -5,7 +5,59 @@
 
 
 namespace wfc{ namespace io{
+namespace {
+  class composite_wrapper: public iinterface
+  {
+  public:
+    composite_wrapper(std::weak_ptr<iinterface> itf, composite_meter meter)
+      : _itf(itf)
+      , _meter(meter)
+    {
+    }
+    
+    void reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
+    {
+      if (auto t = _itf.lock() )
+      {
+        t->reg_io(io_id, itf);
+      }
+    }
+    
+    void unreg_io(io_id_t io_id)
+    {
+      if (auto t = _itf.lock() )
+      {
+        t->unreg_io(io_id);
+      }
+    }
+    
+    void perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
+    {
+      if (auto t = _itf.lock() )
+      {
+        // TODO: было _meter.create_shared( 1, d->size(), 0 );
+        // сейчас в count рамер в байтах 
+        
+        auto point = _meter.create_shared( 1, d->size(), 0 );
+        t->perform_io( 
+          std::move(d), 
+          io_id,
+          [handler, point](data_ptr d) 
+          { 
+            if ( d!=nullptr)
+              point->set_write_size( d->size() );
+            handler( std::move(d) ); 
+          } 
+        );
+      }
+    }
+  private:  
+    std::weak_ptr<iinterface> _itf;
+    composite_meter _meter;
+  };
+}
 
+  
 void statistics::initialize()
 {
   auto opt = this->options();
@@ -13,8 +65,8 @@ void statistics::initialize()
   this->get_workflow()->release_timer(_timer_id);
   if ( auto stat = this->get_statistics() )
   {
-    _meter = stat->create_composite_factory( opt.time_name, opt.read_name, opt.write_name, true );
-    _connections_meter = stat->create_value_factory( opt.io_name );
+    _meter = stat->create_composite_meter( opt.time_name, opt.read_name, opt.write_name, true );
+    _connections_meter = stat->create_value_meter( opt.io_name );
     if ( opt.interval_ms > 0 )
     {
       _timer_id = this->get_workflow()->create_timer(
@@ -47,14 +99,23 @@ void statistics::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
 {
   if (auto t = _target.lock() )
   {
-    t->reg_io(io_id, itf);
     if ( !this->suspended() )
     {
-      std::lock_guard<mutex_type> lk(_mutex);
-      _connections.insert(io_id);
+      if ( auto stat = this->get_statistics() )
+      {
+        const auto& opt = this->options();
+        auto meter = stat->create_composite_meter( opt.time_name, opt.read_name, opt.write_name, true );
+        std::lock_guard<mutex_type> lk(_mutex);
+        auto wrpitf = std::make_shared<composite_wrapper>(itf, meter);
+        _connections[io_id] = wrpitf;
+        t->reg_io(io_id, wrpitf);
+        return;
+      }
     }
+    t->reg_io(io_id, itf);
   }
 }
+
 void statistics::unreg_io(io_id_t io_id)
 {
   if (auto t = _target.lock() )
