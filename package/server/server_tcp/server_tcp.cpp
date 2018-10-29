@@ -47,7 +47,6 @@ void server_tcp::start()
 
 void server_tcp::reconfigure_basic() 
 {
-  COMMON_LOG_WARNING("reconfigure_basic() ")
   _target->set_suspend(this->suspended());
 }
 

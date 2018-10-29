@@ -44,7 +44,6 @@ void server_udp::start()
 
 void server_udp::reconfigure_basic() 
 {
-  COMMON_LOG_WARNING("reconfigure_basic() ")
   _target->set_suspend(this->suspended());
 }
 

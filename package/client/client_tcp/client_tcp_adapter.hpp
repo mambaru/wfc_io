@@ -30,7 +30,6 @@ public:
   typedef impl client_type;
   typedef std::shared_ptr<client_type> client_ptr;
 
-  //typedef ::iow::ip::tcp::client::options options_type;
   typedef client_tcp_config options_type;
   typedef ::iow::asio::io_service io_service_type;
   

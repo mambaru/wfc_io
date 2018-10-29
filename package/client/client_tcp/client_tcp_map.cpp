@@ -46,10 +46,8 @@ void client_tcp_map::reconfigure(const options_type& opt)
     auto shutdown_handler = opt.connection.shutdown_handler;
     _opt.connection.shutdown_handler = [this, shutdown_handler](io_id_t id)
     {
-      DEBUG_LOG_BEGIN("client_tcp_map::reconfigure: shutdown_handler " << id)
       if ( shutdown_handler!=nullptr )
         shutdown_handler(id);
-      DEBUG_LOG_END("client_tcp_map::reconfigure: shutdown_handler " << std::boolalpha << (shutdown_handler!=nullptr))
     };
   
     for ( auto& item : _clients )
@@ -132,56 +130,6 @@ client_tcp_map::client_ptr client_tcp_map::upsert(io_id_t id)
   std::lock_guard<mutex_type> lk(_mutex);
   _clients.insert( std::make_pair(id,  cli) );
   return cli;
-  /*
-  options_type opt;
-  client_ptr cli;
-  client_ptr cli_pool;
-  bool not_started = false;
-  std::shared_ptr< ::wflow::workflow> wrkfl;
-  {
-    std::lock_guard<mutex_type> lk(_mutex);
-    opt = _opt;
-    if ( !_startup_pool.empty() )
-    {
-      DEBUG_LOG_MESSAGE("client_tcp_map: client from startup_pool")
-      cli = _startup_pool.front();
-      _startup_pool.pop_front();
-    }
-    else if ( !_secondary_pool.empty() )
-    {
-      DEBUG_LOG_MESSAGE("client_tcp_map: client from secondary_pool")
-      cli = _secondary_pool.front();
-      _secondary_pool.pop_front();
-    }
-    else if ( !_primary_pool.empty() )
-    {
-      DEBUG_LOG_MESSAGE("client_tcp_map: client from primary_pool")
-      cli = _primary_pool.front();
-      _primary_pool.pop_front();
-      cli_pool = std::make_shared<client_type>(_io);
-      wrkfl = _opt.args.workflow;
-      _primary_pool.push_back(cli_pool);
-    }
-    else
-    {
-      DEBUG_LOG_MESSAGE("client_tcp_map: new client ")
-      not_started = true;
-      cli = std::make_shared<client_type>(_io);
-    }
-    _clients.insert( std::make_pair(id, cli ) );
-  }
-  
-  if ( not_started )
-    cli->start(opt);
-  
-  if ( wrkfl!=nullptr )
-  {
-    wrkfl->safe_post([opt, cli_pool](){
-      cli_pool->start(opt);
-    });
-  }
-  return cli;
-  */
 }
 
 // iinterface
@@ -230,9 +178,7 @@ void client_tcp_map::perform_io( data_ptr d, io_id_t id, output_handler_t handle
   }
   else if ( client_ptr cli2 = this->create() )
   {
-    DEBUG_LOG_MESSAGE("Опционально client_tcp_map::perform_io io_id=" << id)
     // Опционально
-    //cli2->reg_io(id, std::make_shared<iinterface>());
     cli2->perform_io( std::move(d), 0, [this, cli2, handler](data_ptr d2) mutable
     {
       this->free(cli2);
@@ -262,24 +208,19 @@ client_tcp_map::client_ptr client_tcp_map::find_( io_id_t id ) const
 client_tcp_map::client_ptr client_tcp_map::create_()
 {
   client_ptr cli;
-
-  ///std::lock_guard<mutex_type> lk(_mutex);
   
   if ( !_startup_pool.empty() )
   {
-    DEBUG_LOG_MESSAGE("client_tcp_map: client from startup_pool")
     cli = _startup_pool.front();
     _startup_pool.pop_front();
   }
   else if ( !_secondary_pool.empty() )
   {
-    DEBUG_LOG_MESSAGE("client_tcp_map: client from secondary_pool")
     cli = _secondary_pool.front();
     _secondary_pool.pop_front();
   }
   else if ( !_primary_pool.empty() )
   {
-    DEBUG_LOG_MESSAGE("client_tcp_map: client from primary_pool")
     cli = _primary_pool.front();
     _primary_pool.pop_front();
     client_ptr new_cli = std::make_shared<client_type>(_io);
@@ -288,7 +229,6 @@ client_tcp_map::client_ptr client_tcp_map::create_()
   }
   else
   {
-    DEBUG_LOG_MESSAGE("client_tcp_map: new client ")
     cli = std::make_shared<client_type>(_io);
     cli->start(this->_opt);
   }
