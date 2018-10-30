@@ -39,16 +39,18 @@ void broker::restart()
   for (const broker_config::rule& r: opt.rules)
   {
     rules.push_back(rule_target());
-    rules.back().target = this->get_target<iinterface>(r.target);
-    rules.back().rule_log = r.rule_log;
-    
+    auto trg = this->get_target<iinterface>(r.target);
+    rules.back().target = trg;
+    targets.push_back(trg);
+    rules.back().log = r.log;
     rules.back().matcher = std::make_shared<regex_match>(r.regex);
   }
   
   std::lock_guard<mutex_type> lk(_mutex);
   _targets = targets;
   _rules = rules;
-  _target_log = opt.target_log;
+  _target_log = opt.log;
+  _target = this->get_target<iinterface>(opt.target);
 }
 
 void broker::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf) 
@@ -75,7 +77,7 @@ void broker::unreg_io(io_id_t io_id)
 }
 
 
-void  broker::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler) 
+void broker::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler) 
 {
   read_lock<mutex_type> lk(_mutex);
   if ( this->suspended() || d==nullptr  )
@@ -89,17 +91,18 @@ void  broker::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
   {
     if ( r.matcher->match( d->data(), d->data() + d->size() ) )
     {
+      BROKER_LOG(r.log, d)
       if (auto t = r.target.lock())
+      {
         t->perform_io(std::move(d), io_id, handler);
-      BROKER_LOG(r.rule_log, d)
+      }
       return;
     }
   }
 
+  BROKER_LOG(_target_log, d)
   if (auto t = _target.lock())
     t->perform_io(std::move(d), io_id, handler);
-  BROKER_LOG(_target_log, d)
- 
 }
 
 }}

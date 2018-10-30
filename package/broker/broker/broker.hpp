@@ -32,8 +32,8 @@ private:
   struct rule_target
   {
     wtarget_t target;
+    std::string log;
     std::shared_ptr<regex_match> matcher;
-    std::string rule_log;
   };
   typedef rwlock<std::recursive_mutex> mutex_type; 
   typedef std::list<wtarget_t> target_list;

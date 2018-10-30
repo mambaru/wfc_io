@@ -239,8 +239,8 @@
 }
 ```
 
-Важно! Значения по умолчанию для reader/writer не совсем корректны и необходимо увеличить **bufsize** до максимального возможного 
-размера датаграм. При высоких нагрузках рекомендуется также задать **receive_buffer_size**:
+Важно! Значения по умолчанию для reader/writer для датаграм 4КБ, возможно вам будет необходимо увеличить **bufsize** до максимального возможного 
+размера датаграм 64КБ. При высоких нагрузках рекомендуется также задать **receive_buffer_size**, например:
 
 ```json
 "server-udp": [
@@ -258,39 +258,60 @@
   }
 ]
 ```
+Обычно UDP-порт открывают одновременно с TCP, например:
 
-```cpp
-┌─────────────┐
-│ server-tcp  ├───────────────────────────┐
-└─────────────┘                           │ 
-┌─────────────┐                           │
-│ server-tcp  ├─┐                         │
-└─────────────┘ │     ┌───────────────┐   │┌──────────────┐
-                ├─────┤ demo-service  ├───┴┤ demo-domain  │
-┌─────────────┐ │     └───────────────┘    └──────────────┘
+```
+┌─────────────┐                           
+│ server-tcp  ├─┐                         
+└─────────────┘ │   ┌───────────────┐   ┌──────────────┐
+                ├───┤ demo-service  ├───┤ demo-domain  │
+┌─────────────┐ │   └───────────────┘   └──────────────┘
 │ server-udp  ├─┘
 └─────────────┘
 ```
 
+```json
+{
+  "server-tcp": [
+    {
+      "name": "server-tcp1",
+      "threads": 1,
+      "target": "demo-service1",
+      "addr": "0.0.0.0",
+      "port": "12346"
+    }
+  ],
+  "server-udp": [
+    {
+      "name": "server-udp1",
+      "threads": 1,
+      "target": "demo-service1",
+      "addr": "0.0.0.0",
+      "port": "12346"
+    }
+  ],
+  "demo-service": [
+    {
+      "name": "demo-service1",
+      "target": "demo1"
+    }
+  ],
+  "demo-domain": [
+    {
+      "name": "demo1"
+    }
+  ]
+}
+
+```
 
 ## io-queue
 
 Все настройки связанные с управлением очередями осуществляются в компоненте [workflow](https://github.com/mambaru/wfc_core),
 имя которого необходимо указать в поле **"workflow"**. Таким образом несколько очередей могут обрабатываться одним пулом потоков.
-Обратную очередь имеет смысл включать если ответные сообщения могут иметь большой размер.
-
-Если у вас система настроена на работу с jsonrpc, то использовать этот компонент, jsonrpc-queue больше для этого подходит.
-
-┌─────────────┐                            
-│ server-tcp  ├─┐                          
-└─────────────┘ │     ┌──────────┐    ┌──────────────┐
-                ├─────┤ io-queue ├────┤ hash (demo)  │
-┌─────────────┐ │     └──────────┘    └──────────────┘
-│ server-udp  ├─┘
-└─────────────┘
-
-
-```
+Обратную очередь имеет смысл включать если ответные сообщения могут иметь большой размер. Поле **tracking** позволяет включить
+режим отслеживания отключения клиента, 
+```json
 {
   "io-queue": [
     {
@@ -306,6 +327,127 @@
   ]
 }
 ```
+Если у вас система настроена на работу с jsonrpc, то использовать этот компонент не оптимально, jsonrpc-queue больше для этого подходит. 
+Пример для общей очереди:
+```
+┌─────────────┐
+│ server-tcp  ├─┐
+└─────────────┘ │     ┌──────────┐    ┌───────────────┐   ┌──────────────┐
+                ├─────┤ io-queue ├────┤ demo-service  ├───┤ demo-domain  │
+┌─────────────┐ │     └──────────┘    └───────────────┘   └──────────────┘
+│ server-udp  ├─┘   common workflow
+└─────────────┘
+```
+```json
+{
+  "server-tcp": [
+    {
+      "name": "server-tcp1",
+      "target": "queue1",
+      "addr": "0.0.0.0",
+      "port": "12346"
+    }
+  ],
+  "server-udp": [
+    {
+      "name": "server-udp1",
+      "target": "queue1",
+      "addr": "0.0.0.0",
+      "port": "12346"
+    }
+  ],
+  "io-queue": [
+    {
+      "name": "queue1",
+      "target": "demo-service1"
+    }
+  ],
+  "demo-service": [
+    {
+      "name": "demo-service1",
+      "target": "demo1"
+    }
+  ],
+  "demo-domain": [
+    {
+      "name": "demo1"
+    }
+  ]
+}
+
+```
+Еще пример:
+```
+                  workflow1
+┌─────────────┐  ┌──────────┐
+│ server-tcp  ├──┤ io-queue ├─┐
+└─────────────┘  └──────────┘ │  ┌───────────────┐   ┌──────────────┐
+                              ├──┤ demo-service  ├───┤ demo-domain  │
+┌─────────────┐  ┌──────────┐ │  └───────────────┘   └──────────────┘
+│ server-udp  ├──┤ io-queue ├─┘
+└─────────────┘  └──────────┘
+                  workflow2
+```
+```json
+{
+  "server-tcp": [
+    {
+      "name": "server-tcp1",
+      "target": "queue1",
+      "addr": "0.0.0.0",
+      "port": "12346",
+      "threads": 1
+    }
+  ],
+  "server-udp": [
+    {
+      "name": "server-udp1",
+      "target": "queue2",
+      "addr": "0.0.0.0",
+      "port": "12346",
+      "threads": 1
+    }
+  ],
+  "io-queue": [
+    {
+      "name": "queue1",
+      "target": "demo-service1",
+      "tracking": true,
+      "workflow":"workflow1"
+    },
+    {
+      "name": "queue2",
+      "target": "demo-service1",
+      "workflow":"workflow1"
+    }
+  ],
+  "demo-service": [
+    {
+      "name": "demo-service1",
+      "target": "demo1"
+    }
+  ],
+  "demo-domain": [
+    {
+      "name": "demo1"
+    }
+  ],
+
+  "workflow": [
+    {
+      "name": "workflow1",
+      "threads": 1,
+      "maxsize": 10
+    },
+    {
+      "name": "workflow2",
+      "threads": 5
+    },
+  ]
+}
+
+```
+
 
 ## io-broker
 
@@ -354,6 +496,93 @@
   ]
 }
 ```
+
+Пример когда jsonrpc-запросы и остальные распределяются по разным очередям.
+```
+                                workflow1
+┌─────────────┐                ┌──────────┐non jsonrpc
+│ server-tcp  ├─┐            ┌─┤ io-queue ├─┐
+└─────────────┘ │ ┌────────┐ │ └──────────┘ │  ┌──────────────┐   ┌──────┐
+                ├─┤ broker ├─┤              ├──┤ hash-service ├───┤ hash │
+┌─────────────┐ │ └────────┘ │ ┌──────────┐ │  └──────────────┘   └──────┘
+│ server-udp  ├─┘            └─┤ io-queue ├─┘
+└─────────────┘                └──────────┘jsonrpc
+                                workflow2
+```
+```json
+{
+  "server-tcp": [
+    {
+      "name": "server-tcp1",
+      "target": "broker1",
+      "addr": "0.0.0.0",
+      "port": "12346",
+      "threads": 1
+    }
+  ],
+  "server-udp": [
+    {
+      "name": "server-udp1",
+      "target": "broker1",
+      "addr": "0.0.0.0",
+      "port": "12346",
+      "threads": 1
+    }
+  ],
+  "io-broker": [
+    {
+      "name": "broker1",
+      "target":"queue1",
+      "log":"BRLOG1",
+      "rules": [
+        {
+          "target":"queue2",
+          "regex":"{.*}$",
+          "log":"BRLOG2"
+        }
+      ]
+    }
+  ],
+  "io-queue": [
+    {
+      "name": "queue1",
+      "target": "hash-service1",
+      "tracking": true,
+      "workflow":"workflow1"
+    },
+    {
+      "name": "queue2",
+      "target": "hash-service1",
+      "workflow":"workflow2"
+    }
+  ],
+  "hash-service": [
+    {
+      "name": "hash-service1",
+      "target": "hash1",
+      "allow_non_jsonrpc":true
+    }
+  ],
+  "hash": [
+    {
+      "name": "hash1"
+    }
+  ],
+  "workflow": [
+    {
+      "name": "workflow1",
+      "threads": 1,
+      "maxsize": 10
+    },
+    {
+      "name": "workflow2",
+      "threads": 5
+    },
+  ]
+}
+```
+
+
 
 ## client-tcp1
 
