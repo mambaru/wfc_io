@@ -2,6 +2,7 @@
 #include "io_package.hpp"
 #include "server/server_module.hpp"
 #include "client/client_module.hpp"
+#include "broker/broker_module.hpp"
 #include "statistics/statistics_module.hpp"
 #include "queue/queue_module.hpp"
 #include <wfc/module/package.hpp>
@@ -15,7 +16,8 @@ namespace {
     io_build_info,
     io::server_module,
     io::client_module,
-    io::queue_module
+    io::queue_module,
+    io::broker_module
   #ifdef WFC_ENABLE_STAT
     ,io::statistics_module
   #endif

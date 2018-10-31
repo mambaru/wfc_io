@@ -19,6 +19,12 @@ SET(
   queue/queue_module.cpp
   queue/queue/queue_multiton.cpp
   queue/queue/queue.cpp
+
+  broker/broker_module.cpp
+  broker/broker/broker_multiton.cpp
+  broker/broker/broker.cpp
+  broker/broker/regex_match.cpp
+
 )
 
 if (WFC_ENABLE_STAT)
