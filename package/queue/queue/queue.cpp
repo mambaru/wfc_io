@@ -70,10 +70,10 @@ void queue::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
       }, 
       [wthis]()
       {
-        std::string name;
+        std::string qname;
         if ( auto pthis = wthis.lock() )
-          name = pthis->name();
-        SYSTEM_LOG_WARNING("Tracking io-queue '" << name << "': handler drop by tracking.")
+          qname = pthis->name();
+        SYSTEM_LOG_WARNING("Tracking io-queue '" << qname << "': handler drop by tracking.")
       }
     ),
     [handler]()
