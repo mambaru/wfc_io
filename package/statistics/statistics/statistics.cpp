@@ -38,15 +38,19 @@ namespace {
         // TODO: было _meter.create_shared( 1, d->size(), 0 );
         // сейчас в count рамер в байтах 
         
-        auto point = _meter.create_shared( 1, d->size(), 0 );
+        auto point = _meter.create_shared( 
+          static_cast<wrtstat::size_type>(1),           // count
+          static_cast<wrtstat::value_type>(d->size()),  // readed
+          static_cast<wrtstat::value_type>(0)           // writed (later)
+        );
         t->perform_io( 
           std::move(d), 
           io_id,
-          [handler, point](data_ptr d) 
+          [handler, point](data_ptr d1) 
           { 
-            if ( d!=nullptr)
-              point->set_write_size( d->size() );
-            handler( std::move(d) ); 
+            if ( d1!=nullptr)
+              point->set_write_size( static_cast<wrtstat::value_type>(d1->size()) );
+            handler( std::move(d1) ); 
           } 
         );
       }
@@ -80,8 +84,11 @@ void statistics::initialize()
             std::lock_guard<mutex_type> lk(this->_mutex);
             size = this->_connections.size();
           }
-          if ( auto stat = this->get_statistics() )
-            this->_connections_meter.create( size, 0);
+          if ( auto stat1 = this->get_statistics() )
+            this->_connections_meter.create( 
+              static_cast<wrtstat::value_type>(size), 
+              static_cast<wrtstat::size_type>(0) 
+            );
           return true;
         }, nullptr)
       );
@@ -133,15 +140,19 @@ void statistics::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
     }
     else if ( auto stat = this->get_statistics() )
     {
-      auto meter = _meter.create_shared( 1, d->size(), 0 );
+      auto meter = _meter.create_shared( 
+        static_cast<wrtstat::size_type>(1),           // count 
+        static_cast<wrtstat::value_type>(d->size()),  // readed
+        static_cast<wrtstat::value_type>(0)           // writer (later)
+      );
       t->perform_io( 
         std::move(d), 
         io_id,
-        [handler, meter](data_ptr d) 
+        [handler, meter](data_ptr d2) 
         { 
-          if ( d!=nullptr)
-            meter->set_write_size( d->size() );
-          handler( std::move(d) ); 
+          if ( d2!=nullptr)
+            meter->set_write_size( static_cast<wrtstat::value_type>(d2->size()) );
+          handler( std::move(d2) ); 
         } 
       );
     }
