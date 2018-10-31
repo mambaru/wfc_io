@@ -27,7 +27,7 @@ public:
   typedef super::mutex_type mutex_type;
   typedef super::data_ptr data_ptr;
   
-  tcp_connection(descriptor_type&& desc)
+  explicit tcp_connection(descriptor_type&& desc)
     : super( std::move(desc) )
   {}
   

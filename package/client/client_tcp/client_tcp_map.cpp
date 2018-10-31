@@ -6,7 +6,7 @@ namespace wfc{ namespace io{
 class client_tcp_map::handler_wrapper: public iinterface
 {
 public:
-  handler_wrapper(output_handler_t handler): _handler(handler) {}
+  explicit handler_wrapper(output_handler_t handler): _handler(handler) {}
   virtual void perform_io( iinterface::data_ptr d, io_id_t /*id*/, output_handler_t /*handler*/) override
   {
     _handler( std::move(d) );

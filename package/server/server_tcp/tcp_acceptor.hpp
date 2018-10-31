@@ -16,7 +16,7 @@ class tcp_acceptor
   typedef ::iow::ip::tcp::server::acceptor<tcp_connection> super;
 public:
   typedef super::descriptor_type descriptor_type;
-  tcp_acceptor(descriptor_type&& desc)
+  explicit tcp_acceptor(descriptor_type&& desc)
     : super( std::move(desc) )
   {}
 };

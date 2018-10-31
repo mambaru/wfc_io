@@ -33,7 +33,7 @@ public:
   typedef client_tcp_config options_type;
   typedef ::iow::asio::io_service io_service_type;
   
-  client_tcp_adapter( io_service_type& io);
+  explicit client_tcp_adapter( io_service_type& io);
   
   ~client_tcp_adapter() ;
   

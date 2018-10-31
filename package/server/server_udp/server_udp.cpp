@@ -14,7 +14,7 @@ class server_udp::impl
 {
 public:
   typedef server::io_service_type io_service_type;
-  impl(io_service_type& io)
+  explicit impl(io_service_type& io)
     : server(io)
   {
   }

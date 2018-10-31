@@ -11,7 +11,7 @@ namespace wfc{ namespace io{
 class client_tcp_adapter::handler_wrapper: public iinterface
 {
 public:
-  handler_wrapper(output_handler_t handler): _handler(handler) {}
+  explicit handler_wrapper(output_handler_t handler): _handler(handler) {}
   virtual void perform_io( iinterface::data_ptr d, io_id_t /*id*/, output_handler_t /*handler*/) override
   {
     _handler( std::move(d) );
@@ -25,7 +25,7 @@ class client_tcp_adapter::impl
 {
   typedef ::iow::ip::tcp::client::multi_thread<> super;
 public:
-  impl( io_service_type& io)
+  explicit impl( io_service_type& io)
     : super(io){}
 };
 

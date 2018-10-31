@@ -29,7 +29,7 @@ public:
   typedef client_type::io_service_type io_service_type;
   typedef client_tcp_config options_type;
 
-  client_tcp_map( io_service_type& io);
+  explicit client_tcp_map( io_service_type& io);
   
   void reconfigure(const options_type& opt);
   
