@@ -13,12 +13,14 @@ namespace
 {
   WFC_NAME2(component_name, "io-statistics")
 
-  class impl: public ::wfc::multiton<
+  class impl: public multiton<
     component_name,
-    ::wfc::instance<statistics>,
+    instance<statistics>,
     statistics_config_json,
-    ::wfc::component_features::DisabledPriority
-    | ::wfc::component_features::DisabledWorkflow
+    component_features::DisabledPriority
+    | component_features::DisabledWorkflow
+    | component_features::EnableTracking,
+    statistics_stat_json
   >
   {
     virtual std::string interface_name() const override

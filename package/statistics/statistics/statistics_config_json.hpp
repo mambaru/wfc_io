@@ -15,21 +15,35 @@ namespace wfc{ namespace io{
 struct statistics_config_json
 {
   JSON_NAME(target)
-  JSON_NAME(time_name)
-  JSON_NAME(read_name)
-  JSON_NAME(write_name)
-  JSON_NAME(io_name)
-  JSON_NAME(interval_ms)
+  JSON_NAME(tracking_ms)
 
   typedef json::object<
     statistics_config,
     json::member_list<
-        json::member<n_target, statistics_config, std::string, &statistics_config::target>,
-        json::member<n_interval_ms, statistics_config, time_t, &statistics_config::interval_ms>,
-        json::member<n_io_name, statistics_config, std::string, &statistics_config::io_name>,
-        json::member<n_time_name, statistics_config, std::string, &statistics_config::time_name>,
-        json::member<n_read_name, statistics_config, std::string, &statistics_config::read_name>,
-        json::member<n_write_name, statistics_config, std::string, &statistics_config::write_name>
+      json::member<n_target, statistics_config, std::string, &statistics_config::target>,
+      json::member<n_tracking_ms, statistics_config, time_t, &statistics_config::tracking_ms>
+    >
+  > type;
+  
+  typedef type::target target;
+  typedef type::serializer serializer;
+  typedef type::member_list member_list;
+};
+
+struct statistics_stat_json
+{
+  JSON_NAME(time_name)
+  JSON_NAME(read_name)
+  JSON_NAME(write_name)
+  JSON_NAME(track_name)
+
+  typedef json::object<
+    statistics_stat,
+    json::member_list<
+        json::member<n_track_name, statistics_stat, std::string, &statistics_stat::track_name>,
+        json::member<n_time_name, statistics_stat, std::string,  &statistics_stat::time_name>,
+        json::member<n_read_name, statistics_stat, std::string,  &statistics_stat::read_name>,
+        json::member<n_write_name, statistics_stat, std::string, &statistics_stat::write_name>
     >
   > type;
   
