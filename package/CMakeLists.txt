@@ -44,4 +44,22 @@ add_library(
 
 build_info(wfc_io io)
 
+if ( STANDALONE )
+
+  include(FindThreads)
+  find_package(Boost COMPONENTS system program_options filesystem date_time REQUIRED)
+
+  target_link_libraries(
+    wfc_io
+      wfc
+      wrtstat
+      wlog
+      wflow
+      wjrpc
+      ${Boost_LIBRARIES} 
+      ${CMAKE_THREAD_LIBS_INIT}
+  )
+endif()
+
+
 install(TARGETS wfc_io DESTINATION ${CMAKE_INSTALL_PREFIX})
