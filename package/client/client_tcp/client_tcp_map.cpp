@@ -44,7 +44,7 @@ void client_tcp_map::reconfigure(const options_type& opt)
     std::lock_guard<mutex_type> lk(_mutex);
     _opt = opt;
     auto shutdown_handler = opt.connection.shutdown_handler;
-    _opt.connection.shutdown_handler = [this, shutdown_handler](io_id_t id)
+    _opt.connection.shutdown_handler = [shutdown_handler](io_id_t id)
     {
       if ( shutdown_handler!=nullptr )
         shutdown_handler(id);
