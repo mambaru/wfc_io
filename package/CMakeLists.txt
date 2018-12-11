@@ -47,15 +47,16 @@ build_info(wfc_io io)
 if ( STANDALONE )
 
   include(FindThreads)
-  find_package(Boost COMPONENTS system program_options filesystem date_time REQUIRED)
+  find_package(Boost COMPONENTS system program_options filesystem date_time regex REQUIRED)
 
   target_link_libraries(
     wfc_io
       wfc
-      wrtstat
       wlog
       wflow
       wjrpc
+      iow
+      wrtstat
       ${Boost_LIBRARIES} 
       ${CMAKE_THREAD_LIBS_INIT}
   )
