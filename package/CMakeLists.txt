@@ -27,7 +27,7 @@ SET(
 
 )
 
-if (WFC_ENABLE_STAT)
+if ( WFC_ENABLE_STAT OR STANDALONE )
 SET(
   wfc_io_source_list
   ${wfc_io_source_list}
@@ -44,23 +44,6 @@ add_library(
 
 build_info(wfc_io io)
 
-if ( STANDALONE )
-
-  include(FindThreads)
-  find_package(Boost COMPONENTS system program_options filesystem date_time regex REQUIRED)
-
-  target_link_libraries(
-    wfc_io
-      wfc
-      wlog
-      wflow
-      wjrpc
-      iow
-      wrtstat
-      ${Boost_LIBRARIES} 
-      ${CMAKE_THREAD_LIBS_INIT}
-  )
-endif()
-
+target_link_libraries(wfc_io ${WFC_LIBRARIES})
 
 install(TARGETS wfc_io DESTINATION ${CMAKE_INSTALL_PREFIX})
