@@ -5,16 +5,13 @@ project(wfc_io)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(ci)
 
-if ( STANDALONE )
-  getlibs(faslib wjson wlog wflow iow wjrpc wrtstat wfc)
-  list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/external/wfc/cmake)
-endif()
+wfc_libs()
 
 include_directories(.)
 
 add_subdirectory(package)
 
 if ( BUILD_TESTING )
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BIN_OUTPUT_DIR})                                                                                                                 
+  enable_testing()
   add_subdirectory(tests)
 endif()
