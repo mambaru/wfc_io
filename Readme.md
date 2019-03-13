@@ -1,4 +1,11 @@
-# Пакет сетевых модулей
+[![pipeline status](http://github.lan/cpp/wfc_io/badges/wip-devel/pipeline.svg)](http://github.lan/cpp/wfc_io/commits/wip-devel)
+[![coverage report](http://github.lan/cpp/wfc_io/badges/wip-devel/coverage.svg)](http://github.lan/cpp/wfc_io/commits/wip-devel)
+
+* Документация [doxygen](https://mambaru.github.io/wfc_io/index.html).
+* Репозитарий на [github.com](https://github.com/mambaru/wfc_io).
+* Отчет [coverage](https://mambaru.github.io/wfc_io/cov-report/index.html)
+
+# wfc_io: Пакет сетевых модулей
 
 Включает модули: 
 * server-tcp
@@ -7,8 +14,6 @@
 * io-queue - 
 * statistics - сбор статистики 
 
-Документация [doxygen](https://mambaru.github.io/wfc_core/index.html).
-Репозитарий на [github.com](https://github.com/mambaru/wfc_core).
 
 ## server-tcp
 

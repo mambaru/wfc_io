@@ -37,10 +37,7 @@ SET(
 )
 endif()
 
-add_library(
-  wfc_io
-  ${wfc_io_source_list}
-)
+add_library(wfc_io ${wfc_io_source_list})
 
 build_info(wfc_io io)
 
