@@ -1,8 +1,13 @@
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BIN_OUTPUT_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BIN_OUTPUT_DIR})                                                                                                                  
 
-enable_testing()
+add_executable(
+  package_test
+    package_suite.cpp
+    package_test.cpp
+    ${FAS_TESTING_CPP}
+)
 
-add_executable(server_test server_test.cpp)
-add_test(NAME server_test COMMAND server_test)
-target_link_libraries(server_test wfc_io )
+target_link_libraries(package_test wfc_io)
+add_test(NAME package_test COMMAND package_test)
+
 
