@@ -11,13 +11,12 @@
 namespace wfc{ namespace io{
  
 
-void client_tcp::start()
+void client_tcp::configure()
 {
   _adapter = std::make_shared<client_tcp_map>( this->global()->io_service);
-  this->restart();
 }
 
-void client_tcp::restart()
+void client_tcp::initialize()
 {
   auto opt = this->options();
   opt.args.workflow = this->get_workflow();

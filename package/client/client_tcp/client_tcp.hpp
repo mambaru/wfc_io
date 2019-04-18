@@ -22,8 +22,8 @@ class client_tcp
 {
 public:
   // domain_object  
-  virtual void start() override;
-  virtual void restart() override;
+  virtual void configure() override;
+  virtual void initialize() override;
   virtual void stop() override;
   
   // iinterface
