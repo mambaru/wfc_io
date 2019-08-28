@@ -1,5 +1,3 @@
-[![pipeline status](http://github.lan/cpp/wfc_io/badges/wip-devel/pipeline.svg)](http://github.lan/cpp/wfc_io/commits/wip-devel)
-[![coverage report](http://github.lan/cpp/wfc_io/badges/wip-devel/coverage.svg)](http://github.lan/cpp/wfc_io/commits/wip-devel)
 
 * Документация [doxygen](https://mambaru.github.io/wfc_io/index.html).
 * Репозитарий на [github.com](https://github.com/mambaru/wfc_io).
