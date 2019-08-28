@@ -22,8 +22,9 @@ client_tcp_map::client_tcp_map( io_service_type& io)
 
 void client_tcp_map::reconfigure(const options_type& opt)
 {
+  /*
   client_list_t client_list;
-  
+
   {
     read_lock<mutex_type> lk(_mutex);
     for ( auto& item : _clients )
@@ -35,11 +36,13 @@ void client_tcp_map::reconfigure(const options_type& opt)
     for ( auto& cli : _startup_pool )
       client_list.push_back(cli);
   }
-  
+
   for ( auto& cli : client_list )
     cli->stop();
   client_list.clear();
-  
+  */
+  this->stop_all_clients();
+  client_list_t client_list;
   {
     std::lock_guard<mutex_type> lk(_mutex);
     _opt = opt;
@@ -49,7 +52,7 @@ void client_tcp_map::reconfigure(const options_type& opt)
       if ( shutdown_handler!=nullptr )
         shutdown_handler(id);
     };
-  
+
     for ( auto& item : _clients )
     {
       item.second = std::make_shared<client_type>(_io);
@@ -58,7 +61,7 @@ void client_tcp_map::reconfigure(const options_type& opt)
     }
 
     _secondary_pool.clear();
-    
+
     _primary_pool.clear();
     while ( _primary_pool.size() < opt.primary_pool )
     {
@@ -66,7 +69,7 @@ void client_tcp_map::reconfigure(const options_type& opt)
       _primary_pool.push_back(cli);
       client_list.push_back(cli);
     }
-    
+
     _startup_pool.clear();
     if ( _startup_flag )
     {
@@ -76,20 +79,28 @@ void client_tcp_map::reconfigure(const options_type& opt)
         _startup_pool.push_back(cli);
         client_list.push_back(cli);
       }
-      
+
       _startup_flag = false;
     }
   }
-  
+
   for ( auto& cli : client_list )
     cli->start(_opt);
-  
+
   _stop_flag = false;
 }
 
 void client_tcp_map::stop()
 {
   _stop_flag = true;
+  this->stop_all_clients();
+
+  std::lock_guard<mutex_type> lk(_mutex);
+  _clients.clear();
+  _primary_pool.clear();
+  _secondary_pool.clear();
+  _startup_pool.clear();
+  /*
   client_list_t client_list;
   {
     read_lock<mutex_type> lk(_mutex);
@@ -106,10 +117,11 @@ void client_tcp_map::stop()
     _secondary_pool.clear();
     _startup_pool.clear();
   }
-  
-  
+
+
   for ( auto& cli : client_list )
     cli->stop();
+  */
 }
 
 client_tcp_map::client_ptr client_tcp_map::find( io_id_t id ) const
@@ -125,7 +137,7 @@ client_tcp_map::client_ptr client_tcp_map::upsert(io_id_t id)
     if ( client_ptr cli = this->find_(id) )
       return cli;
   }
-  
+
   auto cli = this->create_();
   std::lock_guard<mutex_type> lk(_mutex);
   _clients.insert( std::make_pair(id,  cli) );
@@ -155,7 +167,7 @@ void client_tcp_map::unreg_io( io_id_t id)
       if ( _secondary_pool.size() < _opt.secondary_pool )
         _secondary_pool.push_back( std::move(cli) );
     }
-    
+
     // Если  не перенесен в пул
     if ( cli!=nullptr )
       cli->stop();
@@ -170,8 +182,8 @@ client_tcp_map::client_ptr client_tcp_map::create()
 void client_tcp_map::perform_io( data_ptr d, io_id_t id, output_handler_t handler)
 {
   if ( _stop_flag ) return;
-  
-  // Для клиента reg_io обязателен 
+
+  // Для клиента reg_io обязателен
   if ( auto cli1 = this->find(id ) )
   {
     cli1->perform_io( std::move(d), id, std::move(handler) );
@@ -205,10 +217,28 @@ client_tcp_map::client_ptr client_tcp_map::find_( io_id_t id ) const
   return nullptr;
 }
 
+void client_tcp_map::stop_all_clients()
+{
+  client_list_t client_list;
+
+  {
+    read_lock<mutex_type> lk(_mutex);
+    std::transform(std::begin(_clients), std::end(_clients), std::back_inserter(client_list),
+                  [](const client_map_t::value_type& p){return p.second;});
+    std::copy(std::begin(_primary_pool), std::end(_primary_pool), std::back_inserter(client_list));
+    std::copy(std::begin(_secondary_pool), std::end(_secondary_pool), std::back_inserter(client_list));
+    std::copy(std::begin(_startup_pool), std::end(_startup_pool), std::back_inserter(client_list));
+  }
+
+  for ( auto& cli : client_list )
+    cli->stop();
+  client_list.clear();
+}
+
 client_tcp_map::client_ptr client_tcp_map::create_()
 {
   client_ptr cli;
-  
+
   if ( !_startup_pool.empty() )
   {
     cli = _startup_pool.front();
