@@ -42,7 +42,7 @@ void server_udp::start()
   this->run_();
 }
 
-void server_udp::reconfigure_basic() 
+void server_udp::reconfigure_basic()
 {
   _target->set_suspend(this->suspended());
 }
@@ -111,11 +111,11 @@ void server_udp::stat_init_(options_type* opt)
     proto_time = stat->create_value_meter( ss.str());
     std::stringstream ss1;
     proto_total = stat->create_value_meter( ss1.str());
-      
-    auto tcount = std::make_shared< std::atomic<int> >();
-    opt->thread_statistics= 
-      [wthis, proto_time, tcount, proto_total]
-      (std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
+
+    //auto tcount = std::make_shared< std::atomic<int> >();
+    opt->thread_statistics=
+      [wthis, proto_time, /*tcount,*/ proto_total]
+      (std::thread::id, size_t count, wflow::workflow_handlers::statistics_duration span) mutable
     {
       if ( auto pthis = wthis.lock() )
       {
@@ -127,10 +127,10 @@ void server_udp::stat_init_(options_type* opt)
         }
       }
     };
-  }  
+  }
 }
 
-void server_udp::stop() 
+void server_udp::stop()
 {
   if ( _impl != nullptr )
   {

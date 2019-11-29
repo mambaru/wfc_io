@@ -135,7 +135,7 @@ void server_tcp::stat_init_(options_type* opt)
     ss1 << this->name() << ".threads";
     proto_total = stat->create_value_meter( ss1.str());
       
-    opt->thread_statistics= [wthis, proto_time,  tcount, proto_total](std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
+    opt->thread_statistics= [wthis, proto_time,  tcount, proto_total](std::thread::id, size_t count, wflow::workflow_handlers::statistics_duration span) mutable
     {
       if ( auto pthis = wthis.lock() )
       {

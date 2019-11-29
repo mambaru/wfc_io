@@ -1,4 +1,3 @@
-include(BuildInfo)
 
 SET(
   wfc_io_source_list
@@ -9,7 +8,7 @@ SET(
   server/server_tcp/server_tcp.cpp
   server/server_udp/server_udp_multiton.cpp
   server/server_udp/server_udp.cpp
-    
+
   client/client_module.cpp
   client/client_tcp/client_multiton.cpp
   client/client_tcp/client_tcp.cpp
@@ -38,9 +37,11 @@ SET(
 endif()
 
 add_library(wfc_io ${wfc_io_source_list})
+wci_targets(wfc_io)
+
+target_include_directories(wfc_io PUBLIC ${wfc_io_SOURCE_DIR})
+target_link_libraries(wfc_io PUBLIC wfc)
 
 build_info(wfc_io io)
-
-target_link_libraries(wfc_io ${WFC_LIBRARIES})
 
 install(TARGETS wfc_io DESTINATION ${CMAKE_INSTALL_PREFIX})

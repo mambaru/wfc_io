@@ -15,7 +15,7 @@
 #include <map>
 
 namespace wfc{ namespace io{
- 
+
 
 class client_tcp_map
   : public iinterface
@@ -30,31 +30,33 @@ public:
   typedef client_tcp_config options_type;
 
   explicit client_tcp_map( io_service_type& io);
-  
+
   void reconfigure(const options_type& opt);
-  
+
   void stop();
-  
+
   client_ptr find( io_id_t id ) const;
 
   client_ptr upsert( io_id_t id);
-  
+
   client_ptr create();
   void free(client_ptr cli);
 
   // iinterface
   virtual void reg_io( io_id_t id, std::weak_ptr< ::wfc::iinterface > src) override;
-  
+
   virtual void unreg_io( io_id_t id) override;
 
   virtual void perform_io( iinterface::data_ptr d, io_id_t id, output_handler_t handler) override;
 
 private:
-  
+
   client_ptr find_( io_id_t id ) const;
-  
+
   client_ptr create_();
-  
+
+  void stop_all_clients();
+
 private:
   typedef std::map< io_id_t, client_ptr> client_map_t;
   typedef std::list<client_ptr> client_list_t;
@@ -67,7 +69,7 @@ private:
   client_list_t _secondary_pool;
   bool _startup_flag = true;
   bool _stop_flag = false;
-  
+
 };
-  
+
 }}
