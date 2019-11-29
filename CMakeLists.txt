@@ -4,7 +4,7 @@ project(wfc_io)
 
 include(cmake/ci.cmake)
 
-wfc_libs()
+wci_getlib(NAME wfc ${WCI_SUPERMODULE} )
 
 add_subdirectory(package)
 

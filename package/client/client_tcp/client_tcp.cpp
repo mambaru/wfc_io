@@ -15,7 +15,7 @@ void client_tcp::configure()
   _client_map = std::make_shared<client_tcp_map>( this->global()->io_service);
 }
 
-void client_tcp::initialize()
+void client_tcp::reconfigure()
 {
   auto opt = this->options();
   opt.args.workflow = this->get_workflow();
@@ -27,6 +27,11 @@ void client_tcp::initialize()
   }
 
   _client_map->reconfigure( opt );
+}
+
+void client_tcp::start()
+{
+  this->reconfigure();
 }
 
 void client_tcp::stop() 

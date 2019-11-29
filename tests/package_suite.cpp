@@ -61,6 +61,7 @@ UNIT(broker, "")
     ++count;
   });
   t << equal<expect>(count, 2) << FAS_FL;
+  tst->stop();
 }
 
 }

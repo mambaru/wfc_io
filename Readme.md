@@ -1,3 +1,6 @@
+[![Build Status](https://github.com/mambaru/wfc_io/workflows/C++%20CI/badge.svg?branch=master)](https://github.com/mambaru/wfc_io/tree/master)
+[![Build Status](https://github.com/mambaru/wfc_io/workflows/C++%20CI/badge.svg?branch=mambaru)](https://github.com/mambaru/wfc_io/tree/mambaru)
+[![Coverage Report](http://github.lan/cpp/wfc_io/badges/pre-release/coverage.svg)](http://github.lan/cpp/wfc_io/commits/pre-release)
 
 * Документация [doxygen](https://mambaru.github.io/wfc_io/index.html).
 * Репозитарий на [github.com](https://github.com/mambaru/wfc_io).

@@ -115,7 +115,7 @@ void server_udp::stat_init_(options_type* opt)
     //auto tcount = std::make_shared< std::atomic<int> >();
     opt->thread_statistics=
       [wthis, proto_time, /*tcount,*/ proto_total]
-      (std::thread::id, size_t count, workflow_options::statistics_duration span) mutable
+      (std::thread::id, size_t count, wflow::workflow_handlers::statistics_duration span) mutable
     {
       if ( auto pthis = wthis.lock() )
       {
