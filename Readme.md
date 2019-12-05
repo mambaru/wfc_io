@@ -1,6 +1,10 @@
+
+[![tag](https://img.shields.io/github/v/tag/mambaru/wfc_io.svg?sort=semver)](https://github.com/mambaru/wfc_io/tree/master)
 [![Build Status](https://github.com/mambaru/wfc_io/workflows/C++%20CI/badge.svg?branch=master)](https://github.com/mambaru/wfc_io/tree/master)
 [![Build Status](https://github.com/mambaru/wfc_io/workflows/C++%20CI/badge.svg?branch=mambaru)](https://github.com/mambaru/wfc_io/tree/mambaru)
-[![Coverage Report](http://github.lan/cpp/wfc_io/badges/pre-release/coverage.svg)](http://github.lan/cpp/wfc_io/commits/pre-release)
+[![Build Status](https://travis-ci.com/mambaru/wfc_io.svg?branch=master)](https://travis-ci.com/mambaru/wfc_io)
+[![Build Status](https://travis-ci.com/mambaru/wfc_io.svg?branch=mambaru)](https://travis-ci.com/mambaru/wfc_io)
+[![codecov](https://codecov.io/gh/mambaru/wfc_io/branch/master/graph/badge.svg)](https://codecov.io/gh/mambaru/wfc_io)
 
 * Документация [doxygen](https://mambaru.github.io/wfc_io/index.html).
 * Репозитарий на [github.com](https://github.com/mambaru/wfc_io).
