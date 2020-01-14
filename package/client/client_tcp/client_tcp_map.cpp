@@ -22,25 +22,6 @@ client_tcp_map::client_tcp_map( io_service_type& io)
 
 void client_tcp_map::reconfigure(const options_type& opt)
 {
-  /*
-  client_list_t client_list;
-
-  {
-    read_lock<mutex_type> lk(_mutex);
-    for ( auto& item : _clients )
-      client_list.push_back(item.second);
-    for ( auto& cli : _primary_pool )
-      client_list.push_back(cli);
-    for ( auto& cli : _secondary_pool)
-      client_list.push_back(cli);
-    for ( auto& cli : _startup_pool )
-      client_list.push_back(cli);
-  }
-
-  for ( auto& cli : client_list )
-    cli->stop();
-  client_list.clear();
-  */
   this->stop_all_clients();
   client_list_t client_list;
   {
@@ -57,7 +38,6 @@ void client_tcp_map::reconfigure(const options_type& opt)
     {
       item.second = std::make_shared<client_type>(_io);
       client_list.push_back(item.second);
-      item.second->start(opt);
     }
 
     _secondary_pool.clear();
@@ -100,28 +80,6 @@ void client_tcp_map::stop()
   _primary_pool.clear();
   _secondary_pool.clear();
   _startup_pool.clear();
-  /*
-  client_list_t client_list;
-  {
-    read_lock<mutex_type> lk(_mutex);
-    for ( auto& item : _clients )
-      client_list.push_back(item.second);
-    for ( auto& cli : _primary_pool )
-      client_list.push_back(cli);
-    for ( auto& cli : _secondary_pool)
-      client_list.push_back(cli);
-    for ( auto& cli : _startup_pool )
-      client_list.push_back(cli);
-    _clients.clear();
-    _primary_pool.clear();
-    _secondary_pool.clear();
-    _startup_pool.clear();
-  }
-
-
-  for ( auto& cli : client_list )
-    cli->stop();
-  */
 }
 
 client_tcp_map::client_ptr client_tcp_map::find( io_id_t id ) const
@@ -176,13 +134,13 @@ void client_tcp_map::unreg_io( io_id_t id)
 
 client_tcp_map::client_ptr client_tcp_map::create()
 {
+  this->free_for_free();
   std::lock_guard<mutex_type> lk(_mutex);
   return this->create_();
 }
 void client_tcp_map::perform_io( data_ptr d, io_id_t id, output_handler_t handler)
 {
   if ( _stop_flag ) return;
-
   // Для клиента reg_io обязателен
   if ( auto cli1 = this->find(id ) )
   {
@@ -191,13 +149,13 @@ void client_tcp_map::perform_io( data_ptr d, io_id_t id, output_handler_t handle
   else if ( client_ptr cli2 = this->create() )
   {
     // Опционально
-    cli2->perform_io( std::move(d), 0, [this, cli2, handler](data_ptr d2) mutable
+    cli2->perform_io( std::move(d), 0, _owner.wrap([this, cli2, handler](data_ptr d2) mutable
     {
-      this->free(cli2);
-      //cli2 = nullptr;
       if (handler!=nullptr)
         handler(std::move(d2));
-    });
+      std::lock_guard<mutex_type> lk(_mutex);
+      _list_for_free.push_back(cli2);
+    }, nullptr));
   }
   else if ( handler != nullptr )
   {
@@ -220,6 +178,7 @@ client_tcp_map::client_ptr client_tcp_map::find_( io_id_t id ) const
 void client_tcp_map::stop_all_clients()
 {
   client_list_t client_list;
+  _owner.reset();
 
   {
     read_lock<mutex_type> lk(_mutex);
@@ -228,10 +187,13 @@ void client_tcp_map::stop_all_clients()
     std::copy(std::begin(_primary_pool), std::end(_primary_pool), std::back_inserter(client_list));
     std::copy(std::begin(_secondary_pool), std::end(_secondary_pool), std::back_inserter(client_list));
     std::copy(std::begin(_startup_pool), std::end(_startup_pool), std::back_inserter(client_list));
+    std::copy(std::begin(_list_for_free), std::end(_list_for_free), std::back_inserter(client_list));
   }
 
   for ( auto& cli : client_list )
+  {
     cli->stop();
+  }
   client_list.clear();
 }
 
@@ -269,10 +231,25 @@ void client_tcp_map::free(client_ptr cli)
 {
   std::lock_guard<mutex_type> lk(_mutex);
   if ( _secondary_pool.size() < _opt.secondary_pool )
+  {
     _secondary_pool.push_back( std::move(cli) );
-  // Если  не перенесен в пул
-  if ( cli!=nullptr )
+  }
+  else if ( cli!=nullptr )
+  {
     cli->stop();
+  }
+}
+
+void client_tcp_map::free_for_free()
+{
+  client_list_t client_list;
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    _list_for_free.swap(client_list);
+  }
+  for (auto& cli: client_list)
+    this->free( std::move(cli) );
+
 }
 
 }}
