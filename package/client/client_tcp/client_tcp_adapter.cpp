@@ -19,7 +19,7 @@ public:
 private:
   output_handler_t _handler;
 };
-  
+
 class client_tcp_adapter::impl
   : public ::iow::ip::tcp::client::multi_thread<>
 {
@@ -37,7 +37,7 @@ client_tcp_adapter::client_tcp_adapter( io_service_type& io)
   _client = std::make_shared<client_type>(io);
 }
 
-client_tcp_adapter::~client_tcp_adapter() 
+client_tcp_adapter::~client_tcp_adapter()
 {
   if ( auto h = _holder.lock() )
   {
@@ -75,7 +75,7 @@ void client_tcp_adapter::start( options_type opt)
     if ( connect_handler!=nullptr )
       connect_handler();
   };
-  
+
   auto shutdown_handler = opt.connection.shutdown_handler;
   opt.connection.shutdown_handler = [pthis, shutdown_handler](io_id_t id)
   {
@@ -86,9 +86,9 @@ void client_tcp_adapter::start( options_type opt)
       {
         holder->unreg_io(this_id);
       });
-      
+
     }
-    if ( shutdown_handler != nullptr ) 
+    if ( shutdown_handler != nullptr )
       shutdown_handler( id );
   };
 
@@ -132,16 +132,16 @@ void client_tcp_adapter::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
 void client_tcp_adapter::unreg_io(io_id_t io_id)
 {
   std::lock_guard<mutex_type> lk(_mutex);
-  
+
   if ( _holder_id!=io_id )
     return;
-  
+
   _holder_id = 0;
   _wrapper = nullptr;
 }
 
 
-void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, output_handler_t handler) 
+void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, output_handler_t handler)
 {
   auto pitf = this->get_holder();
   if ( pitf == nullptr || io_id==0)
@@ -157,7 +157,7 @@ void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outp
       }
     }
   }
-  
+
   if ( auto rd = _client->send( std::move(d) ) )
   {
     if (handler!=nullptr)

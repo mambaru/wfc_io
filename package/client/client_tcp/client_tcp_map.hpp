@@ -9,6 +9,7 @@
 #include "client_tcp_adapter.hpp"
 #include "client_tcp_config.hpp"
 #include <iow/io/io_id.hpp>
+#include <iow/owner/owner.hpp>
 #include <wfc/iinterface.hpp>
 #include <wfc/mutex.hpp>
 #include <list>
@@ -40,6 +41,7 @@ public:
   client_ptr upsert( io_id_t id);
 
   client_ptr create();
+  
   void free(client_ptr cli);
 
   // iinterface
@@ -56,17 +58,19 @@ private:
   client_ptr create_();
 
   void stop_all_clients();
-
+  void free_for_free();
 private:
   typedef std::map< io_id_t, client_ptr> client_map_t;
   typedef std::list<client_ptr> client_list_t;
   io_service_type& _io;
+  iow::owner _owner;
   options_type _opt;
   client_map_t _clients;
   mutable mutex_type _mutex;
   client_list_t _startup_pool;
   client_list_t _primary_pool;
   client_list_t _secondary_pool;
+  client_list_t _list_for_free;
   bool _startup_flag = true;
   bool _stop_flag = false;
 
