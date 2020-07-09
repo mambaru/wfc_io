@@ -17,7 +17,7 @@
 #include <atomic>
 
 namespace wfc{ namespace io{
-  
+
 class client_tcp_adapter
   : public ::wfc::iinterface
   , public std::enable_shared_from_this< client_tcp_adapter >
@@ -31,25 +31,25 @@ public:
   typedef std::shared_ptr<client_type> client_ptr;
 
   typedef client_tcp_config options_type;
-  typedef ::iow::asio::io_service io_service_type;
-  
-  explicit client_tcp_adapter( io_service_type& io);
-  
+  typedef boost::asio::io_context io_context_type;
+
+  explicit client_tcp_adapter( io_context_type& io);
+
   ~client_tcp_adapter() ;
-  
+
   void stop();
-  
+
   void start( options_type opt);
-  
+
   std::shared_ptr<iinterface> get_holder() const;
-  
+
   // iinterface
   virtual void reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/) override;
   virtual void unreg_io(io_id_t /*io_id*/) override;
   virtual void perform_io( iinterface::data_ptr d, io_id_t /*io_id*/, output_handler_t handler) override;
-  
+
 private:
-  io_service_type& _io;
+  io_context_type& _io;
   io_id_t _id;
   std::atomic<io_id_t> _holder_id;
   std::weak_ptr<iinterface> _holder;

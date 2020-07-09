@@ -15,7 +15,7 @@ private:
   output_handler_t _handler;
 };
 
-client_tcp_map::client_tcp_map( io_service_type& io)
+client_tcp_map::client_tcp_map( io_context_type& io)
   : _io(io)
 {
 }

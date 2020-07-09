@@ -27,10 +27,10 @@ public:
   typedef client_tcp_adapter client_type;
   typedef std::shared_ptr<client_type> client_ptr;
   typedef std::weak_ptr<client_type> client_wptr;
-  typedef client_type::io_service_type io_service_type;
+  typedef client_type::io_context_type io_context_type;
   typedef client_tcp_config options_type;
 
-  explicit client_tcp_map( io_service_type& io);
+  explicit client_tcp_map( io_context_type& io);
 
   void reconfigure(const options_type& opt);
 
@@ -62,7 +62,7 @@ private:
 private:
   typedef std::map< io_id_t, client_ptr> client_map_t;
   typedef std::list<client_ptr> client_list_t;
-  io_service_type& _io;
+  io_context_type& _io;
   iow::owner _owner;
   options_type _opt;
   client_map_t _clients;

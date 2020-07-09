@@ -13,8 +13,8 @@ class server_udp::impl
   : public ::iow::ip::udp::server::server_base<>
 {
 public:
-  typedef server::io_service_type io_service_type;
-  explicit impl(io_service_type& io)
+  typedef server::io_context_type io_context_type;
+  explicit impl(io_context_type& io)
     : server(io)
   {
   }
@@ -73,7 +73,7 @@ void server_udp::run_()
   auto ptarget = _target;
 
   if ( auto g = this->global() )
-    _impl = std::make_shared<impl>( g->io_service );
+    _impl = std::make_shared<impl>( g->io_context );
   else
     return;
   using namespace std::placeholders;

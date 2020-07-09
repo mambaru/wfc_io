@@ -12,7 +12,7 @@ namespace wfc{ namespace io{
 
 void client_tcp::configure()
 {
-  _client_map = std::make_shared<client_tcp_map>( this->global()->io_service);
+  _client_map = std::make_shared<client_tcp_map>( this->global()->io_context);
 }
 
 void client_tcp::reconfigure()
