@@ -32,7 +32,7 @@ public:
 
   explicit client_tcp_map( io_context_type& io);
 
-  void reconfigure(const options_type& opt);
+  void reconfigure_and_start(const options_type& opt);
 
   void stop();
 
