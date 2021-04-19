@@ -10,7 +10,7 @@
 #include "io_build_info.h"
 
 namespace wfc{
- 
+
 namespace {
   class impl: public ::wfc::module_list<
     io_build_info,
@@ -22,13 +22,13 @@ namespace {
     ,io::statistics_module
   #endif
   >
-  { 
+  {
     virtual std::string description() const override
     {
       return "Package of IP/TCP and I/O modules";
     }
-  
-    virtual int order() const override
+
+    virtual int show_order() const override
     {
       return 500;
     }

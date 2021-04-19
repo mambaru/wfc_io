@@ -25,11 +25,11 @@ class client_tcp_adapter::impl
 {
   typedef ::iow::ip::tcp::client::multi_thread<> super;
 public:
-  explicit impl( io_service_type& io)
+  explicit impl( io_context_type& io)
     : super(io){}
 };
 
-client_tcp_adapter::client_tcp_adapter( io_service_type& io)
+client_tcp_adapter::client_tcp_adapter( io_context_type& io)
   : _io (io)
   , _id ( ::iow::io::create_id<io_id_t>() )
 {
@@ -82,10 +82,10 @@ void client_tcp_adapter::start( options_type opt)
     if ( auto holder = pthis->get_holder() )
     {
       auto this_id = pthis->_id;
-      pthis->_io.post([holder, this_id]()
+      boost::asio::post(pthis->_io, [holder, this_id]()
       {
         holder->unreg_io(this_id);
-      });
+      }, nullptr);
 
     }
     if ( shutdown_handler != nullptr )

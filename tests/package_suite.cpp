@@ -1,5 +1,5 @@
 #include "../package/broker/broker/broker.hpp"
-#include <wfc/module/testing_domain.hpp>
+#include <wfc/testing/testing_domain.hpp>
 #include <fas/testing.hpp>
 #include <memory>
 

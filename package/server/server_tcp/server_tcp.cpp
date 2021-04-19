@@ -17,8 +17,8 @@ class server_tcp::impl
   : public ::iow::ip::tcp::server::server<tcp_acceptor>
 {
 public:
-  typedef server::io_service_type io_service_type;
-  explicit impl(io_service_type& io)
+  typedef server::io_context_type io_context_type;
+  explicit impl(io_context_type& io)
     : server(io)
   {}
 };
@@ -77,7 +77,7 @@ void server_tcp::run_()
   auto ptarget = _target;
 
   if ( auto g = this->global() )
-    _impl = std::make_shared<impl>( g->io_service );
+    _impl = std::make_shared<impl>( g->io_context );
   else
     return;
     

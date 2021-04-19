@@ -15,12 +15,12 @@ private:
   output_handler_t _handler;
 };
 
-client_tcp_map::client_tcp_map( io_service_type& io)
+client_tcp_map::client_tcp_map( io_context_type& io)
   : _io(io)
 {
 }
 
-void client_tcp_map::reconfigure(const options_type& opt)
+void client_tcp_map::reconfigure_and_start(const options_type& opt)
 {
   this->stop_all_clients();
   client_list_t client_list;

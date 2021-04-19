@@ -26,7 +26,7 @@ SET(
 
 )
 
-if ( WFC_ENABLE_STAT OR STANDALONE )
+if ( WFC_ENABLE_STAT )
 SET(
   wfc_io_source_list
   ${wfc_io_source_list}
@@ -38,10 +38,11 @@ endif()
 
 add_library(wfc_io ${wfc_io_source_list})
 wci_targets(wfc_io)
-
+enable_stat(wfc_io)
+target_compile_definitions(wfc_io PRIVATE -DBOOST_ASIO_NO_DEPRECATED)
 target_include_directories(wfc_io PUBLIC ${wfc_io_SOURCE_DIR})
 target_link_libraries(wfc_io PUBLIC wfc)
 
-build_info(wfc_io io)
+build_info(TARGET wfc_io PREFIX io)
 
 install(TARGETS wfc_io DESTINATION ${CMAKE_INSTALL_PREFIX})

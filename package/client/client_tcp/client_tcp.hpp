@@ -24,7 +24,9 @@ public:
   // domain_object  
   virtual void configure() override;
   virtual void reconfigure() override;
+  virtual void initialize() override;
   virtual void start() override;
+  virtual void restart() override;
   virtual void stop() override;
   
   // iinterface
@@ -35,6 +37,7 @@ public:
   virtual void perform_io(data_ptr /*d*/, io_id_t /*io_id*/, output_handler_t handler) override;
 
 private:
+  void reconfigure_and_start_();
   std::shared_ptr<client_tcp_map> _client_map;
 };
 

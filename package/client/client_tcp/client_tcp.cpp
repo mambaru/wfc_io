@@ -12,26 +12,32 @@ namespace wfc{ namespace io{
 
 void client_tcp::configure()
 {
-  _client_map = std::make_shared<client_tcp_map>( this->global()->io_service);
+  _client_map = std::make_shared<client_tcp_map>( this->global()->io_context);
 }
 
 void client_tcp::reconfigure()
 {
-  auto opt = this->options();
-  opt.args.workflow = this->get_workflow();
+}
 
-  if ( opt.rn )
-  {
-    if ( opt.connection.reader.sep.empty() ) opt.connection.reader.sep = "\r\n";
-    if ( opt.connection.writer.sep.empty() ) opt.connection.writer.sep = "\r\n";
-  }
-
-  _client_map->reconfigure( opt );
+void client_tcp::initialize()
+{
+  this->reconfigure();
 }
 
 void client_tcp::start()
 {
-  this->reconfigure();
+  if ( !this->suspended() && this->options().addr.empty() )
+  {
+    DOMAIN_LOG_FATAL("In the configuration of the '" << this->name() 
+      <<"', you must set the 'addr' field or enable suspend mode")
+    return;
+  }
+  this->reconfigure_and_start_();
+}
+
+void client_tcp::restart()
+{
+  this->reconfigure_and_start_();
 }
 
 void client_tcp::stop()
@@ -69,6 +75,20 @@ void client_tcp::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
   {
     _client_map->perform_io( std::move(d), io_id, std::move(handler) );
   }
+}
+
+void client_tcp::reconfigure_and_start_()
+{
+  auto opt = this->options();
+  opt.args.workflow = this->get_workflow();
+
+  if ( opt.rn )
+  {
+    if ( opt.connection.reader.sep.empty() ) opt.connection.reader.sep = "\r\n";
+    if ( opt.connection.writer.sep.empty() ) opt.connection.writer.sep = "\r\n";
+  }
+
+  _client_map->reconfigure_and_start( opt );
 }
 
 }}

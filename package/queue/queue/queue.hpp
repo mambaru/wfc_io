@@ -13,12 +13,12 @@
 #include <memory>
 
 namespace wfc{ namespace io{
-  
+
 class queue
   : public ::wfc::domain_object<iinterface, queue_config, wfc::nostat>
   , public std::enable_shared_from_this<queue>
 {
-  typedef std::shared_ptr< ::wfc::workflow > workflow_ptr;
+  typedef std::shared_ptr< wflow::workflow > workflow_ptr;
 public:
   virtual void initialize() override;
   virtual void reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/) override;
