@@ -85,7 +85,7 @@ void client_tcp_adapter::start( options_type opt)
       boost::asio::post(pthis->_io, [holder, this_id]()
       {
         holder->unreg_io(this_id);
-      }, nullptr);
+      }/*, nullptr*/);
 
     }
     if ( shutdown_handler != nullptr )
