@@ -15,6 +15,15 @@ SET(
   client/client_tcp/client_tcp_adapter.cpp
   client/client_tcp/client_tcp_map.cpp
 
+  hub/hub_module.cpp
+  hub/hub/hub_multiton.cpp
+  hub/hub/hub.cpp
+
+  
+  tank/tank_module.cpp
+  tank/tank/tank_multiton.cpp
+  tank/tank/tank_io.cpp
+
   queue/queue_module.cpp
   queue/queue/queue_multiton.cpp
   queue/queue/queue.cpp

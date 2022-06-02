@@ -3,18 +3,6 @@
 
 namespace wfc{ namespace io{
 
-class client_tcp_map::handler_wrapper: public iinterface
-{
-public:
-  explicit handler_wrapper(output_handler_t handler): _handler(handler) {}
-  virtual void perform_io( iinterface::data_ptr d, io_id_t /*id*/, output_handler_t /*handler*/) override
-  {
-    _handler( std::move(d) );
-  }
-private:
-  output_handler_t _handler;
-};
-
 client_tcp_map::client_tcp_map( io_context_type& io)
   : _io(io)
 {
@@ -88,26 +76,13 @@ client_tcp_map::client_ptr client_tcp_map::find( io_id_t id ) const
   return this->find_(id);
 }
 
-client_tcp_map::client_ptr client_tcp_map::upsert(io_id_t id)
-{
-  {
-    read_lock<mutex_type> lk(_mutex);
-    if ( client_ptr cli = this->find_(id) )
-      return cli;
-  }
-
-  auto cli = this->create_();
-  std::lock_guard<mutex_type> lk(_mutex);
-  _clients.insert( std::make_pair(id,  cli) );
-  return cli;
-}
 
 // iinterface
 
-void client_tcp_map::reg_io( io_id_t id, std::weak_ptr<iinterface> holder)
+void client_tcp_map::reg_io(io_id_t id, std::weak_ptr<iinterface> holder)
 {
   if ( _stop_flag ) return;
-  if ( client_ptr cli = this->upsert(id) )
+  if ( client_ptr cli = this->upsert_(id) )
   {
     cli->reg_io(id, holder);
   }
@@ -132,48 +107,22 @@ void client_tcp_map::unreg_io( io_id_t id)
   }
 }
 
-client_tcp_map::client_ptr client_tcp_map::create()
+client_tcp_map::client_ptr client_tcp_map::create(io_id_t id)
 {
-  this->free_for_free();
   std::lock_guard<mutex_type> lk(_mutex);
-  return this->create_();
+  return this->upsert_(id);
 }
+
 void client_tcp_map::perform_io( data_ptr d, io_id_t id, output_handler_t handler)
 {
   if ( _stop_flag ) return;
-  // Для клиента reg_io обязателен
-  if ( auto cli1 = this->find(id ) )
-  {
-    cli1->perform_io( std::move(d), id, std::move(handler) );
-  }
-  else if ( client_ptr cli2 = this->create() )
-  {
-    // Опционально
-    cli2->perform_io( std::move(d), 0, _owner.wrap([this, cli2, handler](data_ptr d2) mutable
-    {
-      if (handler!=nullptr)
-        handler(std::move(d2));
-      std::lock_guard<mutex_type> lk(_mutex);
-      _list_for_free.push_back(cli2);
-    }, nullptr));
-  }
-  else if ( handler != nullptr )
-  {
-    // Если напрямую подключили server-tcp в режиме direct_mode или server-udp
-    SYSTEM_LOG_FATAL("client_tcp_map::perform_io: object (io_id=" << id << ") not registered. Probably a configuration error.")
-    handler(nullptr);
-  }
+  client_tcp_map::client_ptr cli = this->find(id); 
+  if ( cli == nullptr )
+    cli = this->create(id); // Without call reg_io. See client_tcp_adapter::preform_io 
+
+  cli->perform_io( std::move(d), id, std::move(handler) );
 }
 
-// private
-
-client_tcp_map::client_ptr client_tcp_map::find_( io_id_t id ) const
-{
-  auto itr = _clients.find(id);
-  if ( itr!=_clients.end() )
-    return itr->second;
-  return nullptr;
-}
 
 void client_tcp_map::stop_all_clients()
 {
@@ -187,7 +136,6 @@ void client_tcp_map::stop_all_clients()
     std::copy(std::begin(_primary_pool), std::end(_primary_pool), std::back_inserter(client_list));
     std::copy(std::begin(_secondary_pool), std::end(_secondary_pool), std::back_inserter(client_list));
     std::copy(std::begin(_startup_pool), std::end(_startup_pool), std::back_inserter(client_list));
-    std::copy(std::begin(_list_for_free), std::end(_list_for_free), std::back_inserter(client_list));
   }
 
   for ( auto& cli : client_list )
@@ -195,6 +143,44 @@ void client_tcp_map::stop_all_clients()
     cli->stop();
   }
   client_list.clear();
+}
+
+
+void client_tcp_map::free(client_ptr cli)
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  if ( _secondary_pool.size() < _opt.secondary_pool )
+  {
+    _secondary_pool.push_back( std::move(cli) );
+  }
+  else if ( cli!=nullptr )
+  {
+    cli->stop();
+  }
+}
+
+// private
+
+client_tcp_map::client_ptr client_tcp_map::find_( io_id_t id ) const
+{
+  auto itr = _clients.find(id);
+  if ( itr!=_clients.end() )
+    return itr->second;
+  return nullptr;
+}
+
+client_tcp_map::client_ptr client_tcp_map::upsert_(io_id_t id)
+{
+  {
+    read_lock<mutex_type> lk(_mutex);
+    if ( client_ptr cli = this->find_(id) )
+      return cli;
+  }
+
+  std::lock_guard<mutex_type> lk(_mutex);
+  auto cli = this->create_();
+  _clients.insert( std::make_pair(id,  cli) );
+  return cli; 
 }
 
 client_tcp_map::client_ptr client_tcp_map::create_()
@@ -227,29 +213,5 @@ client_tcp_map::client_ptr client_tcp_map::create_()
   return cli;
 }
 
-void client_tcp_map::free(client_ptr cli)
-{
-  std::lock_guard<mutex_type> lk(_mutex);
-  if ( _secondary_pool.size() < _opt.secondary_pool )
-  {
-    _secondary_pool.push_back( std::move(cli) );
-  }
-  else if ( cli!=nullptr )
-  {
-    cli->stop();
-  }
-}
-
-void client_tcp_map::free_for_free()
-{
-  client_list_t client_list;
-  {
-    std::lock_guard<mutex_type> lk(_mutex);
-    _list_for_free.swap(client_list);
-  }
-  for (auto& cli: client_list)
-    this->free( std::move(cli) );
-
-}
 
 }}

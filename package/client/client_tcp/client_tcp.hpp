@@ -21,9 +21,8 @@ class client_tcp
   : public ::wfc::domain_object< iinterface, client_tcp_config>
 {
 public:
+  client_tcp();
   // domain_object  
-  virtual void configure() override;
-  virtual void reconfigure() override;
   virtual void initialize() override;
   virtual void start() override;
   virtual void restart() override;
@@ -39,6 +38,11 @@ public:
 private:
   void reconfigure_and_start_();
   std::shared_ptr<client_tcp_map> _client_map;
+  
+  typedef std::mutex mutex_type;
+  mutex_type _mutex;
+  std::map<io_id_t, std::weak_ptr<iinterface> > _wait_list;
+  std::atomic_bool _client_started;
 };
 
 }}

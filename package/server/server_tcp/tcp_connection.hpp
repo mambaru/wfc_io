@@ -116,7 +116,12 @@ public:
     std::lock_guard< mutex_type > lk( super::mutex() );
     super::shutdown_(*this, std::forward<Handler>(handler));
   }
-  
+
+  virtual io_id_t get_id()  const override
+  { 
+    return super::get_id();
+  };
+
   virtual void reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/) override
   {
   }

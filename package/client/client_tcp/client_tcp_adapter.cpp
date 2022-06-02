@@ -8,10 +8,10 @@
 
 namespace wfc{ namespace io{
 
-class client_tcp_adapter::handler_wrapper: public iinterface
+class client_tcp_adapter::perform_holder: public iinterface
 {
 public:
-  explicit handler_wrapper(output_handler_t handler): _handler(handler) {}
+  explicit perform_holder(output_handler_t handler): _handler(handler) {}
   virtual void perform_io( iinterface::data_ptr d, io_id_t /*id*/, output_handler_t /*handler*/) override
   {
     _handler( std::move(d) );
@@ -21,9 +21,11 @@ private:
 };
 
 class client_tcp_adapter::impl
-  : public ::iow::ip::tcp::client::multi_thread<>
+  : public ::iow::ip::tcp::client::multi_client<>
 {
-  typedef ::iow::ip::tcp::client::multi_thread<> super;
+// #error TODO: Удальить threads опцию, теперь через workflow. ассинхронный конект сделать через callback и common_workwlow
+  
+  typedef ::iow::ip::tcp::client::multi_client<> super;
 public:
   explicit impl( io_context_type& io)
     : super(io){}
@@ -52,48 +54,74 @@ void client_tcp_adapter::stop()
 
 void client_tcp_adapter::start( options_type opt)
 {
-  auto pthis = this->shared_from_this();
-
+  std::weak_ptr<client_tcp_adapter> wthis = this->shared_from_this();
+  
+  _keep_alive = opt.keep_alive;
   if ( opt.connection.input_handler == nullptr )
   {
-    opt.connection.input_handler = [pthis](data_ptr d, io_id_t, output_handler_t handler)
+    opt.connection.input_handler = [wthis](data_ptr d, io_id_t, output_handler_t handler)
     {
-      if ( auto holder = pthis->get_holder() )
+      if ( auto pthis = wthis.lock() )
       {
-        holder->perform_io(std::move(d), pthis->_id, std::move(handler) );
+        if ( auto holder = pthis->get_holder() )
+        {
+          if ( pthis->_keep_alive )
+          {
+            holder->perform_io(std::move(d), pthis->_id, std::move(handler) );
+          }
+          else
+          {
+            if ( handler!=nullptr ) 
+              handler(nullptr);
+            holder->perform_io(std::move(d), pthis->_id, [wthis](data_ptr dd)
+            {
+              // Для случая когда клиент в !keep_alive и получил встречный запрос с сервера
+              // через этот обработчик можно отправить ответ по другому соединению 
+              if ( auto pthis2 = wthis.lock() )
+                pthis2->perform_io(std::move(dd), pthis2->_holder_id, nullptr );
+            });
+          }
+        }
       }
     };
   }
 
   auto connect_handler = opt.args.connect_handler;
-  opt.args.connect_handler = [pthis, connect_handler]()
+  opt.args.connect_handler = [wthis, connect_handler]()
   {
-    if ( auto holder = pthis->get_holder() )
+    if ( auto pthis = wthis.lock() )
     {
-      holder->reg_io( pthis->_id, pthis );
+      if ( auto holder = pthis->get_holder() )
+      {
+        holder->reg_io( pthis->_id, pthis );
+      }
+      if ( connect_handler!=nullptr )
+        connect_handler();
     }
-    if ( connect_handler!=nullptr )
-      connect_handler();
   };
 
   auto shutdown_handler = opt.connection.shutdown_handler;
-  opt.connection.shutdown_handler = [pthis, shutdown_handler](io_id_t id)
+  opt.connection.shutdown_handler = [wthis, shutdown_handler](io_id_t id)
   {
-    if ( auto holder = pthis->get_holder() )
+    if ( auto pthis = wthis.lock() )
     {
-      auto this_id = pthis->_id;
-      boost::asio::post(pthis->_io, [holder, this_id]()
+      if ( auto holder = pthis->get_holder() )
       {
-        holder->unreg_io(this_id);
-      }/*, nullptr*/);
+        auto this_id = pthis->_id;
+        boost::asio::post(pthis->_io, [holder, this_id]()
+        {
+          holder->unreg_io(this_id);
+        });
 
+      }
+      if ( shutdown_handler != nullptr )
+        shutdown_handler( id );
     }
-    if ( shutdown_handler != nullptr )
-      shutdown_handler( id );
   };
 
   try
   {
+    _options = opt;
     _client->start(opt);
   }
   catch(const std::exception& e)
@@ -119,14 +147,22 @@ std::shared_ptr<iinterface> client_tcp_adapter::get_holder() const
 
 void client_tcp_adapter::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
 {
-  std::lock_guard<mutex_type> lk(_mutex);
-  if ( _holder_id > 0 && _holder_id!=io_id  )
+  std::weak_ptr<iinterface> wholder;
   {
-    DOMAIN_LOG_FATAL("client-tcp configuration error! Several sources are unacceptable _holder_id=" << _holder_id <<", io_id="<< io_id)
+    std::lock_guard<mutex_type> lk(_mutex);
+    if ( _holder_id > 0 && _holder_id!=io_id  )
+    {
+      DOMAIN_LOG_FATAL("client-tcp logical error! Several sources are unacceptable _holder_id=" 
+                       << _holder_id <<", io_id="<< io_id)
+    }
+    _holder_id = io_id;
+    _holder = itf;
+    _perform_holder = nullptr;
+    wholder = _holder;
   }
-  _holder_id = io_id;
-  _holder = itf;
-  _wrapper = nullptr;
+  
+  if ( auto pholder = wholder.lock() )
+    pholder->reg_io( _id, this->shared_from_this() );
 }
 
 void client_tcp_adapter::unreg_io(io_id_t io_id)
@@ -137,7 +173,7 @@ void client_tcp_adapter::unreg_io(io_id_t io_id)
     return;
 
   _holder_id = 0;
-  _wrapper = nullptr;
+  _perform_holder = nullptr;
 }
 
 
@@ -151,18 +187,28 @@ void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outp
     {
       if ( handler!=nullptr || io_id==0 )
       {
-        _wrapper = std::make_shared<handler_wrapper>(handler);
-        _holder = _wrapper;
+        DOMAIN_LOG_WARNING("The object sent data without registration (did not call reg_io). "
+                           "A wrapper based on the callback function has been created for it. "
+                           "This will probably work correctly, but to avoid side effects, "
+                           "the object sending the data should call the reg_io method")
+        
+        _perform_holder = std::make_shared<perform_holder>(handler);
+        _holder = _perform_holder;
         _holder_id = io_id;
       }
     }
   }
 
-  if ( auto rd = _client->send( std::move(d) ) )
+  if ( auto rd1 = _client->send( std::move(d) ) )
   {
-    if (handler!=nullptr)
+    // Попытка создать новое подключение если установленая опция connect_by_request
+    if ( auto rd2 = _client->send( std::move(rd1), _options ) )
     {
-      handler( nullptr );
+      IOW_LOG_ERROR("client-tcp: No suitable client to send data was found. Not send: [" << rd2 << "]")
+      if (handler!=nullptr)
+      {
+        handler( nullptr );
+      }    
     }
   }
 }

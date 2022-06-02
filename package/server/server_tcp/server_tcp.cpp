@@ -76,10 +76,7 @@ void server_tcp::run_()
   bool keep_alive = opt.keep_alive;
   auto ptarget = _target;
 
-  if ( auto g = this->global() )
-    _impl = std::make_shared<impl>( g->io_context );
-  else
-    return;
+  _impl = std::make_shared<impl>( this->get_workflow()->get_io_context() );
     
   opt.connection.input_handler = 
     [ptarget, keep_alive](data_ptr d, io_id_t id, output_handler_t cb )

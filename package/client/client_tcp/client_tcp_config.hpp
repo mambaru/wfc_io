@@ -15,6 +15,7 @@ struct client_tcp_config
   : public ::iow::ip::tcp::client::options
 {
   bool rn = true;
+  bool keep_alive = true;
   bool abort_if_error = true;
   size_t startup_pool = 1;
   size_t primary_pool = 0;

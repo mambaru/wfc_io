@@ -23,7 +23,7 @@ struct queue_config_json
     json::member_list<
       json::member<n_target,   queue_config, std::string, &queue_config::target >,
       json::member<n_callback_queue, queue_config, bool, &queue_config::callback_queue>,
-      json::member<n_callback_workflow, queue_config, std::string, &queue_config::callback_workflow >
+      json::member<n_callback_workflow, queue_config, std::string, &queue_config::callback_workflow, wjson::raw_value<> >
     >
   > type;
   

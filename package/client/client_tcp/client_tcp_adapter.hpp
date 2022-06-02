@@ -22,7 +22,7 @@ class client_tcp_adapter
   : public ::wfc::iinterface
   , public std::enable_shared_from_this< client_tcp_adapter >
 {
-  class handler_wrapper;
+  class perform_holder;
   class impl;
   typedef ::wfc::rwlock<std::mutex> mutex_type;
 public:
@@ -44,18 +44,20 @@ public:
   std::shared_ptr<iinterface> get_holder() const;
 
   // iinterface
-  virtual void reg_io(io_id_t /*io_id*/, std::weak_ptr<iinterface> /*itf*/) override;
-  virtual void unreg_io(io_id_t /*io_id*/) override;
-  virtual void perform_io( iinterface::data_ptr d, io_id_t /*io_id*/, output_handler_t handler) override;
+  virtual void reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf) override;
+  virtual void unreg_io(io_id_t io_id) override;
+  virtual void perform_io( iinterface::data_ptr d, io_id_t io_id, output_handler_t handler) override;
 
 private:
   io_context_type& _io;
-  io_id_t _id;
+  io_id_t _id = 0;
   std::atomic<io_id_t> _holder_id;
   std::weak_ptr<iinterface> _holder;
-  std::shared_ptr<handler_wrapper> _wrapper;
+  std::shared_ptr<perform_holder> _perform_holder;
   client_ptr _client;
+  std::atomic_bool _keep_alive;
   mutable mutex_type _mutex;
+  options_type _options;
 };
 
 }}
