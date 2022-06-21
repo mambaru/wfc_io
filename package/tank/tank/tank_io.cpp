@@ -96,10 +96,10 @@ bool tank_io::make_request_(const tank_options& opt, data_type& req, data_type& 
             if ( !cv.options.empty() )
             {
               _counters[cv.name] = std::make_shared<counter_t>(
-                vars::get_opt<long>(cv, "from"),
-                vars::get_opt<long>(cv, "from"),
-                vars::get_opt<long>(cv, "to"),
-                vars::get_opt<long>(cv, "step")
+                vars::get_opt<long>(cv, "from", 1),
+                vars::get_opt<long>(cv, "from", 1),
+                vars::get_opt<long>(cv, "to", 100),
+                vars::get_opt<long>(cv, "step", 1)
               );
             }
             else if ( _counters.count(cv.name) == 0 )

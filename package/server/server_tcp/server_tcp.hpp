@@ -19,6 +19,7 @@ class server_tcp
   : public domain_object<iinterface, server_tcp_config>
   , public std::enable_shared_from_this<server_tcp>
 {
+  typedef domain_object<iinterface, server_tcp_config> super;
   class impl;
 public:
   virtual ~server_tcp();
