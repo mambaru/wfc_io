@@ -63,7 +63,7 @@ bool tank_io::make_request_(const tank_options& opt, data_type& req, data_type& 
   if ( opt.enable_vars )
   {
     vars::vars_list_t var_list;
-    vars _vars;
+    vars _vars( std::bind( &::wfc::wfcglobal::find_config, this->global(), std::placeholders::_1 ) );
     _vars.parse_text(std::string(req.begin(), req.end()));
     _vars.search_vars(&var_list);
 
