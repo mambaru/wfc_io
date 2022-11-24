@@ -24,7 +24,7 @@ class client_tcp_adapter
 {
   class perform_holder;
   class impl;
-  typedef ::wfc::rwlock<std::mutex> mutex_type;
+  typedef ::wfc::rwlock<std::recursive_mutex> mutex_type;
 public:
 
   typedef impl client_type;

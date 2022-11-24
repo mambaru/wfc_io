@@ -23,7 +23,7 @@ class client_tcp_map
 {
   class handler_wrapper;
 public:
-  typedef rwlock<std::mutex> mutex_type;
+  typedef rwlock<std::recursive_mutex> mutex_type;
   typedef client_tcp_adapter client_type;
   typedef std::shared_ptr<client_type> client_ptr;
   typedef std::weak_ptr<client_type> client_wptr;

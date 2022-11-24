@@ -39,7 +39,7 @@ private:
   void reconfigure_and_start_();
   std::shared_ptr<client_tcp_map> _client_map;
   
-  typedef std::mutex mutex_type;
+  typedef std::recursive_mutex mutex_type;
   mutex_type _mutex;
   std::map<io_id_t, std::weak_ptr<iinterface> > _wait_list;
   std::atomic_bool _client_started;
