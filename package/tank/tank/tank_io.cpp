@@ -138,7 +138,7 @@ bool tank_io::check_response_(const tank_options& opt, const data_type&, const d
   {
     if ( opt.jsonrpc_method != nullptr && !opt.jsonrpc_method->empty() )
     {
-      wjrpc::incoming_holder jrpc( std::move(res2) );
+      wjrpc::incoming_holder jrpc( res2 );
       wjson::json_error e;
       data_ptr d = jrpc.parse(&e);
       do if ( !e )
