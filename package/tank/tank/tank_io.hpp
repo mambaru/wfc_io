@@ -32,7 +32,8 @@ private:
   {
   public:
     __counter() = default;
-    __counter(long c, long f, long t, long s): current(c), from(f), to(t), step(s){}
+    __counter(long c, long f, long t, long s) noexcept
+      : current(c), from(f), to(t), step(s){}
     long get() const { return current;}
     long next()
     {

@@ -9,7 +9,7 @@ namespace{
     : public iinterface
   {
   public:
-    target_handler(io_id_t id, std::weak_ptr<iinterface> owner)
+    target_handler(io_id_t id, std::weak_ptr<iinterface> owner) noexcept
       : _id(id)
       , _owner(owner)
     {}

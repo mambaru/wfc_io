@@ -32,8 +32,9 @@ SET(
   broker/broker/broker_multiton.cpp
   broker/broker/broker.cpp
   broker/broker/regex_match.cpp
-
 )
+
+
 
 if ( WFC_ENABLE_STAT )
 SET(
@@ -45,12 +46,19 @@ SET(
 )
 endif()
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if ( CMAKE_CXX_STANDARD EQUAL 20)
+    update_ogenc(TARGETS wfc_io WARNINGS -Wnull-dereference OFF)
+  endif()
+endif()
+
 add_library(wfc_io ${wfc_io_source_list})
 wci_targets(wfc_io)
 enable_stat(wfc_io)
 target_compile_definitions(wfc_io PRIVATE -DBOOST_ASIO_NO_DEPRECATED)
 target_include_directories(wfc_io PUBLIC ${wfc_io_SOURCE_DIR})
 target_link_libraries(wfc_io PUBLIC wfc)
+
 
 build_info(TARGET wfc_io PREFIX io)
 
