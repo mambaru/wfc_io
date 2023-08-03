@@ -109,7 +109,6 @@ void client_tcp_map::unreg_io( io_id_t id)
 
 client_tcp_map::client_ptr client_tcp_map::create(io_id_t id)
 {
-  std::lock_guard<mutex_type> lk(_mutex);
   return this->upsert_(id);
 }
 

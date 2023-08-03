@@ -23,8 +23,6 @@ private:
 class client_tcp_adapter::impl
   : public ::iow::ip::tcp::client::multi_client<>
 {
-// #error TODO: Удальить threads опцию, теперь через workflow. ассинхронный конект сделать через callback и common_workwlow
-  
   typedef ::iow::ip::tcp::client::multi_client<> super;
 public:
   explicit impl( io_context_type& io)
