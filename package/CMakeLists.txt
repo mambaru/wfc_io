@@ -47,9 +47,7 @@ SET(
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  if ( CMAKE_CXX_STANDARD EQUAL 20)
-    update_ogenc(TARGETS wfc_io WARNINGS -Wnull-dereference OFF)
-  endif()
+  update_ogenc(TARGETS wfc_io WARNINGS -Wnull-dereference OFF)
 endif()
 
 add_library(wfc_io ${wfc_io_source_list})
