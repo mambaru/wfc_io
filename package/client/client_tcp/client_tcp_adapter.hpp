@@ -52,6 +52,7 @@ private:
   io_context_type& _io;
   io_id_t _id = 0;
   std::atomic<io_id_t> _holder_id;
+  std::atomic_bool _error_flag;
   std::weak_ptr<iinterface> _holder;
   std::shared_ptr<perform_holder> _perform_holder;
   client_ptr _client;

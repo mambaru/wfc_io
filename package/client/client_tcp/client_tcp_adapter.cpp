@@ -34,6 +34,7 @@ client_tcp_adapter::client_tcp_adapter( io_context_type& io)
   , _id ( ::iow::io::create_id<io_id_t>() )
 {
   _holder_id = 0;
+  _error_flag = false;
   _client = std::make_shared<client_type>(io);
 }
 
@@ -202,13 +203,19 @@ void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outp
     // Попытка создать новое подключение если установленая опция connect_by_request
     if ( auto rd2 = _client->send( std::move(rd1), _options ) )
     {
-      IOW_LOG_ERROR("client-tcp: No suitable client to send data was found. Not send: [" << rd2 << "]")
-      if (handler!=nullptr)
+      if ( !_error_flag )
       {
+        _error_flag = true;
+        IOW_LOG_ERROR("client-tcp: No suitable client to send data was found. Not send: [" << rd2 << "]")
+      }
+      if (handler!=nullptr)
         handler( nullptr );
-      }    
     }
+    else
+      _error_flag = false;
   }
+  else
+    _error_flag = false;
 }
 
 }}
