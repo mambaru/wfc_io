@@ -54,10 +54,7 @@ add_library(wfc_io ${wfc_io_source_list})
 wci_targets(wfc_io)
 enable_stat(wfc_io)
 target_compile_definitions(wfc_io PRIVATE -DBOOST_ASIO_NO_DEPRECATED)
-target_include_directories(wfc_io PUBLIC ${wfc_io_SOURCE_DIR})
+target_include_directories(wfc_io PUBLIC $<BUILD_INTERFACE:${wfc_io_SOURCE_DIR}>)
 target_link_libraries(wfc_io PUBLIC wfc)
 
-
 build_info(TARGET wfc_io PREFIX io)
-
-install(TARGETS wfc_io DESTINATION ${CMAKE_INSTALL_PREFIX})
