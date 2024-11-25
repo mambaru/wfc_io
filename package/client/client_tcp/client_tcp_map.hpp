@@ -49,6 +49,8 @@ public:
 
   virtual void perform_io( iinterface::data_ptr d, io_id_t id, output_handler_t handler) override;
 
+  iow::io::connection_stat get_stat() const;
+
 private:
   client_ptr upsert_( io_id_t id);
 

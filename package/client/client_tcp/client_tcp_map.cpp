@@ -76,6 +76,18 @@ client_tcp_map::client_ptr client_tcp_map::find( io_id_t id ) const
   return this->find_(id);
 }
 
+iow::io::connection_stat client_tcp_map::get_stat() const
+{
+  read_lock<mutex_type> lk(_mutex);
+  iow::io::connection_stat stat;
+  stat.connection_count = 0;
+  for ( const auto& item : _clients )
+  {
+    stat += item.second->get_stat();
+  }
+  return stat;
+}
+
 
 // iinterface
 
@@ -98,7 +110,10 @@ void client_tcp_map::unreg_io( io_id_t id)
       std::lock_guard<mutex_type> lk(_mutex);
       _clients.erase(id);
       if ( _secondary_pool.size() < _opt.secondary_pool )
+      {
         _secondary_pool.push_back( std::move(cli) );
+        return;
+      }
     }
 
     // Если  не перенесен в пул
@@ -170,14 +185,16 @@ client_tcp_map::client_ptr client_tcp_map::find_( io_id_t id ) const
 
 client_tcp_map::client_ptr client_tcp_map::upsert_(io_id_t id)
 {
+  client_ptr cli;
   {
     read_lock<mutex_type> lk(_mutex);
-    if ( client_ptr cli = this->find_(id) )
+    cli = this->find_(id);
+    if ( cli != nullptr )
       return cli;
   }
 
   std::lock_guard<mutex_type> lk(_mutex);
-  auto cli = this->create_();
+  cli = this->create_();
   _clients.insert( std::make_pair(id,  cli) );
   return cli; 
 }

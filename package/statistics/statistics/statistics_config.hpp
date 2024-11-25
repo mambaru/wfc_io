@@ -17,10 +17,10 @@ struct statistics_config
 
 struct statistics_stat
 {
-  std::string track_name = "connections";
-  std::string time_name  = "time";
-  std::string read_name  = "read_size";
-  std::string write_name = "write_size";
+  std::string track_name = ".connections";
+  std::string time_name  = ".time";
+  std::string read_name  = ".read_size";
+  std::string write_name = ".write_size";
 };
 
 

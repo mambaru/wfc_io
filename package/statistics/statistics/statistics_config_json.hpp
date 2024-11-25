@@ -21,7 +21,7 @@ struct statistics_config_json
     statistics_config,
     json::member_list<
       json::member<n_target, statistics_config, std::string, &statistics_config::target>,
-      json::member<n_tracking_ms, statistics_config, time_t, &statistics_config::tracking_ms>
+      json::member<n_tracking_ms, statistics_config, time_t, &statistics_config::tracking_ms, json::time_interval_ms<> >
     >,
     json::strict_mode
   > type;

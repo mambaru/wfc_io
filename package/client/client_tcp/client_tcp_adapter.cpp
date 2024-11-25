@@ -218,4 +218,10 @@ void client_tcp_adapter::perform_io( iinterface::data_ptr d, io_id_t io_id, outp
     _error_flag = false;
 }
 
+iow::io::connection_stat client_tcp_adapter::get_stat() const
+{
+  read_lock<mutex_type> lk(_mutex);
+  return _client->get_stat();
+}
+
 }}

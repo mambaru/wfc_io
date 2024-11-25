@@ -12,6 +12,8 @@
 
 #include <iow/ip/tcp/client/options.hpp>
 #include <iow/asio.hpp>
+#include <iow/io/stat.hpp>
+
 #include "client_tcp_config.hpp"
 #include <memory>
 #include <atomic>
@@ -47,6 +49,8 @@ public:
   virtual void reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf) override;
   virtual void unreg_io(io_id_t io_id) override;
   virtual void perform_io( iinterface::data_ptr d, io_id_t io_id, output_handler_t handler) override;
+
+  iow::io::connection_stat get_stat() const;
 
 private:
   io_context_type& _io;

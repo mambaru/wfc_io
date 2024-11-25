@@ -10,7 +10,8 @@
 #include <wfc/workflow.hpp>
 
 namespace wfc{ namespace io{
-  
+
+
 struct client_tcp_config
   : public ::iow::ip::tcp::client::options
 {
@@ -20,6 +21,23 @@ struct client_tcp_config
   size_t startup_pool = 1;
   size_t primary_pool = 0;
   size_t secondary_pool = 0;
+};
+
+struct client_tcp_stat
+{
+  time_t tracking_ms = 1000;
+
+  std::string connections = ".connections";
+
+  std::string rtotal_size = ".buffer_size:read";
+  std::string rtotal_capacity = ".buffer_capacity:read";
+  std::string rchunk_count = ".chunk_count:read";
+  std::string rchunk_count_capacity = ".chunk_capacity:read";
+
+  std::string wtotal_size = ".buffer_size:write";
+  std::string wtotal_capacity = ".buffer_capacity:write";
+  std::string wchunk_count = ".chunk_count:write";
+  std::string wchunk_count_capacity = ".chunk_capacity:write";
 };
 
 }}

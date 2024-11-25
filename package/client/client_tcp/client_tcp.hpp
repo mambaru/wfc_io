@@ -18,7 +18,7 @@ namespace wfc{ namespace io{
 class client_tcp_map;
 
 class client_tcp
-  : public ::wfc::domain_object< iinterface, client_tcp_config>
+  : public ::wfc::domain_object< iinterface, client_tcp_config, client_tcp_stat>
 {
 public:
   client_tcp();
@@ -43,6 +43,7 @@ private:
   mutex_type _mutex;
   std::map<io_id_t, std::weak_ptr<iinterface> > _wait_list;
   std::atomic_bool _client_started;
+  timer_id_t _timer_id = -1;
 };
 
 }}

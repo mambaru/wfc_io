@@ -15,7 +15,9 @@ namespace
   class impl: public ::wfc::multiton<
     object_name,
     ::wfc::instance<client_tcp>,
-    client_tcp_config_json
+    client_tcp_config_json,
+    component_features::Defaults,
+    client_tcp_stat_json
   >
   {
     virtual std::string interface_name() const override
