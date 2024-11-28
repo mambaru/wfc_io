@@ -19,6 +19,7 @@ class client_tcp_map;
 
 class client_tcp
   : public ::wfc::domain_object< iinterface, client_tcp_config, client_tcp_stat>
+  , public std::enable_shared_from_this<client_tcp>
 {
 public:
   client_tcp();

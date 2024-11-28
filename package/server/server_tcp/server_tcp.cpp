@@ -144,6 +144,60 @@ void server_tcp::stat_init_(options_type* opt)
         }
       }
     };
+
+////////////
+
+    this->get_workflow()->release_timer(_timer_id);
+    auto sopt = this->statistics_options();
+    if ( sopt.tracking_ms > 0 )
+    {
+      std::vector<  wfc::value_meter> meters = {
+          stat->create_value_meter(sopt.connections),
+          stat->create_value_meter(sopt.rchunk_count),
+          stat->create_value_meter(sopt.rchunk_capacity),
+          stat->create_value_meter(sopt.rbuffer_size),
+          stat->create_value_meter(sopt.rbuffer_capacity),
+          stat->create_value_meter(sopt.wchunk_count),
+          stat->create_value_meter(sopt.wchunk_capacity),
+          stat->create_value_meter(sopt.wbuffer_size),
+          stat->create_value_meter(sopt.wbuffer_capacity)
+      };
+      auto pmeters = std::make_shared<std::vector<wfc::value_meter>>(std::move(meters));
+
+      std::weak_ptr<statistics_type> wstat = stat;
+      _timer_id = this->get_workflow()->create_timer(
+        std::chrono::milliseconds(sopt.tracking_ms),
+        this->wrap([wthis, wstat, sopt, pmeters]()->bool
+        {
+          if ( auto pthis = wthis.lock() )
+          {
+            if ( auto pstat = wstat.lock() )
+            {
+              auto cli_stat = pthis->_impl->get_stat();
+              pmeters->at(0).create(static_cast<wrtstat::value_type>(cli_stat.connection_count), 0ul);
+
+              pmeters->at(1).create(static_cast<wrtstat::value_type>(cli_stat.reader.chunk_count), 0ul);
+              pmeters->at(2).create(static_cast<wrtstat::value_type>(cli_stat.reader.chunk_count_capacity), 0ul);
+
+              pmeters->at(3).create( static_cast<wrtstat::value_type>(cli_stat.reader.total_size), 0ul );
+
+              pmeters->at(4).create( static_cast<wrtstat::value_type>(cli_stat.reader.total_capacity), 0ul);
+
+              pmeters->at(5).create( static_cast<wrtstat::value_type>(cli_stat.writer.chunk_count), 0ul);
+              pmeters->at(6).create( static_cast<wrtstat::value_type>(cli_stat.writer.chunk_count_capacity), 0ul);
+
+              pmeters->at(7).create( static_cast<wrtstat::value_type>(cli_stat.writer.total_size), 0ul);
+              pmeters->at(8).create( static_cast<wrtstat::value_type>(cli_stat.writer.total_capacity), 0ul);
+
+              return true;
+            }
+          }
+          return false;
+        }, nullptr)
+      ); //_timer_id
+    }
+
+///////////
   }
 }
 

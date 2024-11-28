@@ -16,7 +16,7 @@
 namespace wfc{ namespace io{
 
 class server_tcp
-  : public domain_object<iinterface, server_tcp_config>
+  : public domain_object<iinterface, server_tcp_config, server_tcp_stat>
   , public std::enable_shared_from_this<server_tcp>
 {
   typedef domain_object<iinterface, server_tcp_config> super;
@@ -36,6 +36,7 @@ private:
   std::string _port;
   std::string _addr;
   std::shared_ptr<winterface> _target;
+  timer_id_t _timer_id = -1;
 };
 
 }}

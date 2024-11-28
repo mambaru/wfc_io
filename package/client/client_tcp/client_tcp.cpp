@@ -135,29 +135,33 @@ void client_tcp::reconfigure_and_start_()
       auto pmeters = std::make_shared<std::vector<wfc::value_meter>>(std::move(meters));
 
       std::weak_ptr<statistics_type> wstat = stat;
+      std::weak_ptr<client_tcp> wthis = this->shared_from_this();
       _timer_id = this->get_workflow()->create_timer(
         std::chrono::milliseconds(stat_opt.tracking_ms),
-        this->wrap([this, wstat, stat_opt, pmeters]()->bool
+        this->wrap([wthis, wstat, stat_opt, pmeters]()->bool
         {
-          if ( auto pstat = wstat.lock() )
+          if ( auto pthis = wthis.lock() )
           {
-            auto cli_stat = _client_map->get_stat();
-            pmeters->at(0).create(static_cast<wrtstat::value_type>(cli_stat.connection_count), 0ul);
+            if ( auto pstat = wstat.lock() )
+            {
+              auto cli_stat = pthis->_client_map->get_stat();
+              pmeters->at(0).create(static_cast<wrtstat::value_type>(cli_stat.connection_count), 0ul);
 
-            pmeters->at(1).create(static_cast<wrtstat::value_type>(cli_stat.reader.chunk_count), 0ul);
-            pmeters->at(2).create(static_cast<wrtstat::value_type>(cli_stat.reader.chunk_count_capacity), 0ul);
+              pmeters->at(1).create(static_cast<wrtstat::value_type>(cli_stat.reader.chunk_count), 0ul);
+              pmeters->at(2).create(static_cast<wrtstat::value_type>(cli_stat.reader.chunk_count_capacity), 0ul);
 
-            pmeters->at(3).create( static_cast<wrtstat::value_type>(cli_stat.reader.total_size), 0ul );
+              pmeters->at(3).create( static_cast<wrtstat::value_type>(cli_stat.reader.total_size), 0ul );
 
-            pmeters->at(4).create( static_cast<wrtstat::value_type>(cli_stat.reader.total_capacity), 0ul);
+              pmeters->at(4).create( static_cast<wrtstat::value_type>(cli_stat.reader.total_capacity), 0ul);
 
-            pmeters->at(5).create( static_cast<wrtstat::value_type>(cli_stat.writer.chunk_count), 0ul);
-            pmeters->at(6).create( static_cast<wrtstat::value_type>(cli_stat.writer.chunk_count_capacity), 0ul);
+              pmeters->at(5).create( static_cast<wrtstat::value_type>(cli_stat.writer.chunk_count), 0ul);
+              pmeters->at(6).create( static_cast<wrtstat::value_type>(cli_stat.writer.chunk_count_capacity), 0ul);
 
-            pmeters->at(7).create( static_cast<wrtstat::value_type>(cli_stat.writer.total_size), 0ul);
-            pmeters->at(8).create( static_cast<wrtstat::value_type>(cli_stat.writer.total_capacity), 0ul);
+              pmeters->at(7).create( static_cast<wrtstat::value_type>(cli_stat.writer.total_size), 0ul);
+              pmeters->at(8).create( static_cast<wrtstat::value_type>(cli_stat.writer.total_capacity), 0ul);
 
-            return true;
+              return true;
+            }
           }
           return false;
         }, nullptr)
