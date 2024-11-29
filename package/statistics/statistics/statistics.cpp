@@ -16,10 +16,10 @@ void statistics::initialize()
   {
     _meter = stat->create_composite_meter( stat_opt.time_name, stat_opt.read_name, stat_opt.write_name, true );
     _connections_meter = stat->create_value_meter( stat_opt.track_name );
-    if ( opt.tracking_ms > 0 )
+    if ( stat_opt.tracking_ms > 0 )
     {
       _timer_id = this->get_workflow()->create_timer(
-        std::chrono::milliseconds(opt.tracking_ms),
+        std::chrono::milliseconds(stat_opt.tracking_ms),
         this->wrap([this]()->bool
         {
           if ( this->suspended() )
@@ -64,11 +64,13 @@ void statistics::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
 {
   if (auto t = _target.lock() )
   {
-    if ( this->suspended() || d == nullptr )
+    auto stat = this->get_statistics();
+
+    if ( this->suspended() || d == nullptr || stat==nullptr )
     {
       t->perform_io( std::move(d), io_id, std::move(handler) );
     }
-    else if ( auto stat = this->get_statistics() )
+    else
     {
       auto meter = _meter.create_shared( 
         static_cast<wrtstat::size_type>(1),           // count 
@@ -86,6 +88,7 @@ void statistics::perform_io(data_ptr d, io_id_t io_id, output_handler_t handler)
         } 
       );
     }
+
   }
 }
 
