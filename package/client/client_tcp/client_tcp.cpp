@@ -122,15 +122,15 @@ void client_tcp::reconfigure_and_start_()
     if ( stat_opt.tracking_ms > 0 )
     {
       std::vector<  wfc::value_meter> meters = {
-          stat->create_value_meter(stat_opt.connections),
-          stat->create_value_meter(stat_opt.rchunk_count),
-          stat->create_value_meter(stat_opt.rchunk_count_capacity),
-          stat->create_value_meter(stat_opt.rtotal_size),
-          stat->create_value_meter(stat_opt.rtotal_capacity),
-          stat->create_value_meter(stat_opt.wchunk_count),
-          stat->create_value_meter(stat_opt.wchunk_count_capacity),
-          stat->create_value_meter(stat_opt.wtotal_size),
-          stat->create_value_meter(stat_opt.wtotal_capacity)
+          stat->create_value_meter(this->name() + stat_opt.connections),
+          stat->create_value_meter(this->name() + stat_opt.rchunk_count),
+          stat->create_value_meter(this->name() + stat_opt.rchunk_count_capacity),
+          stat->create_value_meter(this->name() + stat_opt.rtotal_size),
+          stat->create_value_meter(this->name() + stat_opt.rtotal_capacity),
+          stat->create_value_meter(this->name() + stat_opt.wchunk_count),
+          stat->create_value_meter(this->name() + stat_opt.wchunk_count_capacity),
+          stat->create_value_meter(this->name() + stat_opt.wtotal_size),
+          stat->create_value_meter(this->name() + stat_opt.wtotal_capacity)
       };
       auto pmeters = std::make_shared<std::vector<wfc::value_meter>>(std::move(meters));
 

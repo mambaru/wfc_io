@@ -152,15 +152,15 @@ void server_tcp::stat_init_(options_type* opt)
     if ( sopt.tracking_ms > 0 )
     {
       std::vector<  wfc::value_meter> meters = {
-          stat->create_value_meter(sopt.connections),
-          stat->create_value_meter(sopt.rchunk_count),
-          stat->create_value_meter(sopt.rchunk_capacity),
-          stat->create_value_meter(sopt.rbuffer_size),
-          stat->create_value_meter(sopt.rbuffer_capacity),
-          stat->create_value_meter(sopt.wchunk_count),
-          stat->create_value_meter(sopt.wchunk_capacity),
-          stat->create_value_meter(sopt.wbuffer_size),
-          stat->create_value_meter(sopt.wbuffer_capacity)
+          stat->create_value_meter(this->name() + sopt.connections),
+          stat->create_value_meter(this->name() + sopt.rchunk_count),
+          stat->create_value_meter(this->name() + sopt.rchunk_capacity),
+          stat->create_value_meter(this->name() + sopt.rbuffer_size),
+          stat->create_value_meter(this->name() + sopt.rbuffer_capacity),
+          stat->create_value_meter(this->name() + sopt.wchunk_count),
+          stat->create_value_meter(this->name() + sopt.wchunk_capacity),
+          stat->create_value_meter(this->name() + sopt.wbuffer_size),
+          stat->create_value_meter(this->name() + sopt.wbuffer_capacity)
       };
       auto pmeters = std::make_shared<std::vector<wfc::value_meter>>(std::move(meters));
 

@@ -14,8 +14,15 @@ void statistics::initialize()
   this->get_workflow()->release_timer(_timer_id);
   if ( auto stat = this->get_statistics() )
   {
-    _meter = stat->create_composite_meter( stat_opt.time_name, stat_opt.read_name, stat_opt.write_name, true );
-    _connections_meter = stat->create_value_meter( stat_opt.track_name );
+    _meter = stat->create_composite_meter(
+      this->name() + stat_opt.time_name,
+      this->name() + stat_opt.read_name,
+      this->name() + stat_opt.write_name,
+      true
+    );
+    _connections_meter = stat->create_value_meter(
+      this->name() + stat_opt.track_name
+    );
     if ( stat_opt.tracking_ms > 0 )
     {
       _timer_id = this->get_workflow()->create_timer(
