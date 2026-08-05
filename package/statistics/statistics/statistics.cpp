@@ -31,7 +31,6 @@ void statistics::initialize()
         {
           if ( this->suspended() )
             return true;
-          DEBUG_LOG_DEBUG("io::statistics: this->owner().tracking_size()=" << this->owner().tracking_size())
           size_t size = this->owner().tracking_size();
           if ( auto stat1 = this->get_statistics() )
           {
@@ -49,7 +48,8 @@ void statistics::initialize()
 
 void statistics::reg_io(io_id_t io_id, std::weak_ptr<iinterface> itf)
 {
-  this->owner().tracking(io_id);
+  this->owner().tracking(io_id);  // release_tracking будет вызван в super::unreg_io
+
   if (auto t = _target.lock() )
   {
     t->reg_io(io_id, itf);
